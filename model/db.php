@@ -83,16 +83,8 @@ class DB {
 			trigger_error("Invalid parameter passed to db::query, string was empty", E_USER_WARNING);
 			return false;
 		}
-		
-		if (defined('SQL_LOG')) {
-			$fp = fopen(SQL_LOG, 'a');
-			fwrite($fp, date('r').":\t".$sql."\n");
-			fclose($fp);
-		}
-		
-		if (defined('VERBOSE_QUERIES') && VERBOSE_QUERIES === true) {
-			debug("Executing query", $sql);	
-		}
+
+		Logger::log('SQL', LOG_LEVEL_DEBUG, $sql);
 		
 		$this->result = mysql_query($sql, $this->link);	
 		

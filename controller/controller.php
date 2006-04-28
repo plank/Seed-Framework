@@ -259,6 +259,8 @@ class Controller {
 			$this->action_name = 'index';
 		}
 
+		Logger::log('dispatch', LOG_LEVEL_DEBUG, 'controller: '.$this->get_type().', action: '.$this->action_name);
+		
 		$filter_result = $this->filter_chain->call_before($this->action_name);
 		
 		if (!$filter_result || $this->has_performed()) {
@@ -275,8 +277,7 @@ class Controller {
 			
 		} else {
 			// this should log the condition instead of triggerering an error
-			// trigger_error("Action '$this->action_name' not found in ".get_class($this), E_USER_NOTICE);	
-			// return false;
+			Logger::log('dispatch', LOG_LEVEL_WARNING, "Action '$this->action_name' not found in ".get_class($this));
 			
 		}
 
