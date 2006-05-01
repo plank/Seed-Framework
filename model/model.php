@@ -427,6 +427,10 @@ class Model extends DataSpace {
 			$options['foreign_key'] = $this->_get_type().'_id';
 		}
 		
+		if (!isset($options['dependent'])) {
+			$options['dependent'] = false;
+		}
+		
 		$this->has_one_data[$field] = $options;	
 	}
 	
@@ -459,6 +463,9 @@ class Model extends DataSpace {
 			$options['foreign_key'] = $this->_get_type().'_id';
 		}
 		
+		if (!isset($options['dependent'])) {
+			$options['dependent'] = false;
+		}
 		
 		$this->has_many_data[$field] = $options;	 
 		
@@ -1001,21 +1008,55 @@ class Model extends DataSpace {
 	}
 	
 	/**
-	 * Deletes the item, either by removing it from the database, or
-	 * setting its deleted flag to true
+	 * Deprecated, use destro instead
 	 *
 	 */
 	function delete() {
+		$this->destroy();
+		
+	}
+	
+	/**
+	 * Deletes the item, either by removing it from the database, or
+	 * setting its deleted flag to true
+	 *
+	 * @return bool
+	 */
+	function destroy() {
+
+		$this->remove_dependents();
+		
 		if (isset($this->deleted_field)) {
 			$query = "UPDATE ".$this->table." SET ".$this->deleted_field." = '1'".$this->where_this();	
 			
 		} else {
 			$query = "DELETE FROM ".$this->table.$this->where_this();
+			
 		}
-		
-		$this->db->query($query);
+				
+		return $this->db->query($query);
 	}
 
+	/**
+	 * Removes an item's dependents, either by destroying each in turn, deleting them directly, or nulling their foreign keys
+	 *
+	 * @return bool
+	 */
+	function remove_dependents() {
+		/** todo
+		foreach($this->has_many_data as $key => $value) {
+			debug($key, $value);
+			
+		}		
+
+		foreach($this->has_one_data as $key => $value) {
+			debug($key, $value);	
+		}
+		*/
+		
+		return true;
+	}
+	
 	/**
 	 * Sets deleted flag to false
 	 *
