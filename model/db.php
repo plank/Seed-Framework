@@ -189,7 +189,7 @@ class DB {
 		}
 		
 		if (isset($unescaped_data)) {
-			foreach($data as $field => $value) {
+			foreach($unescaped_data as $field => $value) {
 				$fields[$field] = "`".$field."`";
 				$values[$field] = $value;
 			}
@@ -219,7 +219,7 @@ class DB {
 		}
 		
 		if (isset($unescaped_data)) {
-			foreach($data as $field => $value) {
+			foreach($unescaped_data as $field => $value) {
 				$values[$field] = "`".$field."` = ".$value;
 			}
 		}
@@ -383,6 +383,13 @@ class DB {
 		$sql .= $table_name;
 		
 		return $this->query($sql);
+	}
+	
+	function truncate_table($table_name) {
+		$sql = 	"TRUNCATE TABLE ".$this->escape_identifier($table_name);
+		
+		return $this->query($sql);
+		
 	}
 	
 	/*
