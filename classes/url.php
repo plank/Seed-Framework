@@ -27,8 +27,11 @@ class URL {
 	var $pass;
 	var $path = '/';
 	var $query;
+	var $query_array;
 	var $fragment;
-
+	var $file_name;
+	var $extension;
+	
 	var $default_ports = array('http'=>'80', 'https'=>'443');
 	
 	/**
@@ -38,51 +41,96 @@ class URL {
 	 * @return URL
 	 */
 	function URL($url = '', $relative_to = '') {
-
-		if ($url) {
-			$this->input_url = $url;
-			$this->input_base_url = $relative_to;
+		//debug($url, $relative_to);
+		if (!$url) {
+			return false;	
+		}
+		
+		$this->input_url = $url;
+		$this->input_base_url = $relative_to;
+		
+		$parts = @parse_url($url);
+		
+		if (!is_array($parts)) {
+			return false;	
+		}
+		
+		// if there's no scheme, treat the url a relative
+		if (!isset($parts['scheme'])) {
+			$new_parts = @parse_url($relative_to);
 			
-			$parts = @parse_url($url);
+			$transfer = array('scheme', 'host', 'user', 'pass');
 
-			if (!is_array($parts)) {
-				return false;	
+			foreach ($transfer as $key) {
+				if (isset($new_parts[$key])) {
+					$parts[$key] = $new_parts[$key];	
+				}	
 			}
 			
-			// if there's no scheme, treat the url a relative
-			if (!isset($parts['scheme'])) {
-				$parts = @parse_url($relative_to);
+			if (substr($url, 0, 1) != '/') {
+				//debug($parts, $new_parts);
 				
-				if (substr($url, 0, 1) == '/') {
-					$parts['path'] = $url;	
-					
-				} else {
-					$parts['path'] = dirname($parts['path']).'/'.$url;	
-					
+				if (!isset($parts['path'])) {
+					$parts['path'] = '';
 				}
 				
-			}
-
-			// assign the values to the object
-			foreach($parts as $key => $value) {
-				$this->$key = $value;	
-			
-			}
-
-			$this->path = $this->clean_path($this->path);
-			
-			// get the ip of the host, for future reference
-			$ip = gethostbyname($this->host);
-			
-			if ($ip != $this->host) {
-				$this->ip = $ip;
-			}
-			
-			if (!$this->port && key_exists($this->scheme, $this->default_ports)) {
-				$this->port = $this->default_ports[$this->scheme];
+				// if the relative path is a directory
+				if (substr($new_parts['path'], -1) == '/') {
+					$parts['path'] = $new_parts['path'].$parts['path'];	
+					
+				} else {
+					$parts['path'] = dirname($new_parts['path']).'/'.$parts['path'];
+					
+				}
+								
 			}
 			
 		}
+
+		$this->query_array = array();
+		
+		// assign the values to the object
+		foreach($parts as $key => $value) {
+			$this->$key = $value;	
+		
+		}
+
+		// split the query string into an array of values
+		if ($this->query) {
+			$query_parts = explode('&', $this->query);
+			
+			foreach ($query_parts as $query_part) {
+				list($key, $value) = explode('=', $query_part, 2);	
+				
+				$this->query_array[$key] = $value;
+				
+			}
+			
+		}
+		
+		// clean the path, by removing /../ etc
+		$this->path = $this->clean_path($this->path);
+		
+		// get the ip of the host, for future reference
+		$ip = gethostbyname($this->host);
+		
+		if ($ip != $this->host) {
+			$this->ip = $ip;
+		}
+		
+		// get the port from the defaults
+		if (!$this->port && key_exists($this->scheme, $this->default_ports)) {
+			$this->port = $this->default_ports[$this->scheme];
+		}
+		
+		$this->file_name = basename($this->path);
+		
+		$pos = strrpos($this->file_name, '.');
+		
+		if ($pos !== false) {
+			$this->extension = substr($this->file_name, $pos + 1);	
+		}
+	
 	}
 	
 	/**
@@ -95,19 +143,54 @@ class URL {
 		
 	}
 
+	function to_path_string($include_query = true, $include_fragment = true) {
+		$url = $this->path;
+		
+		if ($this->query && $include_query) {
+			if ($include_query === true) {
+				$url .= "?".$this->query;
+				
+			} else {
+
+				if (!is_array($include_query)) {
+					$include_query = array($include_query);	
+					
+				}
+				
+				$query_parts = array();
+				
+				foreach($include_query as $key) {
+					if (isset($this->query_array[$key])) {
+						$query_parts[] = $key.'='.$this->query_array[$key];
+					}
+				}
+				
+				if (count($query_parts)) {
+					$url .= "?".implode('&', $query_parts);
+				}
+			}
+		}
+		
+		if ($this->fragment && $include_fragment) {
+			$url .= "#".$this->fragment;	
+		}
+		
+		return $url;
+	}	
+		
 	/**
 	 * Builds a url string with the various parts
 	 *
 	 * @return string
 	 */
-	function to_string() {
+	function to_string($include_query = true, $include_fragment = true, $include_credentials = true) {
 		if (!$this->is_valid()) {
 			return false;	
 		}
 		
 		$url = $this->scheme."://";
 		
-		if ($this->user) {
+		if ($this->user && $include_credentials) {
 			if ($this->pass) {
 				$url .= $this->user.":".$this->pass."@";
 			} else {
@@ -115,15 +198,7 @@ class URL {
 			}
 		}
 		
-		$url .= $this->host.$this->path;
-		
-		if ($this->query) {
-			$url .= "?".$this->query;	
-		}
-		
-		if ($this->fragment) {
-			$url .= "#".$this->fragment;	
-		}
+		$url .= $this->host.$this->to_path_string($include_query, $include_fragment);
 		
 		return $url;
 		
@@ -212,7 +287,7 @@ class URL {
 			return false;	
 		}
 	
-		$sock->put("GET {$this->path} HTTP/1.0\r\n"); 
+		$sock->put("GET ".$this->to_path_string()." HTTP/1.0\r\n"); 
 		$sock->put("Host: {$this->host}\r\n");
 		$sock->put("Connection: close\r\n\r\n");
 	
@@ -249,6 +324,8 @@ class WebPage {
 		if (is_string($url)) {
 			$url = new URL($url);	
 		}
+
+		assert($url);
 		
 		$this->url = $url;
 		
@@ -275,21 +352,60 @@ class WebPage {
 		
 	}
 	
+	/**
+	 * Returns the title of the document
+	 *
+	 * @return string
+	 */
 	function get_title() {
 		preg_match('@<title>(.*)</title>@is', $this->content, $matches);	
 		
-		return $matches[1];
+		if (isset($matches[1])) {
+			return $matches[1];
+		} else {
+			return '';	
+		}
 		
 	}
 	
+	/**
+	 * Returns the html contents of the document
+	 *
+	 * @return string
+	 */
 	function get_html_contents() {
 		preg_match('@<html>(.*)</html>@is', $this->content, $matches);	
 		
-		return $matches[1];
+		if (isset($matches[1])) {
+			return $matches[1];
+		} else {
+			return '';	
+		}
 		
 		
 	}
 
+	/**
+	 * Returns the base href of the document, if it has one
+	 *
+	 * @return string
+	 */
+	function get_base_href() {
+		preg_match("/base[\\s]*href[\\s]*=[\\s]*('|\")([^\"']*)('|\")/is", $this->content, $matches);	
+		
+		if (isset($matches[2])) {
+			return $matches[2];
+		} else {
+			return '';	
+		}		
+		
+	}
+	
+	/**
+	 * Returns a plain text version of the html contents
+	 *
+	 * @return string
+	 */
 	function get_plain_text() {
 		$text = $this->remove_tag_and_contents('script', $this->get_html_contents());
 		$text = $this->remove_tag_and_contents('style', $text);
@@ -328,17 +444,23 @@ class WebPage {
 		
 		$results = array();
 		
+		$base_href = $this->get_base_href();
+		
+		if (!$base_href) {
+			$base_href = $this->url->to_string();
+		}
+		
 		foreach($matches[2] as $result) {
 			if (!$must_contain || substr_count($result, $must_contain)) {
-				$results[] = new URL($result, $this->url->to_string());
+				$url = new URL($result, $base_href);
+				$results[$url->to_string()] = $url;
 			}
-			
 		}
-	
+	/*
 		if (count($results) == 0 ) {
 			return false;		
 		} 
-	
+	*/
 		return $results;
 		
 	}
