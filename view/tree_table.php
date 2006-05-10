@@ -21,7 +21,7 @@ class TreeTable extends Table {
 	
 	var $level_end_actions = array();
 	
-	var $hide_root = true;
+	var $hide_root = false;
 	
 	var $sortable = false;
 	
