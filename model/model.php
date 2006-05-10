@@ -395,7 +395,9 @@ class Model extends DataSpace {
 		}
 		
 		if (!isset($options['order'])) {
-			$options['order'] = 'id ASC';	
+			$class = model::factory($options['class_name']);
+			
+			$options['order'] = $class->id_field.' ASC';	
 		}
 		
 		if (!isset($options['foreign_key'])) {
