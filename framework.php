@@ -14,11 +14,11 @@
  * Call this function to start processing
  */
 function start() {
-	// require general config file
+	// Require general config file
 	require_once(CONFIG_PATH.'config.php');
 	require_once(CONFIG_PATH.'routes.php');
 
-	// require envirnoment specific file, if it exists
+	// Require envirnoment specific file, if it exists
 	if (defined('ENVIRONMENT')) {
 		if (file_exists(CONFIG_PATH.ENVIRONMENT.'.php')) {
 			require_once(CONFIG_PATH.ENVIRONMENT.'.php');
@@ -29,7 +29,7 @@ function start() {
 		trigger_error('No environment defined, please define ENVIRONMENT in the config file', E_USER_WARNING);
 	}
 	
-	// require all the files in the app's vendor path
+	// Require all the files in the app's vendor path
 	require_dir(VENDOR_PATH);
 	
 	// Require the global application controller, if it exists
@@ -37,17 +37,20 @@ function start() {
 		require_once(CONTROLLER_PATH.'application.php');
 	}	
 	
+	$url = isset($_GET['url']) ? $_GET['url']: '';
+	
+	// Ignore extensions, if configured
 	if (defined('IGNORE_EXTENSIONS') && IGNORE_EXTENSIONS) {
 		$ignore = str_replace(',', '|', IGNORE_EXTENSIONS);
 
-		$url = isset($_GET['url']) ? $_GET['url']: '';
-		
 		if (preg_match('/\.('.$ignore.')$/i', $url)) {	
+			Logger::log('dispatch', LOG_LEVEL_DEBUG, 'ignoring '. $url);
 			header("HTTP/1.0 404 Not Found", true, 404);
 			die('page not found');
 		}
 	}
 	
+	Logger::log('dispatch', LOG_LEVEL_DEBUG, 'dispatching '. $url);
 	Dispatcher::dispatch();
 	
 }
@@ -77,6 +80,7 @@ define('CONFIG_PATH', APP_PATH.'config/');
 define('PUBLIC_ROOT_PATH', APP_PATH.'public/');
 define('VENDOR_PATH', APP_PATH.'vendor/');
 define('FRAMEWORK_TEMPLATE_PATH', FRAMEWORK_PATH.'templates/');
+define('LOG_PATH', APP_PATH.'logs/');
 
 /**
  * Url constants
