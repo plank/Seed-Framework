@@ -53,7 +53,7 @@ class Logger {
 	 * @param array $params An array of config parameters for the logger
 	 * @return Logger
 	 */
-	function factory($type, $params) {
+	function factory($type, $key, $params) {
 		$class_name = ucfirst($type).'Logger';	
 		
 		if (!class_exists($class_name)) {
@@ -62,7 +62,7 @@ class Logger {
 			
 		}
 	
-		$logger = new $class_name($params);
+		$logger = new $class_name($key, $params);
 		
 		return $logger;
 		
@@ -75,8 +75,8 @@ class Logger {
 	 * @param string $type The type of log, which corresponds to a logger subclass
 	 * @param array $params An array of config parameters for the logger
 	 */
-	function register($key, $type, $params) {
-		$logger = Logger::factory($type, $params);
+	function register($key, $type, $params = null) {
+		$logger = Logger::factory($type, $key, $params);
 		$logger->key = $key;
 		
 		Logger::_storage($key, $logger);
@@ -139,9 +139,18 @@ class FileLogger extends Logger {
 	 * @param array $data
 	 * @return FileLogger
 	 */
-	function FileLogger($data) {
-		$this->filename = $data['filename'];
-		$this->log(LOG_LEVEL_DEBUG, 'Logger '.$this->key.' started');
+	function FileLogger($key, $data) {
+		$this->key = $key;
+		
+		if (isset($data['filename'])) {
+			$this->filename = $data['filename'];
+			
+		} else {
+			$this->filename = LOG_PATH.$key.'.log';
+			
+		}
+		
+		// $this->log(LOG_LEVEL_DEBUG, 'Logger '.$this->key.' started');
 	}
 
 	/**
@@ -153,6 +162,7 @@ class FileLogger extends Logger {
 	 */
 	function log($log_level, $message) {
 		$fp = fopen($this->filename, 'a');
+		chmod($this->filename, 0777);
 		fwrite($fp, date($this->date_format)."\t".$this->key."\t".$this->log_level_string($log_level)."\t".$message."\n");
 		fclose($fp);
 		
