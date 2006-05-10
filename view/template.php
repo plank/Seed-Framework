@@ -168,7 +168,7 @@ class Template {
 	 * for url_for.
 	 * @return string
 	 */
-	function link_to($text = '', $options = null, $overwrite_options = null) {
+	function link_to($text = '', $options = null, $overwrite_options = null, $html_options = null) {
 		// if $options is false, simply return the text
 		if (!$options && !$overwrite_options) {
 			return $text;
@@ -185,7 +185,21 @@ class Template {
 			
 		}
 		
-		return "<a href='".$link."'>$text</a>";
+		if (isset($html_options)) {
+			$attributes = array();
+			
+			foreach ($html_options as $key => $value) {
+				$attributes[] = "$key='".htmlspecialchars($value, ENT_QUOTES)."'";
+			}
+			
+			$attributes = implode(" ", $attributes);
+			
+			return "<a href='".$link."' $attributes>$text</a>";
+		
+		}
+		
+		return "<a href='".$link."'>$text</a>";		
+		
 		
 	}
 
