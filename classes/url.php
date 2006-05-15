@@ -319,7 +319,14 @@ class WebPage {
 	 */
 	var $content;
 	
-	function open($url) {
+	/**
+	 * Opens the page at the given url
+	 *
+	 * @param string $url The page to open
+	 * @param bool $headers_only If true, get the headers only and ignore the content
+	 * @return bool
+	 */
+	function open($url, $headers_only = false) {
 		
 		if (is_string($url)) {
 			$url = new URL($url);	
@@ -329,7 +336,11 @@ class WebPage {
 		
 		$this->url = $url;
 		
-		$this->raw = $url->get();
+		if ($headers_only) {
+			$this->raw = $url->head();	
+		} else {
+			$this->raw = $url->get();
+		}
 
 		if (!$this->raw) {
 			return false;	
@@ -337,6 +348,18 @@ class WebPage {
 		
 		list($raw_headers, $this->content) = explode("\r\n\r\n", $this->raw, 2);
 		
+		$this->parse_headers($raw_headers);
+		
+		return true;
+		
+	}
+	
+	/**
+	 * Parse http headers
+	 *
+	 * @param string $raw_headers
+	 */
+	function parse_headers($raw_headers) {
 		$headers = explode("\r\n", $raw_headers);
 		
 		$this->response_code = array_shift($headers);
@@ -346,9 +369,7 @@ class WebPage {
 			
 			$this->headers[$key] = $value;
 			
-		}
-		
-		return true;
+		}		
 		
 	}
 	
