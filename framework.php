@@ -130,7 +130,9 @@ function require_dir($path) {
 			continue;
 		}
 		
-		require_once($path.$file);
+		if(is_file($path.$file)) {
+			require_once($path.$file);
+		}
 	}
 	
 }
