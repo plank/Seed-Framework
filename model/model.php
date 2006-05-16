@@ -581,6 +581,8 @@ class Model extends DataSpace {
 	 * @return mixed
 	 */
 	function find($args) {
+		$db = db::get_db();
+		
 		$class_name = this::class_name();
 		$args = func_get_args();
 		$arg_count = count($args);
@@ -634,7 +636,7 @@ class Model extends DataSpace {
 		
 		if (count($ids) == 1) {
 			// find a single id				
-			$options['conditions'] .= db::escape_identifier(this::call('table_name')).".".this::get_var('id_field')." = '".$ids[0]."'";
+			$options['conditions'] .= $db->escape_identifier(this::call('table_name')).".".this::get_var('id_field')." = '".$ids[0]."'";
 			
 			$result = this::call('find', 'all', $options);
 
@@ -646,7 +648,7 @@ class Model extends DataSpace {
 			
 		} else {
 			// find multiple ids
-			$options['conditions'] .= db::escape_identifier(this::call('table_name')).".".this::get_var('id_field')." IN ('".implode("', '", $ids)."')";
+			$options['conditions'] .= $db->escape_identifier(this::call('table_name')).".".this::get_var('id_field')." IN ('".implode("', '", $ids)."')";
 			
 			$result = this::call('find', 'all', $options);
 
@@ -724,25 +726,27 @@ class Model extends DataSpace {
 	
 	function find_by_sql($sql) {
 		$db = db::get_db();
-		
 		return new ModelIterator($db->query_iterator($sql), this::call('_get_type'));
 	}
 	
 	function update_all($updates, $conditions = null) {
-		$sql = "UPDATE ".db::escape_identifier(this::call('table_name'))." SET $updates";
+		$db = db::get_db();
+		
+		$sql = "UPDATE ".$db->escape_identifier(this::call('table_name'))." SET $updates";
 		
 		if ($conditions) {
 			$sql .= " WHERE ".$conditions;	
 		}
 		
-		$db = db::get_db();
+		
 		$db->query($sql);
 	}
 	
 	function delete_all($conditions) {
-		$sql = "DELETE FROM ".db::escape_identifier(this::call('table_name'))." WHERE ".$conditions;
-		
 		$db = db::get_db();
+		
+		$sql = "DELETE FROM ".$db->escape_identifier(this::call('table_name'))." WHERE ".$conditions;
+		
 		$db->query($sql);
 		
 	}
@@ -779,7 +783,9 @@ class Model extends DataSpace {
 	 * @param array $options
 	 */
 	function construct_finder_sql($options) {
-		$query = new SelectQueryBuilder(db::escape_identifier(this::call('table_name')));
+		$db = db::get_db();
+		
+		$query = new SelectQueryBuilder($db->escape_identifier(this::call('table_name')));
 		
 		if (isset($options['select'])) {
 			$query->fields = $options['select'];	
