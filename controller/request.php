@@ -60,6 +60,7 @@ class Request {
 	var $files;
 	var $path;
 	var $session;
+	var $input;
 	
 	function & get_request() {
 		static $request;
@@ -79,7 +80,32 @@ class Request {
 		$this->files = & $_FILES;
 		$this->session = & $_SESSION;
 		
-		$this->parameters = array_merge($_GET, $_POST);		
+		$this->parameters = array_merge($_GET, $_POST);	
+		
+		$this->method = $_SERVER['REQUEST_METHOD'];
+		
+		$this->input = file_get_contents('php://input');
+		
+	}
+	
+	/**
+	 * Returns true if the request was a GET
+	 *
+	 * @return bool
+	 */
+	function is_get() {
+		return $this->method == "GET";
+	
+	}
+	
+	/**
+	 * Returns true if the request was a POST
+	 *
+	 * @return bool
+	 */
+	function is_post() {
+		return $this->method == "POST";	
+	
 	}
 	
 	function set_path_parameters($path = array()) {

@@ -753,7 +753,7 @@ class Model extends DataSpace {
 	 * @return int
 	 */
 	function count($conditions = '1') {
-		$sql = "SELECT COUNT(*) FROM ".this::call('table_name')." WHERE ".$conditions;
+		$sql = "SELECT COUNT(*) FROM ".db::escape_identifier(this::call('table_name'))." WHERE ".$conditions;
 		
 		return this::call('count_by_sql', $sql);
 	}
