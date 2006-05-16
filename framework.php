@@ -51,6 +51,9 @@ function start() {
 	}
 	
 	Logger::log('dispatch', LOG_LEVEL_DEBUG, 'dispatching '. $url);
+	
+	$db = DB::register('default', 'mysql', DB_HOST, DB_USER, DB_PASS, DB_NAME);
+	
 	Dispatcher::dispatch();
 	
 }
