@@ -73,7 +73,7 @@ $subfolders = array('classes', 'libs', 'view', 'model', 'controller');
  * Path constants
  */
 define('FRAMEWORK_PATH', dirname(__FILE__).'/');
-// here, we're asuming that the index file is in 'public', this may not always be the case
+
 define('APP_PATH', dirname(dirname($_SERVER['PATH_TRANSLATED'])).'/');	
 define('CONTROLLER_PATH', APP_PATH.'app/controllers/');
 define('TEMPLATE_PATH', APP_PATH.'app/views/');
@@ -89,12 +89,20 @@ define('LOG_PATH', APP_PATH.'logs/');
  * Url constants
  */
 define('APP_HOST', 'http://'.$_SERVER['HTTP_HOST']);
-if (dirname(dirname($_SERVER['PHP_SELF'])) == '/') {
+
+// allow custom settings for APP_URL, which would be set in index.php
+if (defined('APP_URL')) {
+	define('APP_ROOT', APP_HOST.dirname(APP_URL.'#').'/');
+} elseif (dirname(dirname($_SERVER['PHP_SELF'])) == '/') {
 	define('APP_URL', '/');	
-	define('APP_ROOT', APP_HOST.'/');	
 } else {
 	define('APP_URL', dirname(dirname($_SERVER['PHP_SELF'])).'/');
-	define('APP_ROOT', APP_HOST.dirname(APP_URL.'#').'/');
+}
+
+if (APP_URL == '/') {
+	define('APP_ROOT', APP_HOST.'/');		
+} else {
+	define('APP_ROOT', APP_HOST.dirname(APP_URL.'#').'/');	
 }
 
 define('PUBLIC_ROOT', APP_ROOT.'public/');
