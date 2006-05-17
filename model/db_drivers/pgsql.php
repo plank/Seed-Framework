@@ -23,9 +23,25 @@ class PgsqlDB extends DB {
 	/**
 	 * Constructor
 	 */
-	function PgsqlDB($host = DB_HOST, $user = DB_USER, $pass = DB_PASS, $database = DB_NAME) {
-		$this->link = pg_connect("host=$host user=$user pass=$pass dbname=$database") or trigger_error("Couldn't connect to database", E_USER_ERROR);
-
+	function PgsqlDB($host, $user, $pass, $database) {
+		
+		if ($host) {
+			$connection[] = "host=$host";	
+		}
+		
+		if ($user) {
+			$connection[] = "user=$user";
+		}
+		
+		if ($pass) {
+			$connection[] = "password=$pass";
+		}
+		
+		if ($database) {
+			$connection[] = "dbname=$database";	
+		}
+						
+		$this->link = pg_connect(implode(" ", $connection)) or trigger_error("Couldn't connect to database $database", E_USER_ERROR);
 		
 	}
 
@@ -49,7 +65,7 @@ class PgsqlDB extends DB {
 
 		Logger::log('SQL', LOG_LEVEL_DEBUG, $sql);
 		
-		$this->result = pg_query($sql, $this->link);	
+		$this->result = pg_query($this->link, $sql);	
 		
 		if ($this->result == false) {
 			trigger_error(pg_last_error($this->link)."\n".$sql, E_USER_ERROR);
@@ -190,7 +206,39 @@ class PgsqlDB extends DB {
 	 * Performs a describe query on the given table
 	 */
 	function describe($table) {
-		return $this->query_array("DESCRIBE `$table`");
+		
+$sql = <<<sql
+SELECT
+  a.attnum,
+  a.attname AS field,
+  t.typname AS type,
+  a.attlen AS length,
+  a.atttypmod AS lengthvar,
+  a.attnotnull AS notnull
+FROM
+  pg_class c,
+  pg_attribute a,
+  pg_type t
+WHERE
+  c.relname = '$table'
+  AND a.attnum > 0
+  AND a.attrelid = c.oid
+  AND a.atttypid = t.oid
+  ORDER BY a.attnum
+sql;
+		
+
+$sql = <<<sql
+SELECT a.attname as "Field", format_type(a.atttypid, a.atttypmod) as "Type", d.adsrc, a.attnotnull as "Null"
+  FROM pg_attribute a LEFT JOIN pg_attrdef d
+    ON a.attrelid = d.adrelid AND a.attnum = d.adnum
+ WHERE a.attrelid = '$table'::regclass
+   AND a.attnum > 0 AND NOT a.attisdropped
+ ORDER BY a.attnum
+sql;
+
+
+		return $this->query_array($sql);
 		
 	}
 	
