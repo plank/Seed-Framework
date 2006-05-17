@@ -91,7 +91,7 @@ class SeedSpider {
 	}
 	
 	function reset() {
-		$this->db->truncate_table('page');		
+		$this->db->truncate_table($this->table_name);		
 	}
 	
 	/**
