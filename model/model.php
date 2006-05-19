@@ -756,7 +756,7 @@ class Model extends DataSpace {
 	 *
 	 * @return int
 	 */
-	function count($conditions = '1') {
+	function count($conditions = '1 = 1') {
 		$db = db::get_db();
 		
 		$sql = "SELECT COUNT(*) FROM ".$db->escape_identifier(this::call('table_name'))." WHERE ".$conditions;
@@ -768,9 +768,9 @@ class Model extends DataSpace {
 		$db = db::get_db();
 		
 		$result = $db->query_array($sql);
-	
+		
 		if (count($result)) {
-			return $result[0]['COUNT(*)'];	
+			return reset($result[0]);	
 		} else {
 			return false;	
 		}
@@ -948,7 +948,7 @@ class Model extends DataSpace {
 			}
 		}
 		
-		$this->sql = "UPDATE {$this->table} SET ".implode(", ", $fields).$this->where_this();
+		$this->sql = "UPDATE ".$this->db->escape_identifier($this->table)." SET ".implode(", ", $fields).$this->where_this();
 
 		if ($this->debug_mode) {
 			debug($this->sql);
@@ -980,7 +980,7 @@ class Model extends DataSpace {
 			}
 		}
 		
-		$this->sql = "INSERT INTO {$this->table} (".implode(", ", $fields).") VALUES (".implode(", ", $values).")";
+		$this->sql = "INSERT INTO ".$this->db->escape_identifier($this->table)." (".implode(", ", $fields).") VALUES (".implode(", ", $values).")";
 	
 		if ($this->debug_mode) {
 			debug($this->sql);
@@ -988,9 +988,9 @@ class Model extends DataSpace {
 
 		if ($this->db->query($this->sql)) {
 			if ($this->sequence_field != $this->id_field) {
-				$this->data[$this->sequence_field] = $this->db->insert_id();
+				$this->data[$this->sequence_field] = $this->db->insert_id($this->table, $this->sequence_field);
 			} else {
-				$this->set_id($this->db->insert_id());
+				$this->set_id($this->db->insert_id($this->table, $this->id_field));
 			}
 			return true;
 			
