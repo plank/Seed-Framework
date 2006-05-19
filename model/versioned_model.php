@@ -59,7 +59,10 @@ class VersionedModel extends Model {
 		
 		// add the join to the version table
 		$options['joins'] = "$version_table_name ON $table_name.$id_field = $version_table_name.$foreign_key";
+		
+		// this may be optional... needs to be tested thoroughly
 		$options['group'] = "$table_name.$id_field";
+		
 		
 		if (!isset($options['select'])) {
 			$options['select'] = "$table_name.*, $version_table_name.*";	
