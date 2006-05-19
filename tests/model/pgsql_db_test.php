@@ -38,7 +38,7 @@ class PgsqlDBTester extends UnitTestCase {
 	}
 
 	function test_describe() {
-		$this->dump($this->db->describe('test'));	
+		//$this->dump($this->db->describe('test'));	
 		
 	}
 	
