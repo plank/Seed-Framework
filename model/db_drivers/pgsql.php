@@ -64,7 +64,7 @@ class PgsqlDB extends DB {
 		}
 
 		Logger::log('SQL', LOG_LEVEL_DEBUG, $sql);
-		
+		//debug($sql);
 		$this->result = pg_query($this->link, $sql);	
 		
 		if ($this->result == false) {
@@ -148,8 +148,8 @@ class PgsqlDB extends DB {
 	 *
 	 * @return int
 	 */
-	function insert_id() {
-		die('unsupported');
+	function insert_id($table_name = '', $id_name = '') {
+		return $this->query_value("select currval('{$table_name}_{$id_name}_seq')");
 		
 		// need to : select currval('tablename_idname_seq');
 		return pg_insert_id($this->link);	
@@ -224,17 +224,27 @@ WHERE
   AND a.attnum > 0
   AND a.attrelid = c.oid
   AND a.atttypid = t.oid
-  ORDER BY a.attnum
+ORDER BY 
+  a.attnum
 sql;
 		
 
 $sql = <<<sql
-SELECT a.attname as "Field", format_type(a.atttypid, a.atttypmod) as "Type", d.adsrc, a.attnotnull as "Null"
-  FROM pg_attribute a LEFT JOIN pg_attrdef d
-    ON a.attrelid = d.adrelid AND a.attnum = d.adnum
- WHERE a.attrelid = '$table'::regclass
-   AND a.attnum > 0 AND NOT a.attisdropped
- ORDER BY a.attnum
+SELECT 
+	a.attname as "Field", 
+	format_type(a.atttypid, a.atttypmod) as "Type", 
+	a.attnotnull as "Null", 
+	pg_get_expr(d.adbin, d.adrelid) as "Default"
+FROM 
+	pg_attribute a 
+LEFT JOIN 
+	pg_attrdef d ON a.attrelid = d.adrelid AND a.attnum = d.adnum
+WHERE 
+	a.attrelid = '$table'::regclass 
+	AND a.attnum > 0 
+	AND NOT a.attisdropped
+ORDER BY 
+	a.attnum
 sql;
 
 
@@ -310,7 +320,8 @@ sql;
 	
 	
 	function lock_table($table_name, $alias = null) {
-		$sql = "LOCK TABLES $table_name";
+		return;
+		$sql = "LOCK TABLES ".$this->escape_identifier($table_name);
 		
 		if (isset($alias)) {
 			$sql .= " AS $alias";	
@@ -323,6 +334,7 @@ sql;
 	}
 
 	function unlock_tables() {
+		return;
 		return $this->query('UNLOCK TABLES');	
 		
 	}
