@@ -27,7 +27,7 @@ class Router {
 	 */
 	function map(& $request) {
 		
-		$url = $request->get['url'];
+		$url = assign($request->get['url'], '');
 		
 		$path_params = Route::parse($url);
 		
