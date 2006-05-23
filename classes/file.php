@@ -429,7 +429,7 @@ class File {
 		    
 		$extension = $this->get_extension();
 		    
-		if (isset($mime_types[$extension])) {
+		if ($extension && isset($mime_types[$extension])) {
 			return $mime_types[$extension];
 		} else {
 			return "application/octet-stream";
