@@ -7,7 +7,7 @@
 class MultilangModel extends Model {
 	
 	/**
-	 * @var Model
+	 * @var MultilangVersionModel
 	 */
 	var $version;
 	
@@ -26,7 +26,23 @@ class MultilangModel extends Model {
 	 */
 	var $latest_field = 'latest';
 	
-	function VersionedModel($db = null) {
+	/**
+	 * @var string
+	 */
+	var $language_field = 'lang';
+	
+	/**
+	 * @var string
+	 */
+	var $default_language = 'en';
+	
+	/**
+	 * Constructor
+	 *
+	 * @param DB $db
+	 * @return MultilangModel
+	 */
+	function MultilangModel($db = null) {
 		parent::Model($db);
 		
 		$this->version = Model::factory($this->type.'_version');
@@ -48,38 +64,39 @@ class MultilangModel extends Model {
 		$id_field = this::get_var('id_field');
 		$foreign_key = this::call('foreign_key');
 		$version_field = this::get_var('version_field');
+		$language_field = this::get_var('language_field');
+		$default_language = this::get_var('default_language');
 		
-		if (isset($options['version_field'])) {
-			$last_version_field = $options['version_field'];
+		if (isset($options['latest_field'])) {
+			$latest_field = $options['latest_field'];
 			
 		} else {
-			$last_version_field = this::get_var('last_version_field');
+			$latest_field = this::get_var('latest_field');
 			
 		}
 		
 		// add the join to the version table
 		$options['joins'] = "$version_table_name ON $table_name.$id_field = $version_table_name.$foreign_key";
 		
-		// this may be optional... needs to be tested thoroughly
-		$options['group'] = "$table_name.$id_field";
-		
-		
 		if (!isset($options['select'])) {
 			$options['select'] = "$table_name.*, $version_table_name.*";	
 		}
 		
 		// a special condition string used to identify which revision to pull
+		// by default, we want the latest version
 		if (!isset($options['version_conditions'])) {
-			$options['version_conditions'] = "$table_name.$last_version_field = $version_table_name.$version_field";
+			$options['version_conditions'] = "$version_table_name.$latest_field = 1";
+		}
+		
+		if (!isset($options['language'])) {
+			$options['language'] = $default_language;	
 		}
 		
 		// original function, which needs to be called from here for 'this' to work... refactoring in sight! //
-		
 		$query = new SelectQueryBuilder(this::call('table_name'));
 		
 		if (isset($options['select'])) {
 			$query->add_fields($options['select']);
-			
 		}
 		
 		if (isset($options['joins'])) {
@@ -93,6 +110,8 @@ class MultilangModel extends Model {
 		if (isset($options['version_conditions'])) {
 			$query->add_conditions($options['version_conditions']);
 		}
+		
+		$query->add_conditions($language_field." = '".$options['language']."'");
 		
 		if (isset($options['group'])) {
 			$query->add_group_by($options['group']);	
@@ -251,16 +270,26 @@ class MultilangModel extends Model {
 	 * Updates the model by inserting a new versions
 	 */
 	function update() {
+		if (!$this->version->get($this->language_field)) {
+			$this->version->set($this->language_field, $this->default_language);	
+		}
+		
+		// set latest_field to 0 for other versions
+		$this->version->update_all("$this->latest_field = 0", $this->foreign_key()." = ".$this->get_id());
+		$this->version->set($this->latest_field, 1);
 		$this->version->insert();
-		$this->set($this->last_version_field, $this->version->sequence_value());
+		
 		return parent::update();
 	}
 	
 	function insert() {
-		$this->set($this->last_version_field, 1);
 		parent::insert();
+
+		if (!$this->version->get($this->language_field)) {
+			$this->version->set($this->language_field, $this->default_language);	
+		}
 		
-		$this->version->set($this->foreign_key(), $this->get_id());
+		$this->version->set($this->latest_field, 1);
 		$this->version->insert();
 		
 		return true;
