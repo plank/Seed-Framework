@@ -1,10 +1,10 @@
 <?php
 
 /**
- * First attempt at a versioned model
+ * Second attempt at a versioned model, with support for multiple languages
  */
 
-class VersionedModel extends Model {
+class MultilangModel extends Model {
 	
 	/**
 	 * @var Model
@@ -24,7 +24,7 @@ class VersionedModel extends Model {
 	/**
 	 * @var string
 	 */
-	var $last_version_field = 'last_revision';
+	var $latest_field = 'latest';
 	
 	function VersionedModel($db = null) {
 		parent::Model($db);
@@ -297,7 +297,7 @@ class VersionedModel extends Model {
 	
 }
 
-class VersionModel extends Model {
+class MultilangVersionModel extends Model {
 	var $sequence_field = 'revision';
 	var $parent_field = '';
 	
