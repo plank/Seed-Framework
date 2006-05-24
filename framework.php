@@ -33,7 +33,7 @@ function start() {
 /**
  * Application class
  *
- * This class handles the requests, and loads Call the start() method to start execution. 
+ * This class handles the requests, loading the libraries and config files only if needed. Call the start() method to start execution. 
  */
 class Seed {
 
@@ -86,7 +86,7 @@ class Seed {
 			return true;	
 		}
 
-		// ignore requests with extensions defined in IGNORE_EXTENSIONS
+		// ignore requests with extensions that we've decided to ignore
 		if ($this->ignore_extensions($url)) {
 			return true;		
 		}
@@ -221,7 +221,11 @@ class Seed {
 		}		
 	}
 	
+	/**
+	 * Register objects
+	 */
 	function register_objects() {
+		// for backwards compatibility
 		if (!defined('DB_TYPE')) {
 			define('DB_TYPE', 'mysql');
 		}
@@ -274,7 +278,9 @@ class Seed {
 		
 	}
 	
-	
+	/**
+	 * Include application specific files
+	 */
 	function include_application_files() {
 
 		// Require all the files in the app's vendor path
@@ -287,7 +293,6 @@ class Seed {
 				
 		
 	}
-	
 
 
 	/**
@@ -418,10 +423,6 @@ define('REQUEST_URI', $_SERVER['REQUEST_URI']);
 if (defined('SESSION_LIFETIME')) {
 	ini_set('session.gc_maxlifetime', SESSION_LIFETIME);
 }
-
-// debug($_SERVER);
-
-
 
 
 ?>
