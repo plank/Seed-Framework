@@ -16,9 +16,12 @@ require_once('../framework.php');
 require_once('../../simpletest/unit_tester.php');
 require_once('../../simpletest/reporter.php');
 
+$seed = new Seed();
+$seed->include_libraries();
+
 $test = &new GroupTest('All tests');
 
-foreach($subfolders as $subfolder) {
+foreach($seed->subfolders as $subfolder) {
 	$path = FRAMEWORK_TESTS_PATH.$subfolder.'/';
 	// include all classes
 	$dir = dir($path);
