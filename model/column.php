@@ -67,50 +67,125 @@ define('BOOLEAN', 'boolean');
  */
 
 class Column {
+	/**
+	 * The name of the columns
+	 *
+	 * @var string
+	 */
 	var $name;
+
+	/**
+	 * The default value of the column
+	 *
+	 * @var string
+	 */
 	var $default;
+	
+	/**
+	 * The type of the column
+	 *
+	 * @var int
+	 */
 	var $type;
+
+	/**
+	 * The limit to the number of characters for the column
+	 *
+	 * @var int
+	 */
+	var $limit;
+
+	/**
+	 *
+	 * @var bool
+	 */
 	var $null;
 
-	function Column($name, $default, $sql_type = null, $null = true) {
+	/**
+	 * Constructor
+	 *
+	 * @param string $name
+	 * @param string $default
+	 * @param string $sql_type
+	 * @param bool $null
+	 * @return Column
+	 */
+	function Column($name, $default = null, $sql_type = null, $null = true) {
 		$this->name = $name;	
 		$this->default = $default;
 		$this->type = $this->simplified_type($sql_type);
+		$this->limit = $this->extract_limit($sql_type);
 		$this->null = $null;	
 		
 	}
 	
+	/**
+	 * Returns a simplified type for a given SQL type
+	 *
+	 * @param string $sql_type
+	 * @return string
+	 */
 	function simplified_type($sql_type) {
-		$sql_type = strtolower($sql_type);
+		$sql_type = $this->extract_type($sql_type);
 		
 		$types = array(
-			'int' => INTEGER,
-			'float' => FLOAT,
-			'double' => FLOAT,
-			'decimal' => FLOAT,
-			'numeric' => FLOAT,
-			'datetime' => DATETIME,
-			'timestamp' => TIMESTAMP,
-			'time' => TIME,
-			'date' => DATE,
-			'clob' => TEXT,
-			'text' => TEXT,
-			'blob' => BINARY,
-			'binary' => BINARY,
-			'varchar' => STRING,
-			'char' => STRING,
-			'string' => STRING,
-			'boolean' => BOOLEAN
+			'/^int(.*)/i' => INTEGER,
+			'/^float/i' => FLOAT,
+			'/^double/i' => FLOAT,
+			'/^decimal/i' => FLOAT,
+			'/^numeric/i' => FLOAT,
+			'/^datetime/i' => DATETIME,
+			'/^timestamp/i' => TIMESTAMP,
+			'/^time/i' => TIME,
+			'/^date/i' => DATE,
+			'/^clob/i' => TEXT,
+			'/^text/i' => TEXT,
+			'/^blob/i' => BINARY,
+			'/^binary/i' => BINARY,
+			'/^varchar(.*)/i' => STRING,
+			'/^char(.*)/i' => STRING,
+			'/^string/i' => STRING,
+			'/^boolean/i' => BOOLEAN
 		);
 		
+		$type = preg_replace(array_keys($types), array_values($types), $sql_type);
 		
-		if (key_exists($sql_type, $types)) {
-			return $types[$sql_type];
-		} else {
-			trigger_error("No type for '$sql_type' in Column::simplified_type()", E_USER_WARNING);
-			return false;	
-		}
+		return $type;
+		
 	}
+	
+	function extract_type($sql_type) {
+		$result = preg_match("/\w*/", $sql_type, $matches);
+		
+		if ($result) {
+			return $matches[0];
+			
+		} else {
+			return false;	
+			
+		}		
+		
+	}
+	
+	/**
+	 * Extract the limit from an sql type string
+	 *
+	 * @param string $sql_type
+	 * @return int
+	 */
+	function extract_limit($sql_type) {
+		$result = preg_match("/\((.*)\)/", $sql_type, $matches);
+		
+		if ($result) {
+			return $matches[1];
+			
+		} else {
+			return false;	
+			
+		}
+		
+	}
+	
 }
 
 
