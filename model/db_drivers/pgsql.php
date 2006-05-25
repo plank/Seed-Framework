@@ -201,12 +201,114 @@ class PgsqlDB extends DB {
     	return "ORDER BY $default_field $default_order";
     	
     }
+	
+    /**
+     * Retrieve the collection of columns for the table
+     *
+     * @param string $table
+     * @return array
+     */
+    function columns($table) {
+    	static $tables;
+    	
+    	if (!isset($tables[$table])) {
+	    	$columns = $this->column_definitions($table);
+	    	
+	    	foreach($columns as $column) {
+	    		$result[$column['Field']] = new Column(
+	    			$column['Field'], 
+	    			$this->default_value($column['Default']), 
+	    			$this->translate_field_type($column['Type']), 
+	    			$column['Null'] == 't'
+	    		);
+	    		
+	    	}
+    	
+    		$tables[$table] = $result;
+    	
+    	}
+    	
+    	return $tables[$table];
+    }
+    
+    /**
+     * Returns the default value for a postgres default, which is actually an expression
+     *
+     * @param string $value
+     * @return string
+     */
+    function default_value($value) {
+    	// boolean types
+    	if (strpos($value, 'true') !== false) { 
+    		return true;
+    	}
+    	
+    	if (strpos($value, 'false') !== false) {
+    		return false;
+    	}
+    	
+    	// char/string types
+    	if (preg_match("/^'(.*)'::(bpchar|text|character varying)$/", $value, $matches)) {
+    		return $matches[1];	
+    	}
+    	
+    	// numeric types
+    	if (preg_match("/^[0-9]+(\.[0-9]*)?/", $value)) {
+    		return $value;	
+    	}
+    	
+    	// date / time magic value
+        if (preg_match("/^now\(\)|^\('now'::text\)::(date|timestamp)/i", $value, $matches)) {
+        	return date(SQL_DATE_FORMAT);	
+        }
+    	
+        // fixed date / times
+        if (preg_match("/^'(.+)'::(date|timestamp)/", $value, $matches)) {
+        	return $matches[1];	
+        }
+    	
+        // anything else, we don't know how to handle
+        return null;
+    }
+    
+    /**
+     * Translate postgres specific fiels types into regular sql ones
+     *
+     * @param string $field_type
+     * @return string
+     */
+    function translate_field_type($sql_type) {
+				
+		$types = array(
+			'/^timestamp/i' => DATETIME,
+			'/^real/i' => FLOAT,
+			'/^money/i' => FLOAT,
+			'/^interval/i' => STRING,
+			'/^(?:point|lseg|box|"?path"?|polygon|circle)/i' => STRING,
+			'/^bytea/i' => BINARY,
+		);
 		
+		$type = preg_replace(array_keys($types), array_values($types), $sql_type);
+		
+		return $type;
+	    	
+    }
+    
+	/**
+	 * Alias for column_definitions. for backwards compatibility
+	 *
+	 * To be removed!
+	 */    
+    function describe($table) {
+    	return $this->column_definitions($table);
+    	
+    }
+    
 	/**
 	 * Performs a describe query on the given table
 	 */
-	function describe($table) {
-		
+	function column_definitions($table) {
+/* old
 $sql = <<<sql
 SELECT
   a.attnum,
@@ -227,7 +329,7 @@ WHERE
 ORDER BY 
   a.attnum
 sql;
-		
+*/	
 
 $sql = <<<sql
 SELECT 
