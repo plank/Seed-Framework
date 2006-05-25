@@ -37,11 +37,28 @@ class PgsqlDBTester extends UnitTestCase {
 		//$this->dump($this->db->query_single('select * from test'));		
 	}
 
-	function test_describe() {
-		//$this->dump($this->db->describe('test'));	
+	function test_columns() {
+		$columns = $this->db->columns('test');
 		
+		$this->assertEqual($columns[0]->name, 'id');
+		$this->assertEqual($columns[0]->default, '');
+		$this->assertEqual($columns[0]->type, 'integer');
+		$this->assertEqual($columns[0]->limit, '');
+		$this->assertEqual($columns[0]->null, true);
+
+		$this->assertEqual($columns[1]->name, 'title');
+		$this->assertEqual($columns[1]->default, 'default title');
+		$this->assertEqual($columns[1]->type, 'string');
+		$this->assertEqual($columns[1]->limit, '255');
+		$this->assertEqual($columns[1]->null, false);
+
+		$this->assertEqual($columns[2]->name, 'text');
+		$this->assertEqual($columns[2]->default, 'default text');
+		$this->assertEqual($columns[2]->type, 'text');
+		$this->assertEqual($columns[2]->limit, '');
+		$this->assertEqual($columns[2]->null, false);
+
 	}
-	
 }
 
 ?>
