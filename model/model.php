@@ -25,13 +25,6 @@ class DataSpace {
 	var $data = array();
 
 	/**
-	 * In debug mode, debuging messages are printed to the screen
-	 *
-	 * @var bool
-	 */
-	var $debug_mode = false;	
-	
-	/**
 	 * Constructor
 	 *
 	 * @param array $data
@@ -176,7 +169,7 @@ class DataSpace {
 			return true;
 		} 
 
-		if ($this->_meta_data && key_exists($field, $this->_meta_data)) {
+		if ($this->columns && key_exists($field, $this->columns)) {
 			return true;
 		}
 		
@@ -221,9 +214,7 @@ class DataSpace {
 						$this->data[$field] = $value;
 					}
 					
-				} elseif ($this->debug_mode) {
-					debug("no metadata for $field");	
-				}
+				} 
 			}
 		}
 		
@@ -289,21 +280,12 @@ class Model extends DataSpace {
 	var $id;
 
 	/**
-	 * An array containing field meta data
+	 * An array containing the data for the columns
 	 *
 	 * @var array
-	 * @access private
 	 */
-	var $_meta_data = null;
-	
-	/**
-	 * An array containing required field data, used for validation
-	 *
-	 * @var array
-	 * @access private
-	 */
-	var $_required_fields = null;
-	
+	var $columns = null;
+
 	/**
 	 * The last SQL query that was executed
 	 *
@@ -364,12 +346,13 @@ class Model extends DataSpace {
 		if (!$this->table) {
 			$this->table = $this->type;
 		}
-		
-		// load meta data from table if neccesary
-		if (!isset($this->_meta_data) && $this->table) {
-			$this->_meta_data = $this->db->get_meta_data($this->table);
-		}		
 
+		$this->columns = $this->db->columns($this->table);
+		
+		foreach($this->columns as $column) {
+			$this->data[$column->name] = $column->default;
+		}		
+		
 		$this->validate = new Validation();
 		$this->setup();
 		
@@ -942,18 +925,16 @@ class Model extends DataSpace {
 			return false;
 		}
 		
-		foreach ($this->_meta_data as $field_name => $field_type) {
-			if (isset($this->data[$field_name])) {
-				$fields[] = $field_name." = '".$this->db->escape($this->data[$field_name])."'";
+		foreach ($this->columns as $column) {
+			if (isset($this->data[$column->name])) {
+				$fields[] = $column->name." = '".$this->db->escape($this->data[$column->name])."'";
 			}
 		}
 		
+		assert(isset($fields));
+		
 		$this->sql = "UPDATE ".$this->db->escape_identifier($this->table)." SET ".implode(", ", $fields).$this->where_this();
 
-		if ($this->debug_mode) {
-			debug($this->sql);
-		}
-		
 		return $this->db->query($this->sql);
 	}
 	
@@ -973,18 +954,18 @@ class Model extends DataSpace {
 		// sequence field needs to be empty
 		unset($this->data[$this->sequence_field]);
 		
-		foreach ($this->_meta_data as $field_name => $field_type) {
-			if (isset($this->data[$field_name])) {
+		
+		foreach ($this->columns as $column) {
+			if (isset($this->data[$column->name])) {
 				$fields[] = $field_name;
-				$values[] = "'".$this->db->escape($this->data[$field_name])."'";
+				$values[] = "'".$this->db->escape($this->data[$column->name])."'";
 			}
 		}
+
+		assert(isset($fields));
 		
 		$this->sql = "INSERT INTO ".$this->db->escape_identifier($this->table)." (".implode(", ", $fields).") VALUES (".implode(", ", $values).")";
 	
-		if ($this->debug_mode) {
-			debug($this->sql);
-		}
 
 		if ($this->db->query($this->sql)) {
 			if ($this->sequence_field != $this->id_field) {
