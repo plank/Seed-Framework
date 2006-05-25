@@ -248,10 +248,50 @@ class MysqlDB extends DB {
     	
     }
 		
+    
+    /**
+     * Retrieve the collection of columns for the table
+     *
+     * @param string $table
+     * @return array
+     */
+    function columns($table) {
+    	static $tables;
+    	
+    	if (!isset($tables[$table])) {
+	    	$columns = $this->column_definitions($table);
+	    	
+	    	foreach($columns as $column) {
+	    		$result[$column['Field']] = new Column(
+	    			$column['Field'], 
+	    			$column['Default'], 
+	    			$column['Type'], 
+	    			$column['Null'] == 'YES'
+	    		);
+	    		
+	    	}
+    	
+    		$tables[$table] = $result;
+    	
+    	}
+    	
+    	return $tables[$table];
+    }    
+    
+	/**
+	 * Alias for column_definitions. for backwards compatibility
+	 *
+	 * To be removed!
+	 */    
+    function describe($table) {
+    	return $this->column_definitions($table);
+    	
+    }    
+    
 	/**
 	 * Performs a describe query on the given table
 	 */
-	function describe($table) {
+	function column_definitions($table) {
 		return $this->query_array("DESCRIBE `$table`");
 		
 	}
