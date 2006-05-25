@@ -7,34 +7,54 @@
 class MultilangModel extends Model {
 	
 	/**
+	 * Reference to the current version of content
+	 *
 	 * @var MultilangVersionModel
 	 */
 	var $version;
 	
 	/**
+	 * The name of the table used for versioning. If this isn't explicitely set,
+	 * it will be deduced from the name of the of this table
+	 *
 	 * @var string
 	 */
 	var $version_table = null;
 
 	/**
+	 * The name of the field that contains the revision numbers 
+	 *
 	 * @var string
 	 */
 	var $version_field = 'revision';
 	
 	/**
+	 * The name of the field that indicates the latest version of the content
+	 *
 	 * @var string
 	 */
 	var $latest_field = 'latest';
 	
 	/**
+	 * The name of the field that contains the language
+	 *
 	 * @var string
 	 */
 	var $language_field = 'lang';
 	
 	/**
+	 * The default language
+	 *
 	 * @var string
 	 */
 	var $default_language = 'en';
+	
+	/**
+	 * The field used for soft deletes
+	 *
+	 * @var string
+	 */
+	var $deleted_field = 'deleted';
 	
 	/**
 	 * Constructor
@@ -43,6 +63,8 @@ class MultilangModel extends Model {
 	 * @return MultilangModel
 	 */
 	function MultilangModel($db = null) {
+		$this->_default_data = array($this->deleted_field => '0');
+		
 		parent::Model($db);
 		
 		$this->version = Model::factory($this->type.'_version');
@@ -270,12 +292,17 @@ class MultilangModel extends Model {
 	 * Updates the model by inserting a new versions
 	 */
 	function update() {
+		// set the language field to the default if it doesn't have a value
 		if (!$this->version->get($this->language_field)) {
 			$this->version->set($this->language_field, $this->default_language);	
 		}
 		
+		$lang = $this->version->get('lang');
+		
 		// set latest_field to 0 for other versions
-		$this->version->update_all("$this->latest_field = 0", $this->foreign_key()." = ".$this->get_id());
+		$this->version->update_all(
+			"$this->latest_field = 0", $this->foreign_key()." = ".$this->get_id()." AND ".$this->language_field." = '".$lang."'"
+		);
 		$this->version->set($this->latest_field, 1);
 		$this->version->insert();
 		
@@ -283,8 +310,12 @@ class MultilangModel extends Model {
 	}
 	
 	function insert() {
+		
+		die(debug($this));
+		
 		parent::insert();
 
+		// set the language field to the default if it doesn't have a value
 		if (!$this->version->get($this->language_field)) {
 			$this->version->set($this->language_field, $this->default_language);	
 		}
@@ -324,6 +355,21 @@ class MultilangModel extends Model {
 		
 	}
 	
+	/**
+	 * Changes the flag of all versions in the current language from one value to another
+	 */
+	
+	function change_flag($from, $to) {
+		$lang = $this->version->get($this->language_field);
+		
+		// set any previous prending version to draft
+		$this->version->update_all(
+			'flag = '.$to, 'flag = '.$from.' AND '.$this->foreign_key().' = '.$id.' AND '.$this->language_field." = '".$lang."'"
+		);
+		
+	}	
+	
+	
 }
 
 class MultilangVersionModel extends Model {
@@ -347,6 +393,7 @@ class MultilangVersionModel extends Model {
 	
 	}
 	
+
 	
 }
 
