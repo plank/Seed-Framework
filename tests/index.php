@@ -22,6 +22,11 @@ $seed->include_libraries();
 $test = &new GroupTest('All tests');
 
 foreach($seed->subfolders as $subfolder) {
+	if (SKIP_DB_TESTS && $subfolder == 'model') {
+		continue;	
+	
+	}
+	
 	$path = FRAMEWORK_TESTS_PATH.$subfolder.'/';
 	// include all classes
 	$dir = dir($path);
@@ -31,7 +36,9 @@ foreach($seed->subfolders as $subfolder) {
 			continue;
 		}
 		
-		$test->addTestFile($path.$file);
+		if (is_file($path.$file)) {
+			$test->addTestFile($path.$file);
+		}
 		
 	}
 }
