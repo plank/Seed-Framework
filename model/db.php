@@ -12,8 +12,9 @@
 /**
  * The date format used for database queries
  */
-define('SQL_DATE_FORMAT', 'Y-m-d h:i:s');
-
+define('SQL_DATE_TIME_FORMAT', 'Y-m-d h:i:s');
+define('SQL_DATE_FORMAT', 'Y-m-d h:i:s'); // deprecated, but we need to keep for now
+define('SQL_TIME_FORMAT', 'h:i:s');
 
 /**
  * Serves as a factory for creating db objects as well as a registry of created db objects

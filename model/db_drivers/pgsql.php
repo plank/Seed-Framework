@@ -259,7 +259,7 @@ class PgsqlDB extends DB {
     	
     	// date / time magic value
         if (preg_match("/^now\(\)|^\('now'::text\)::(date|timestamp)/i", $value, $matches)) {
-        	return date(SQL_DATE_FORMAT);	
+        	return date(SQL_DATE_TIME_FORMAT);	
         }
     	
         // fixed date / times
