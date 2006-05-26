@@ -227,7 +227,7 @@ class MultilangModel extends Model {
 			} else {
 				if ($this->field_exists($field)) {
 					if (is_array($value)) {
-						$value = implode('-', $value);
+						$value = $this->version->columns[$field]->array_to_type(array_values($value));
 					}
 
 					if (method_exists($this, 'set_'.$field)) {
@@ -238,7 +238,7 @@ class MultilangModel extends Model {
 					
 				} elseif ($this->version->field_exists($field)) {
 					if (is_array($value)) {
-						$value = implode('-', $value);
+						$value = $this->version->columns[$field]->array_to_type(array_values($value));
 					}
 
 					if (method_exists($this->version, 'set_'.$field)) {
@@ -311,15 +311,13 @@ class MultilangModel extends Model {
 	
 	function insert() {
 		
-		die(debug($this));
-		
 		parent::insert();
 
 		// set the language field to the default if it doesn't have a value
 		if (!$this->version->get($this->language_field)) {
 			$this->version->set($this->language_field, $this->default_language);	
 		}
-		
+		$this->version->set($this->foreign_key(), $this->get_id());
 		$this->version->set($this->latest_field, 1);
 		$this->version->insert();
 		
@@ -364,7 +362,7 @@ class MultilangModel extends Model {
 		
 		// set any previous prending version to draft
 		$this->version->update_all(
-			'flag = '.$to, 'flag = '.$from.' AND '.$this->foreign_key().' = '.$id.' AND '.$this->language_field." = '".$lang."'"
+			'flag = '.$to, 'flag = '.$from.' AND '.$this->foreign_key().' = '.$this->get_id().' AND '.$this->language_field." = '".$lang."'"
 		);
 		
 	}	
