@@ -179,6 +179,11 @@ class File {
 		return $return;
 	}
 
+	/**
+	 * Creates the directories needed for the path to exist, if it doesn't
+	 *
+	 * @return bool
+	 */
 	function mkdirs() {
 		$path_parts = explode('/', $this->path);
 		
@@ -204,8 +209,15 @@ class File {
 		
 	}
 
+	/**
+	 * Outputs the file to the browser.
+	 * 
+	 * This probably doesn't belong here, but it's convenient for now.
+	 */
 	function output_contents() {
-		readfile($this->path);	
+		if ($this->exists()) {
+			readfile($this->path);
+		}	
 	}
 	
 	/**
