@@ -205,7 +205,8 @@ class DataSpace {
 			} else {
 				if ($this->field_exists($field)) {
 					if (is_array($value)) {
-						$value = implode('-', $value);
+						$value = $this->version->columns[$field]->array_to_type(array_values($value));			
+						
 					}
 
 					if (method_exists($this, 'set_'.$field)) {
@@ -346,7 +347,7 @@ class Model extends DataSpace {
 		if (!$this->table) {
 			$this->table = $this->type;
 		}
-
+		
 		$this->columns = $this->db->columns($this->table);
 		
 		foreach($this->columns as $column) {
@@ -374,7 +375,7 @@ class Model extends DataSpace {
 		}
 		
 		if (!isset($options['conditions'])) {
-			$options['conditions'] = 1;
+			$options['conditions'] = '1 = 1';
 		}
 		
 		if (!isset($options['order'])) {
@@ -401,7 +402,7 @@ class Model extends DataSpace {
 		}
 		
 		if (!isset($options['conditions'])) {
-			$options['conditions'] = 1;
+			$options['conditions'] = '1 = 1';
 		}
 		
 		if (!isset($options['order'])) {
@@ -437,7 +438,7 @@ class Model extends DataSpace {
 		}
 		
 		if (!isset($options['conditions'])) {
-			$options['conditions'] = 1;
+			$options['conditions'] = '1 = 1';
 		}
 		
 		if (!isset($options['order'])) {
@@ -475,7 +476,7 @@ class Model extends DataSpace {
 		}
 		
 		if (!isset($options['conditions'])) {
-			$options['conditions'] = 1;
+			$options['conditions'] = '1 = 1';
 		}
 		
 		if (!isset($options['order'])) {
@@ -954,10 +955,9 @@ class Model extends DataSpace {
 		// sequence field needs to be empty
 		unset($this->data[$this->sequence_field]);
 		
-		
 		foreach ($this->columns as $column) {
 			if (isset($this->data[$column->name])) {
-				$fields[] = $field_name;
+				$fields[] = $column->name;
 				$values[] = "'".$this->db->escape($this->data[$column->name])."'";
 			}
 		}
