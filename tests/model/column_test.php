@@ -27,6 +27,20 @@ class ColumnTester extends UnitTestCase {
 		
 	}
 	
+	function test_array_to_type() {
+		// test a date time
+		$column = new Column('date', '', 'datetime');
+		$this->assertEqual($column->array_to_type(array('2005', '06', '30', '12', '30', '00')), '2005-06-30 12:30:00');
+		
+		$column = new Column('date', '', 'date');
+		$this->assertEqual($column->array_to_type(array('2005', '06', '30')), '2005-06-30');
+
+		$column = new Column('date', '', 'time');
+		$this->assertEqual($column->array_to_type(array('12', '30', '00')), '12:30:00');
+		
+		$column = new Column('date', '', 'varchar(255)');
+		$this->assertEqual($column->array_to_type(array('12', '30', '00')), '12, 30, 00');
+	}
 }
 
 

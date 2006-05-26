@@ -52,24 +52,33 @@ class FileTester extends UnitTestCase {
 		$this->assertTrue($file->is_directory());
 		$file_names = $file->list_names();
 		
-		for($x = 1; $x < 3; $x++) {
-			$this->assertEqual($file_names[$x - 1], $file->get_path().'/0'.$x.'.txt');
+		$x = 1;
+		
+		foreach($file_names as $file_name) {
+			if (substr(basename($file_name), 0, 1) != '.') {
+				$this->assertEqual($file_name, $file->get_path().'/0'.$x.'.txt');	
+				$x ++;
+			}
 			
 		}
-		
+			
 	}
 	
 	function test_list_files() {
-		$file = new File(dirname(__FILE__).'/file');
+		$dir = new File(dirname(__FILE__).'/file');
 		
-		$this->assertTrue($file->is_directory());
-		$files = $file->list_files();
+		$this->assertTrue($dir->is_directory());
+		$files = $dir->list_files();
 		
-		for($x = 1; $x < 3; $x++) {
-			$this->assertEqual($files[$x - 1]->get_path(), $file->get_path().'/0'.$x.'.txt');
+		$x = 1;
+		
+		foreach($files as $file) {
+			if (!$file->is_hidden()) {
+				$this->assertEqual($file->path, $dir->get_path().'/0'.$x.'.txt');	
+				$x ++;
+			}
 			
-		}
-		
+		}		
 	}
 
 

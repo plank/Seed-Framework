@@ -44,7 +44,7 @@ class ModelTester extends UnitTestCase {
 	function setup() {
 		if (SKIP_DB_TESTS) return;
 		
-		$this->db = DB::get_db();
+		$this->db = DB::factory('mysql', DB_HOST, DB_USER, DB_PASS, DB_NAME);
 		
 		setup_db($this->db);
 

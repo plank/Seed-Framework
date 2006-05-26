@@ -40,23 +40,23 @@ class PgsqlDBTester extends UnitTestCase {
 	function test_columns() {
 		$columns = $this->db->columns('test');
 		
-		$this->assertEqual($columns[0]->name, 'id');
-		$this->assertEqual($columns[0]->default, '');
-		$this->assertEqual($columns[0]->type, 'integer');
-		$this->assertEqual($columns[0]->limit, '');
-		$this->assertEqual($columns[0]->null, true);
+		$this->assertEqual($columns['id']->name, 'id');
+		$this->assertEqual($columns['id']->default, '');
+		$this->assertEqual($columns['id']->type, 'integer');
+		$this->assertEqual($columns['id']->limit, '');
+		$this->assertEqual($columns['id']->null, true);
 
-		$this->assertEqual($columns[1]->name, 'title');
-		$this->assertEqual($columns[1]->default, 'default title');
-		$this->assertEqual($columns[1]->type, 'string');
-		$this->assertEqual($columns[1]->limit, '255');
-		$this->assertEqual($columns[1]->null, false);
+		$this->assertEqual($columns['title']->name, 'title');
+		$this->assertEqual($columns['title']->default, 'default title');
+		$this->assertEqual($columns['title']->type, 'string');
+		$this->assertEqual($columns['title']->limit, '255');
+		$this->assertEqual($columns['title']->null, false);
 
-		$this->assertEqual($columns[2]->name, 'text');
-		$this->assertEqual($columns[2]->default, 'default text');
-		$this->assertEqual($columns[2]->type, 'text');
-		$this->assertEqual($columns[2]->limit, '');
-		$this->assertEqual($columns[2]->null, false);
+		$this->assertEqual($columns['text']->name, 'text');
+		$this->assertEqual($columns['text']->default, 'default text');
+		$this->assertEqual($columns['text']->type, 'text');
+		$this->assertEqual($columns['text']->limit, '');
+		$this->assertEqual($columns['text']->null, false);
 
 	}
 }
