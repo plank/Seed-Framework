@@ -120,6 +120,61 @@ class Column {
 	}
 	
 	/**
+	 * Cast the value to an appropriate type
+	 */
+	function type_cast($value) {
+		switch ($this->type) {
+			case DATE:	
+				return date(SQL_DATE_TIME_FORMAT, strtotime($value));
+			
+			default:
+				return $value;
+		}
+	}
+	
+	/**
+	 * Convert an array to the appropriate type
+	 *
+	 * This is mostly for the various date types, less useful for strings, and mostly useless for other types
+	 *
+	 * @param array $value
+	 * @return mixed
+	 */
+	function array_to_type($value) {
+		switch ($this->type) {
+			case DATETIME:
+				$value = array_values($value);
+				return date(SQL_DATE_TIME_FORMAT, mktime($value[3], $value[4], $value[5], $value[1], $value[2], $value[0]));			
+				
+			case DATE:
+				if (count($value) > 3) {
+					$value = array_slice($value, 0, 3);	
+				}
+			
+				return implode('-', $value);
+			
+			case TIME:
+				if (count($value) > 3) {
+					$value = array_slice($value, 0, 3);	
+				}
+			
+				return implode(':', $value);
+			
+			case TIMESTAMP:
+				return mktime($value[3], $value[4], $value[5], $value[1], $value[2], $value[0]);
+			
+			case STRING:
+			case TEXT:
+				return implode(', ', $value);
+				
+			default:
+				return implode('', $value);
+			
+		}	
+		
+	}
+	
+	/**
 	 * Returns a simplified type for a given SQL type
 	 *
 	 * @param string $sql_type
