@@ -235,6 +235,19 @@ class Template {
 	
 	/**
 	 * @param Paginator $paginator
+	 */	
+	function results($paginator) {
+		$page = $paginator->get_current_page();
+		
+		$return = "viewing results ".($page->first_item());
+		$return .= " - ".($page->last_item());
+		$return .= " of ".$paginator->item_count;
+		
+		return $return;
+	}	
+	
+	/**
+	 * @param Paginator $paginator
 	 */
 	function pagination_links($paginator) {
 		$current_page = $paginator->get_current_page();
