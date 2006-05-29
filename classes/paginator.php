@@ -202,6 +202,30 @@ class Page {
 		return $this->paginator->items_per_page;
 		
 	}	
+
+	/**
+	 * Returns the number of the first item on the page
+	 *
+	 * @return int
+	 */
+	function first_item() {
+		return $this->offset() + 1;	
+	}
+	
+	/**
+	 * Returns the number of the last item on the page
+	 *
+	 * @return int
+	 */
+	function last_item() {
+		$offset_end = $this->limit() * $this->number;
+		
+		if ($offset_end > $this->paginator->item_count) {
+			$offset_end = $this->paginator->item_count;
+		}
+		
+		return $offset_end;
+	}	
 	
 	/**
 	 * Returns the number of items per page and the offset
