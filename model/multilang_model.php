@@ -182,7 +182,7 @@ class MultilangModel extends Model {
 		if ($table) {
 			return $table;	
 		} else {
-			return this::call('_get_type').'_versions';
+			return this::call('table_name').'_versions';
 		}
 		
 	}
@@ -199,7 +199,7 @@ class MultilangModel extends Model {
 		if ($foreign_key) {
 			return $foreign_key;	
 		} else {
-			return this::call('_get_type').'_id';
+			return this::call('table_name').'_id';
 		}			
 		
 	}
