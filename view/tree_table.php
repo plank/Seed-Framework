@@ -10,6 +10,7 @@
  * @subpackage html
  */
 
+require_once('table');
 
 /**
  * Class for displaying nested set models in a table
