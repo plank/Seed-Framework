@@ -293,15 +293,22 @@ class Controller {
 	
 	/**
 	 * Includes a helper method into the template
+	 *
+	 * @return bool
 	 */
 	function include_helper() {
 
-		$helper_file_name = HELPER_PATH.$this->get_type().'_helper.php';
+		$type = $this->get_type();
+		$helper_file_name = HELPER_PATH.$type.'_helper.php';
 		
 		if (!file_exists($helper_file_name)) {
-			return false;
-				
+			$type = 'application';
+			$helper_file_name = HELPER_PATH.$type.'_helper.php';
 		}
+		
+		if (!file_exists($helper_file_name)) {
+			return false;	
+		}		
 		
 		require_once($helper_file_name);	
 		
