@@ -410,7 +410,7 @@ class Model extends DataSpace {
 		}
 		
 		if (!isset($options['foreign_key'])) {
-			$options['foreign_key'] = $this->_get_type().'_id';
+			$options['foreign_key'] = $this->table_name().'_id';
 		}
 		
 		if (!isset($options['dependent'])) {
@@ -446,7 +446,7 @@ class Model extends DataSpace {
 		}
 		
 		if (!isset($options['foreign_key'])) {
-			$options['foreign_key'] = $this->_get_type().'_id';
+			$options['foreign_key'] = $this->table_name().'_id';
 		}
 		
 		if (!isset($options['dependent'])) {
@@ -484,7 +484,7 @@ class Model extends DataSpace {
 		}
 		
 		if (!isset($options['foreign_key'])) {
-			$options['foreign_key'] = $this->_get_type().'_id';
+			$options['foreign_key'] = $this->table_name().'_id';
 		}
 		
 		if (!isset($options['association_foreign_key'])) {
@@ -492,10 +492,10 @@ class Model extends DataSpace {
 		}
 		
 		if (!isset($options['join_table'])) {
-			if (strcasecmp($field, $this->_get_type()) <= 0) {
-				$options['join_table'] = $field.'_'.$this->_get_type();
+			if (strcasecmp($field, $this->table_name()) <= 0) {
+				$options['join_table'] = $field.'_'.$this->table_name();
 			} else {
-				$options['join_table'] = $this->_get_type().'_'.$field;			
+				$options['join_table'] = $this->table_name().'_'.$field;			
 			}
 		}
 		
