@@ -50,11 +50,25 @@ class MultilangModel extends Model {
 	var $default_language = 'en';
 	
 	/**
+	 * All languages
+	 *
+	 * @var array
+	 */
+	var $languages = array('en', 'fr');
+	
+	/**
 	 * The field used for soft deletes
 	 *
 	 * @var string
 	 */
 	var $deleted_field = 'deleted';
+	
+	/**
+	 * The field use for flags
+	 *
+	 * @var string
+	 */
+	var $flag_field = 'flag';
 	
 	/**
 	 * Constructor
@@ -151,7 +165,7 @@ class MultilangModel extends Model {
 			$query->offset = $options['offset'];	
 		}
 
-//		debug($query->generate());
+//		die(debug($query->generate()));
 		
 		return $query->generate();
 		
@@ -314,12 +328,26 @@ class MultilangModel extends Model {
 		parent::insert();
 
 		// set the language field to the default if it doesn't have a value
-		if (!$this->version->get($this->language_field)) {
-			$this->version->set($this->language_field, $this->default_language);	
+		if ($this->version->get($this->language_field)) {
+			$current_language = $this->version->get($this->language_field);
+		} else {
+			$current_language = $this->default_language;	
 		}
+		
 		$this->version->set($this->foreign_key(), $this->get_id());
 		$this->version->set($this->latest_field, 1);
-		$this->version->insert();
+		
+		
+		// insert drafts for the other languages
+		foreach($this->languages as $language) {
+			// skip the current language
+			$this->version->set($this->language_field, $language);				
+		
+			$this->version->insert();	
+			
+		}
+		
+		$this->version->set($this->language_field, $current_language);
 		
 		return true;
 	}
