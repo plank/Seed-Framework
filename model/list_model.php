@@ -27,7 +27,7 @@ class ListModel extends Model {
 	 */
 	var $position_field = 'position';
 	
-	var $scope_condition = '1';
+	var $scope_condition = '1 = 1';
 	
 	/**
 	 * 
