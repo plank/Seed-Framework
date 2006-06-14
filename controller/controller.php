@@ -292,36 +292,38 @@ class Controller {
 	}
 	
 	/**
-	 * Includes a helper method into the template
+	 * Includes a helper object into the template. It first looks for a helper containing the name
+	 * of the class, and if that isn't found, it looks for the ApplicationHelper
 	 *
-	 * @return bool
+	 * @return bool Returns true if a helper was found and loaded, false if not
 	 */
 	function include_helper() {
 
 		$type = $this->get_type();
 		$helper_file_name = HELPER_PATH.$type.'_helper.php';
-		
+
 		if (!file_exists($helper_file_name)) {
 			$type = 'application';
 			$helper_file_name = HELPER_PATH.$type.'_helper.php';
+
 		}
-		
+
 		if (!file_exists($helper_file_name)) {
 			return false;	
 		}		
-		
+
 		require_once($helper_file_name);	
-		
-		$helper_class_name = Inflector::camelize($this->get_type()).'Helper';
-		
+
+		$helper_class_name = Inflector::camelize($type).'Helper';
+
 		if (!class_exists($helper_class_name)) {
 			return false;	
 		}
-		
+
 		$this->template->helper = new $helper_class_name;
-		
+
 		$this->template->helper->template = & $this->template;
-		
+
 		return true;
 	}
 	
