@@ -10,7 +10,7 @@
  * @subpackage html
  */
 
-require_once('table');
+require_once('table.php');
 
 /**
  * Class for displaying nested set models in a table
