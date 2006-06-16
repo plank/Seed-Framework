@@ -1,7 +1,7 @@
 <?php
 
 // DB settings
-define('SKIP_DB_TESTS', false);		// set this to true to skip tests require the database
+define('SKIP_DB_TESTS', true);		// set this to true to skip tests require the database
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', 'wilmag');
@@ -18,7 +18,10 @@ require_once('../../simpletest/reporter.php');
 $seed = new Seed();
 $seed->include_libraries();
 
-db::register('default', 'mysql');
+if (!SKIP_DB_TESTS) {
+	db::register('default', 'mysql');
+}
+
 
 $test = &new GroupTest('All tests');
 
@@ -37,7 +40,7 @@ foreach($seed->subfolders as $subfolder) {
 			continue;
 		}
 		
-		if (is_file($path.$file)) {
+		if (is_file($path.$file) && substr($file, -9) == '_test.php') {
 			$test->addTestFile($path.$file);
 		}
 		
