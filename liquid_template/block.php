@@ -20,6 +20,10 @@ class LiquidBlock extends LiquidTag {
 		
 		$this->nodelist = array();
 		
+		if (!is_array($tokens)) {
+			return;
+		}
+		
 		while($token = array_shift($tokens)) {
 			
 			if (preg_match('/^'.TAG_START.'/', $token, $matches)) {
@@ -140,21 +144,24 @@ class LiquidBlock extends LiquidTag {
 	}
 	
 	function render_all($list, $context) {
-		$result = array();
+		$result = '';
 		
 		foreach($list as $token) {
 			if (is_object($token) && method_exists($token, 'render')) {
-				$result[] = $token->render($context);
+	
+//				die(debug($token, $context));
+				
+				$result .= $token->render($context);
 				
 			} else {
-				$result[] = $token;
+				$result .= $token;
 				
 				
 			}
 			
 		}
 		
-	//	(debug($result));
+		return $result;
 	}
 	
 }

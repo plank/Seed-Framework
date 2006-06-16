@@ -7,7 +7,7 @@ define('TAG_START', '{%');
 define('TAG_END', '%}');
 define('VARIABLE_START', '{{');
 define('VARIABLE_END', '}}');
-define('ALLOWED_VARIABLE_CHARS', '/[a-zA-Z_.-]/');
+define('ALLOWED_VARIABLE_CHARS', '[a-zA-Z_.-]');
 define('QUOTED_FRAGMENT', '"[^"]+"|\'[^\']+\'|[^\s,|]+');
 define('TAG_ATTRIBUTES', '/(\w+)\s*\:\s*('.QUOTED_FRAGMENT.')/');
 define('TOKENIZATION_REGEXP', '/('.TAG_START.'.*?'.TAG_END.'|'.VARIABLE_START.'.*?'.VARIABLE_END.')/');
@@ -28,7 +28,7 @@ class LiquidTemplate {
 	 *
 	 * @var array
 	 */
-	var $tags = array('comment');
+	var $tags = array('comment', 'for');
 	
 	function LiquidTemplate($tokens) {
 		$this->root = new LiquidDocument($tokens, $this->tags);	
@@ -63,6 +63,11 @@ class LiquidTemplate {
 		}
 
 		$context = new LiquidContext($assigns, $options['registers']);
+		
+		if (is_a($filters, 'LiquidFilter')) {
+			$filters = array($filters);
+			
+		}
 		
 		if (is_array($filters)) {
 			foreach ($filters as $filter) {

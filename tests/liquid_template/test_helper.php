@@ -10,7 +10,7 @@ class LiquidTestCase extends UnitTestCase {
 		}
 		
 		$result = LiquidTemplate::parse($template);
-		
+
 		$this->assertEqual($expected, $result->render($assigns));
 	}
 

@@ -14,7 +14,7 @@ class TextDrop extends LiquidDrop {
 		
 	}
 
-	function get_text() {
+	function text() {
 		return 'text1';
 		
 	}
@@ -60,13 +60,62 @@ class LiquidDropTester extends UnitTestCase {
 	function test_product_drop() {
 		
 		$tpl = LiquidTemplate::parse('  ');
-		$this->assertNoErrors($tpl->render(array('product' => new ProductDrop)));
+		$tpl->render(array('product' => new ProductDrop));
+		$this->assertNoErrors();
 		
 		
 	    $tpl = LiquidTemplate::parse( ' {{ product.top_sales }} '  );
-	    $this->assertError(($tpl->render(array('product' => new ProductDrop))));
+	    $tpl->render(array('product' => new ProductDrop));
+	    $this->assertError('worked');
 
 	}
+
+	function test_text_drop() {
+		
+		$tpl = LiquidTemplate::parse(' {{ product.texts.text }} ');
+		$output = $tpl->render(array('product' => new ProductDrop()));	
+		$this->assertEqual(' text1 ', $output);
+
+		$tpl = LiquidTemplate::parse(' {{ product.catchall.unknown }} ');
+		$output = $tpl->render(array('product' => new ProductDrop()));	
+		$this->assertEqual(' method: unknown ', $output);		
+		
+	}
+	
+	// this test needs standard tags to pass
+	/*
+	function test_text_array_drop() {
+		$tpl = LiquidTemplate::parse('{% for text in product.texts.array %} {{text}} {% endfor %}');
+		$output = $tpl->render(array('product' => new ProductDrop()));
+		//$this->dump($output);
+		
+	}
+	*/
+	
+	function test_context_drop() {
+		$tpl = LiquidTemplate::parse(' {{ context.bar }} ');
+		$output = $tpl->render(array('context' => new ContextDrop(), 'bar'=>'carrot'));	
+		$this->assertEqual(' carrot ', $output);		
+		
+	}
+	
+	function test_nested_context_drop() {
+		$tpl = LiquidTemplate::parse(' {{ product.context.foo }} ');
+		$output = $tpl->render(array('product' => new ProductDrop(), 'foo'=>'monkey'));	
+		$this->assertEqual(' monkey ', $output);		
+
+	}
+	
+	// skip this test as php4 doesn't support protected vars
+	/*
+	function test_protected() {
+		$tpl = LiquidTemplate::parse(' {{ product.callmenot }} ');
+		$output = $tpl->render(array('product' => new ProductDrop()));	
+		$this->assertEqual('  ', $output);			
+		
+	}
+	
+	*/
 	
 }
 

@@ -33,19 +33,26 @@ class LiquidContext {
 		
 	}
 	
-	function add_filters($filter) {
-		$this->filters[$filter->method] = $filter;
+	function add_filters($filter, $name = null) {
+		$filter->context = $this;
+		
+		if (is_null($name)) {
+			$name = $filter->name;
+		}
+		
+		$this->filters[$name] = $filter;
 		
 		
 	}
 	
-	function invoke($method, $value, $args) {
-		if (isset($this->filters[$method])) {
+	function invoke($method, $value, $args = null) {
+		
+		if (isset($this->filters[$method]) && is_a($this->filters[$method], 'LiquidFilter')) {
 			$filter = $this->filters[$method];
 			return $filter->filter($value, $args);
 			
 		} else {
-			return $args[0];
+			return $value;
 			
 		}
 		
@@ -159,6 +166,8 @@ class LiquidContext {
 			$object = $object->to_liquid();
 		}
 		
+		
+		
 		if ($object) {
 			if (is_a($object, 'LiquidDrop')) {
 				$object->context = $this;
@@ -166,10 +175,8 @@ class LiquidContext {
 			
 			while (count($parts) > 0) {
 				$next_part_name = array_shift($parts);
-
-
+				
 				if (is_array($object)) {
-					
 					// if the last part of the context variable is .size we just return the count
 					if ($next_part_name == 'size' && count($parts) == 0 && !array_key_exists('size', $object)) {
 						return count($object);	
@@ -178,12 +185,9 @@ class LiquidContext {
 					
 					if (array_key_exists($next_part_name, $object)) {
 						$object = $object[$next_part_name];
-						
 					}
 					
-				}
-				
-				if (is_object($object)) {
+				} else if (is_object($object)) {
 					
 					if (!method_exists($object, 'has_key')) {
 						return null;
@@ -197,18 +201,16 @@ class LiquidContext {
 					// php4 doesn't support array access, so we have
 					// to use the invoke method instead
 					$object = $object->invoke_drop($next_part_name);
-				
-					if (is_object($object)) {
-						$object = $object->to_liquid;
-					}
-					
-					if (is_a($object, 'LiquidDrop')) {
-						$object->context = $this;
-					}					
 					
 				}
 
+				if (is_object($object) && method_exists($object, 'to_liquid')) {
+					$object = $object->to_liquid();
+				}
 				
+				if (is_a($object, 'LiquidDrop')) {
+					$object->context = $this;
+				}	
 
 			}
 
