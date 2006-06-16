@@ -27,7 +27,8 @@ class Router {
 	 */
 	function map(& $request) {
 		
-		$url = assign($request->get['url'], '');
+		// strip out the query string if the url contains it
+		list($url) = explode('?', assign($request->get['url'], ''), 2);
 		
 		$path_params = Route::parse($url);
 		
