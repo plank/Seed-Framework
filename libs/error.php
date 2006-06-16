@@ -33,6 +33,19 @@ function debug() {
 	
 }
 
+function debug_if() {
+	$args = func_get_args();
+	
+	if (!$args[0]) {
+		return;
+	}
+	
+	$args[0] = 'debug';
+	
+	call_user_func_array('message', $args);	
+	
+}
+
 /**
  * Prints a formated message to the screen
  *

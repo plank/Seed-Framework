@@ -97,6 +97,11 @@ function array_intersect_by_key($array1, $array2) {
 function array_diff_by_key($array1, $array2) {
 	$result = array();
 	
+	if (!is_array($array1)) {
+		trigger_error('Parameter 1 for array_diff_by_key is not an array', E_USER_WARNING);
+		return false;
+	}
+	
 	foreach($array1 as $key => $value) {
 		if (!key_exists($key, $array2)) {
 			$result[$key] = $value;
