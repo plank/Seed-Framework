@@ -17,22 +17,26 @@ define('TOKENIZATION_REGEXP', '/('.TAG_START.'.*?'.TAG_END.'|'.VARIABLE_START.'.
 class LiquidTemplate {
 	
 	/**
-	 * Enter description here...
+	 * The root of the node tree
 	 *
 	 * @var LiquidDocument
 	 */
 	var $root;
 	
 	/**
-	 * Array of registered tags
+	 * The file system to use for includes
 	 *
-	 * @var array
+	 * @var LiquidBlankFileSystem
 	 */
-	var $tags = array('comment', 'for');
+	var $file_system;
 	
-	function LiquidTemplate($tokens) {
-		$this->root = new LiquidDocument($tokens, $this->tags);	
-		
+	/**
+	 * Constructor
+	 *
+	 * @return LiquidTemplate
+	 */
+	function LiquidTemplate() {
+		$this->file_system = new LiquidBlankFileSystem();
 	}
 	
 	function register_tag($name) {
@@ -42,7 +46,7 @@ class LiquidTemplate {
 	
 	function tokenize($source) {
 		if (!$source) {
-			return false;
+			return array();
 			
 		}
 		
@@ -53,7 +57,7 @@ class LiquidTemplate {
 	}
 	
 	function parse($source) {
-		return new LiquidTemplate(LiquidTemplate::tokenize($source));
+		$this->root = new LiquidDocument(LiquidTemplate::tokenize($source), $this->file_system);	
 		
 	}
 	

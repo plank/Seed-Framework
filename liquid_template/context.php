@@ -8,10 +8,14 @@ class LiquidContext {
 	 * @var array
 	 */
 	var $assigns;
-	
+
+	/**
+	 * Enter description here...
+	 *
+	 * @var array
+	 */
 	var $registers;
 	
-	var $filters;
 	
 	function LiquidContext($assigns = null, $registers = null) {
 		if (isset($assigns)) {
@@ -47,19 +51,35 @@ class LiquidContext {
 	
 	function invoke($method, $value, $args = null) {
 		
-		if (isset($this->filters[$method]) && is_a($this->filters[$method], 'LiquidFilter')) {
-			$filter = $this->filters[$method];
-			return $filter->filter($value, $args);
+		$filter_class = ucfirst($method).'LiquidFilter';
+		//debug($filter_class, $method, $value, $args);
+		if (class_exists($filter_class)) {
+			$filter = new $filter_class();
 			
-		} else {
-			return $value;
+			if (!is_array($args)) {
+				$args = array();
+			}
 			
-		}
-		
+			if (is_a($filter, 'LiquidFilter')) {
+				array_unshift($args, $value);
+				return call_user_method_array('filter', $filter, $args);
+				
+			}
+			
+		} 
+			
+		return $value;
+			
 	}
 	
+	/**
+	 * Push new local scope on the stack.
+	 *
+	 * @return bool
+	 */
 	function push() {
 		array_unshift($this->assigns, array());
+		return true;
 		
 	}
 	
@@ -68,6 +88,11 @@ class LiquidContext {
 		
 	}
 	
+	/**
+	 * Pop from the stack.
+	 *
+	 * @return bool
+	 */
 	function pop() {
 		if (count($this->assigns) == 1) {
 			trigger_error('No elements to pop', E_USER_ERROR);
@@ -101,12 +126,19 @@ class LiquidContext {
 	
 	/**
 	 * Resolve a key by either returning the appropriate literal or by looking up the appropriate variable
+	 * 
+	 * Test for empty has been moved to interpret condition, in LiquidDecisionBlock
 	 *
 	 * @param string $key
 	 * @return mixed
 	 */
-	
 	function resolve($key) {
+		// this shouldn't happen
+		if (is_array($key)) {
+			trigger_error("Cannot resolve arrays as key", E_USER_ERROR);
+			return null;
+		}
+		
 		if (is_null($key) || $key == 'null') {
 			return null;
 		}
@@ -134,7 +166,6 @@ class LiquidContext {
 		if (preg_match('/^(\d[\d\.]+)$/', $key, $matches)) {
 			return $matches[1];
 		}			
-		
 		
 		return $this->variable($key);
 		
@@ -167,8 +198,7 @@ class LiquidContext {
 		}
 		
 		
-		
-		if ($object) {
+		if (!is_null($object)) {
 			if (is_a($object, 'LiquidDrop')) {
 				$object->context = $this;
 			}
@@ -177,14 +207,19 @@ class LiquidContext {
 				$next_part_name = array_shift($parts);
 				
 				if (is_array($object)) {
+					
 					// if the last part of the context variable is .size we just return the count
 					if ($next_part_name == 'size' && count($parts) == 0 && !array_key_exists('size', $object)) {
+
 						return count($object);	
 						
 					}					
 					
 					if (array_key_exists($next_part_name, $object)) {
 						$object = $object[$next_part_name];
+					} else {
+						return null;
+						
 					}
 					
 				} else if (is_object($object)) {
@@ -214,11 +249,9 @@ class LiquidContext {
 
 			}
 
-			//debug($object);
 			return $object;		
 			
 		} else {
-			//die('null');
 			return null;
 			
 		}

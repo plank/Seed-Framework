@@ -109,10 +109,40 @@ class LiquidVariableTester extends UnitTestCase {
 class VariableResolutionText extends UnitTestCase {
 	
 	function test_simple_variable() {
-		/*
-		$template = LiquidTemplate::parse("{{test}}");
+		
+		$template = new LiquidTemplate();
+		$template->parse("{{test}}");
 		$this->assertEqual('worked', $template->render(array('test'=>'worked')));
-		*/
+		
+		
+	}
+	
+	function test_simple_with_whitespaces() {
+		$template = new LiquidTemplate();
+
+	    $template->parse('  {{ test }}  ');
+		$this->assertEqual('  worked  ', $template->render(array('test' => 'worked')));
+		$this->assertEqual('  worked wonderfully  ', $template->render(array('test' => 'worked wonderfully')));
+		
+	}
+	
+	function test_ignore_unknown() {
+		$template = new LiquidTemplate();
+		
+		$template->parse('{{ test }}');
+		$this->assertEqual('', $template->render());
+		
+	}
+	
+	function test_array_scoping() {
+		$template = new LiquidTemplate();
+		
+		$template->parse('{{ test.test }}');
+		$this->assertEqual('worked', $template->render(array('test'=>array('test'=>'worked'))));
+		
+		// this wasn't working properly in if tests, test seperately
+		$template->parse('{{ foo.bar }}');
+		$this->dump($template->render(array('foo' => array())));
 		
 	}
 	

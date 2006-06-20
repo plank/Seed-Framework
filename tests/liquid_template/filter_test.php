@@ -2,7 +2,7 @@
 
 class MoneyLiquidFilter extends LiquidFilter {
 	
-	function filter($value, $args) {
+	function filter($value) {
 		return sprintf(' %d$ ', $value);
 		
 	}
@@ -11,7 +11,7 @@ class MoneyLiquidFilter extends LiquidFilter {
 
 class Money_with_underscoreLiquidFilter extends LiquidFilter {
 	
-	function filter($value, $args) {
+	function filter($value) {
 		return sprintf(' %d$ ', $value);
 		
 	}
@@ -20,7 +20,7 @@ class Money_with_underscoreLiquidFilter extends LiquidFilter {
 
 class Canadian_MoneyLiquidFilter extends LiquidFilter {
 	
-	function filter($value, $args) {
+	function filter($value) {
 		return sprintf(' %d$ CAD ', $value);
 		
 	}
@@ -58,7 +58,7 @@ class LiquidFiltersTester extends UnitTestCase {
 		$this->assertIdentical(' 1000$ ', $var->render($this->context));		
 		
 	}
-	
+	/*
 	function test_second_filter_overwrites_first() {
 		$var = new LiquidVariable('var | money ');
 		$this->context->set('var', 1000);
@@ -67,15 +67,20 @@ class LiquidFiltersTester extends UnitTestCase {
 		$this->assertIdentical(' 1000$ CAD ', $var->render($this->context));		
 		
 	}
-	
-	// The following use the standard filters, which are currently not implemented
+	*/
 	
 	function test_size() {
-		
+		$var = new LiquidVariable("var | size");
+		$this->context->set('var', 1000);
+		//context.add_filters(MoneyFilter)
+		$this->assertEqual(4, $var->render($this->context));		
 	}
 	
 	function test_join() {
-		
+		$var = new LiquidVariable("var | join");
+	
+		$this->context->set('var', array(1, 2, 3, 4));
+		$this->assertEqual("1 2 3 4", $var->render($this->context));		
 		
 	}
 	
@@ -84,10 +89,11 @@ class LiquidFiltersTester extends UnitTestCase {
 
 class LiquidFiltersInTemplate extends UnitTestCase {
 	
-	// the rest of this test needs to be implemented once we get global filters working
+	// the rest of this test needs to be implemented when/if we get global filters working
 	function test_local_global() {
-		$tpl = LiquidTemplate::parse('{{1000 | money}}');
-		$output = $tpl->render(null, new MoneyLiquidFilter());
+		$template = new LiquidTemplate;
+		$template->parse('{{1000 | money}}');
+		$output = $template->render(null, new MoneyLiquidFilter());
 		$this->assertIdentical(' 1000$ ', $output);	
 	}
 	

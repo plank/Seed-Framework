@@ -4,8 +4,11 @@ class LiquidTag {
 	
 	var $markup;
 	
-	function LiquidTag($markup, & $tokens) {
+	var $file_system;
+	
+	function LiquidTag($markup, & $tokens, & $file_system) {
 		$this->markup = $markup;
+		$this->file_system = $file_system;
 		return $this->parse($tokens);
 	}
 	

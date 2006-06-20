@@ -4,13 +4,15 @@
 class LiquidBlockTester extends UnitTestCase {
 	
 	function test_blackspace() {
-		$template = LiquidTemplate::parse('  ');
+		$template = new LiquidTemplate;
+		$template->parse('  ');
 		$this->assertEqual(array('  '), $template->root->nodelist);
 				
 	}
 	
 	function test_variable_beginning() {
-		$template = LiquidTemplate::parse('{{funk}}  ');
+		$template = new LiquidTemplate;
+		$template->parse('{{funk}}  ');
 		
 		$this->assertEqual(2, count($template->root->nodelist));
 		$this->assertIsA($template->root->nodelist[0], 'LiquidVariable');
@@ -19,7 +21,8 @@ class LiquidBlockTester extends UnitTestCase {
 	}
 
 	function test_variable_end() {
-		$template = LiquidTemplate::parse('  {{funk}}');
+		$template = new LiquidTemplate;
+		$template->parse('  {{funk}}');
 		
 		$this->assertEqual(2, count($template->root->nodelist));
 		$this->assertIsA($template->root->nodelist[0], 'string');
@@ -29,7 +32,8 @@ class LiquidBlockTester extends UnitTestCase {
 	}
 
 	function test_variable_middle() {
-		$template = LiquidTemplate::parse('  {{funk}}  ');
+		$template = new LiquidTemplate;
+		$template->parse('  {{funk}}  ');
 		
 		$this->assertEqual(3, count($template->root->nodelist));
 		$this->assertIsA($template->root->nodelist[0], 'string');		
@@ -39,7 +43,8 @@ class LiquidBlockTester extends UnitTestCase {
 	}	
 
 	function test_variable_many_embedded_fragments() {
-		$template = LiquidTemplate::parse('  {{funk}}  {{soul}}  {{brother}} ');
+		$template  = new LiquidTemplate;
+		$template->parse('  {{funk}}  {{soul}}  {{brother}} ');
 		
 		$this->assertEqual(7, count($template->root->nodelist));
 		$this->assertIsA($template->root->nodelist[0], 'string');		
@@ -53,7 +58,8 @@ class LiquidBlockTester extends UnitTestCase {
 	}
 
 	function test_with_block() {
-		$template = LiquidTemplate::parse('  {% comment %}  {% endcomment %} ');		
+		$template = new LiquidTemplate;
+		$template->parse('  {% comment %}  {% endcomment %} ');		
 		
 		$this->assertEqual(3, count($template->root->nodelist));
 		$this->assertIsA($template->root->nodelist[0], 'string');		

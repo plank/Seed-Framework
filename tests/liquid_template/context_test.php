@@ -15,21 +15,21 @@ class CentsDrop extends LiquidDrop {
 }
 
 class HiLiquidFilter extends LiquidFilter {
-	function filter($value, $args) {
+	function filter($value) {
 		return $value . ' hi!';
 	}
 	
 }
 
 class GolbalLiquidFilter extends LiquidFilter {
-	function filter($value, $args) {
+	function filter($value) {
 		return "Global $value";
 	}
 	
 }
 
 class LocalLiquidFilter extends LiquidFilter {
-	function filter($value, $args) {
+	function filter($value) {
 		return "Local $value";
 	}
 	
@@ -39,8 +39,6 @@ class LocalLiquidFilter extends LiquidFilter {
 class LiquidContextTester extends UnitTestCase {
 	
 	/**
-	 * Enter description here...
-	 *
 	 * @var LiquidContext
 	 */
 	var $context;
@@ -54,6 +52,9 @@ class LiquidContextTester extends UnitTestCase {
 		$this->context->set('test', 'test');
 		$this->assertEqual('test', $this->context->get('test'));
 		
+		// we add this text to make sure we can return values that evaluate to false properly
+		$this->context->set('test_0', 0);
+		$this->assertEqual('0', $this->context->get('test_0'));
 	}
 	
 	function test_variables_not_existing() {
@@ -78,12 +79,13 @@ class LiquidContextTester extends UnitTestCase {
 		$context = new LiquidContext();
 		$context->add_filters(new HiLiquidFilter());
 		$this->assertEqual('hi? hi!', $context->invoke('hi', 'hi?'));
-		
+/* behavior has changed		
 		$context = new LiquidContext();
 		$this->assertEqual('hi?', $context->invoke('hi', 'hi?'));
 			
 		$context->add_filters(new HiLiquidFilter());
 		$this->assertEqual('hi? hi!', $context->invoke('hi', 'hi?'));
+*/
 		
 	}
 

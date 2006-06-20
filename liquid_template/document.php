@@ -3,8 +3,8 @@
 
 class LiquidDocument extends LiquidBlock {
 	
-	function LiquidDocument($tokens, $tags) {
-		$this->tags = $tags;
+	function LiquidDocument(& $tokens, & $file_system) {
+		$this->file_system = $file_system;
 		$this->parse($tokens);
 		
 	}

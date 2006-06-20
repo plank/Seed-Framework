@@ -211,13 +211,24 @@ class File {
 
 	/**
 	 * Outputs the file to the browser.
-	 * 
-	 * This probably doesn't belong here, but it's convenient for now.
+	 *
 	 */
 	function output_contents() {
 		if ($this->exists()) {
 			readfile($this->path);
 		}	
+	}
+	
+	/**
+	 * Returns the contents of the file.
+	 *
+	 * @return string
+	 */
+	function get_contents() {
+		if ($this->exists()) {
+			return file_get_contents($this->path);
+		}
+		
 	}
 	
 	/**

@@ -59,49 +59,57 @@ class LiquidDropTester extends UnitTestCase {
 	
 	function test_product_drop() {
 		
-		$tpl = LiquidTemplate::parse('  ');
-		$tpl->render(array('product' => new ProductDrop));
+		$template = new LiquidTemplate;
+		$template->parse('  ');
+		$template->render(array('product' => new ProductDrop));
 		$this->assertNoErrors();
 		
 		
-	    $tpl = LiquidTemplate::parse( ' {{ product.top_sales }} '  );
-	    $tpl->render(array('product' => new ProductDrop));
+	    $template = new LiquidTemplate;
+		$template->parse( ' {{ product.top_sales }} '  );
+	    $template->render(array('product' => new ProductDrop));
 	    $this->assertError('worked');
 
 	}
 
 	function test_text_drop() {
 		
-		$tpl = LiquidTemplate::parse(' {{ product.texts.text }} ');
-		$output = $tpl->render(array('product' => new ProductDrop()));	
+		$template = new LiquidTemplate;
+		$template->parse(' {{ product.texts.text }} ');
+		$output = $template->render(array('product' => new ProductDrop()));	
 		$this->assertEqual(' text1 ', $output);
 
-		$tpl = LiquidTemplate::parse(' {{ product.catchall.unknown }} ');
-		$output = $tpl->render(array('product' => new ProductDrop()));	
+		$template = new LiquidTemplate;
+		$template->parse(' {{ product.catchall.unknown }} ');
+		$output = $template->render(array('product' => new ProductDrop()));	
 		$this->assertEqual(' method: unknown ', $output);		
 		
 	}
 	
-	// this test needs standard tags to pass
-	/*
+	// needed to rename call to array because array is a reserved word in php
+	
 	function test_text_array_drop() {
-		$tpl = LiquidTemplate::parse('{% for text in product.texts.array %} {{text}} {% endfor %}');
-		$output = $tpl->render(array('product' => new ProductDrop()));
-		//$this->dump($output);
+		$template = new LiquidTemplate;
+		$template->parse('{% for text in product.texts.get_array %} {{text}} {% endfor %}');
+		$output = $template->render(array('product' => new ProductDrop()));
+		
+		$this->assertEqual(' text1  text2 ', $output);
 		
 	}
-	*/
+	
 	
 	function test_context_drop() {
-		$tpl = LiquidTemplate::parse(' {{ context.bar }} ');
-		$output = $tpl->render(array('context' => new ContextDrop(), 'bar'=>'carrot'));	
+		$template = new LiquidTemplate;
+		$template->parse(' {{ context.bar }} ');
+		$output = $template->render(array('context' => new ContextDrop(), 'bar'=>'carrot'));	
 		$this->assertEqual(' carrot ', $output);		
 		
 	}
 	
 	function test_nested_context_drop() {
-		$tpl = LiquidTemplate::parse(' {{ product.context.foo }} ');
-		$output = $tpl->render(array('product' => new ProductDrop(), 'foo'=>'monkey'));	
+		$template = new LiquidTemplate;
+		$template->parse(' {{ product.context.foo }} ');
+		$output = $template->render(array('product' => new ProductDrop(), 'foo'=>'monkey'));	
 		$this->assertEqual(' monkey ', $output);		
 
 	}
@@ -109,8 +117,9 @@ class LiquidDropTester extends UnitTestCase {
 	// skip this test as php4 doesn't support protected vars
 	/*
 	function test_protected() {
-		$tpl = LiquidTemplate::parse(' {{ product.callmenot }} ');
-		$output = $tpl->render(array('product' => new ProductDrop()));	
+		$template = new LiquidTemplate;
+		$template->parse(' {{ product.callmenot }} ');
+		$output = $template->render(array('product' => new ProductDrop()));	
 		$this->assertEqual('  ', $output);			
 		
 	}

@@ -304,10 +304,12 @@ class Seed {
 		$dir = dir($path);
 		
 		while(($file = $dir->read()) !== false ) {
-			if (substr($file, 0, 1) == '.') {
+			// ignore directories, hidden files, and files whose extension is not php
+			if (substr($file, 0, 1) == '.' || substr($file, -4) != '.php') {
 				continue;
 			}
 			
+			// make sure the file exists
 			if(is_file($path.$file)) {
 				require_once($path.$file);
 			}

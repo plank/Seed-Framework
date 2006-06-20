@@ -3,15 +3,20 @@
 
 class LiquidTestCase extends UnitTestCase {
 
-	function assert_template_result($expected, $template, $assigns = null, $message = null) {
+	function assert_template_result($expected, $template, $assigns = null, $message = "%s", $debug = false) {
 	
 		if (is_null($assigns)) {
 			$assigns = array();
 		}
 		
-		$result = LiquidTemplate::parse($template);
+		$result = new LiquidTemplate;
+		$result->parse($template);
 
-		$this->assertEqual($expected, $result->render($assigns));
+		if ($debug) {
+			debug($result);
+		}
+		
+		$this->assertEqual($expected, $result->render($assigns), $message);
 	}
 
 }
