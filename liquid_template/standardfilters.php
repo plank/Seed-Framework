@@ -49,7 +49,7 @@ class TruncateLiquidFilter extends LiquidFilter {
 	function filter($input, $characters = 100) {
 		if (is_string($input) || is_numeric($input)) {
 			if (strlen($input) > $characters) {
-				return substr($input, 0, $characters).'&hellip;';
+				return substr($input, 0, $characters - 1).'&hellip;';
 			}
 		}
 		
@@ -59,21 +59,19 @@ class TruncateLiquidFilter extends LiquidFilter {
 }
 
 class TruncatewordsLiquidFilter extends LiquidFilter {
-	function filter($input, $words) {
+	function filter($input, $words = 15) {
 		if (is_string($input)) {
 			$wordlist = explode(" ", $input);
 			
-			if (size($wordlist) > $words) {
-				return implode(" ", array_slice($wordlist, 0, $words)).'$hellip;';
+			if (count($wordlist) > $words) {
+				return implode(" ", array_slice($wordlist, 0, $words - 1)).'&hellip;';
 				
 			}
-			
 		}
 		
 		return $input;
 		
 	}
-	
 }
 
 class JoinLiquidFilter extends LiquidFilter {
