@@ -25,6 +25,7 @@ class Dispatcher {
 			session_start();
 		} else {
 			trigger_error("Session could not be started because output was started in '$file' on line $line", E_USER_WARNING);
+			return false;
 		}
 		
 		$request = & Request::get_request();
@@ -36,11 +37,12 @@ class Dispatcher {
 			$response = $controller->process($request, $response);
 		} else {
 			trigger_error('Mapper returned an empty controller, make sure your controller extends the controller base class', E_USER_WARNING);
+			return false;
 		}
 		
 		if (is_a($response, 'Response')) {
 			$response->out();
-			die();
+			return true;
 		}
 	}
 }
