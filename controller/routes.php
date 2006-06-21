@@ -216,7 +216,7 @@ class Route {
 					// no value, but there is a default for it
 					
 					// we only add it if it's required
-					if (count($return)) {
+					if (count($return) && isset($values[$token])) {
 						$this->log[] = "Added token '$token' = ".$values[$token]." from defaults";
 						
 						$return[] = $defaults[$token];	
