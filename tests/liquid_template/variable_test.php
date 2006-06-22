@@ -106,7 +106,7 @@ class LiquidVariableTester extends UnitTestCase {
 	
 }
 
-class VariableResolutionText extends UnitTestCase {
+class VariableResolutionTest extends UnitTestCase {
 	
 	function test_simple_variable() {
 		

@@ -57,11 +57,10 @@ class Regexp {
 		if (count($matches) == 1) {
 			return $matches[0];
 		}
-
+		
 		array_shift($matches);
 		
 		$result = array();
-
 		
 		foreach($matches as $match_key => $sub_matches) {
 			foreach($sub_matches as $sub_match_key => $sub_match) {

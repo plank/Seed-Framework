@@ -19,7 +19,6 @@ class LiquidRegexpTester extends UnitTestCase {
 		$this->assertEqual(array('"arg 1"'), $this->regexp->scan('"arg 1"'));
 	}
 	
-	
 	function test_words() {
 	    $this->assertEqual(array('arg1', 'arg2'), $this->regexp->scan('arg1 arg2'));
 	}
