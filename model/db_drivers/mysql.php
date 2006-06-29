@@ -441,6 +441,12 @@ class MysqlIterator extends Iterator  {
 		
 	}
 	
+	function reset() {
+		if ($this->position) {
+			$this->position = 0;
+			return mysql_data_seek($this->data, 0);
+		}
+	}
 }
 
 /**

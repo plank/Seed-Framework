@@ -42,7 +42,7 @@ class Seed {
 	 *
 	 * @var array
 	 */
-	var $subfolders = array('classes', 'libs', 'view', 'model', 'controller', 'liquid_template', 'vendor');
+	var $subfolders = array('classes', 'libs', 'view', 'model', 'controller', 'vendor');
 	
 	/**
 	 * A comma delimited list of file extensions the framework shouldn't handle 

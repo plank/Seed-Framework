@@ -1165,4 +1165,9 @@ class ModelIterator extends Iterator {
 		$model->assign($this->iterator->next());
 		return $model;
 	}
+	
+	function reset() {
+		return $this->iterator->reset();
+	
+	}
 }
