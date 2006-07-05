@@ -256,7 +256,9 @@ class Route {
 		$query_string = array();
 		
 		foreach($new_values as $key => $value) {
-			$query_string[] = "$key=$value";
+			if ($value !== '') {
+				$query_string[] = "$key=$value";
+			}
 		}
 		
 		if (count($query_string)) {
