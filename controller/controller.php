@@ -438,8 +438,26 @@ class Controller {
 	function url_for($options = null, $overwrite_options = null) {
 		$request = & Request::get_request();
 		
-		return APP_ROOT.Route::url_for($request->path, $options, $overwrite_options);
-		
+		if (is_array($options)) {
+			return APP_ROOT.Route::url_for($request->path, $options, $overwrite_options);
+		} else {
+			$options = APP_ROOT.$options;	
+			
+			foreach($overwrite_options as $key => $value) {
+				if ($value) {
+					$query_string[$key] = "$key=$value";	
+				}
+				
+			}	
+			
+			if (isset($query_string)) {
+				$options .= "?".implode('&amp;', $query_string);				
+				
+			}
+			
+			return $options;
+			
+		}
 		
 	}
 	
