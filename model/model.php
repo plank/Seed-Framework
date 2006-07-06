@@ -1014,10 +1014,10 @@ class Model extends DataSpace {
 		$this->remove_dependents();
 		
 		if (isset($this->deleted_field)) {
-			$query = "UPDATE ".$this->table." SET ".$this->deleted_field." = '1'".$this->where_this();	
+			$query = "UPDATE ".$this->db->escape_identifier($this->table)." SET ".$this->deleted_field." = '1'".$this->where_this();	
 			
 		} else {
-			$query = "DELETE FROM ".$this->table.$this->where_this();
+			$query = "DELETE FROM ".$this->db->escape_identifier($this->table).$this->where_this();
 			
 		}
 				
