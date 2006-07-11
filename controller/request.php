@@ -53,26 +53,68 @@ function transcribe($aList, $aIsTopLevel = true) {
  * @package controller
  */
 class Request {
+	/**
+	 * The request GET variables
+	 *
+	 * @var array
+	 */
 	var $get;
+	
+	/**
+	 * The request POST variable
+	 *
+	 * @var array
+	 */
 	var $post;
+	
+	/**
+	 * The request cookies
+	 *
+	 * @var array
+	 */
 	var $cookies;
+	
+	/**
+	 * The request parameters, which is the get merged with the post
+	 *
+	 * @var array
+	 */
 	var $parameters;
+	
+	/**
+	 * The request FILE variables
+	 *
+	 * @var array
+	 */
 	var $files;
+	
+	/**
+	 * The variables extracted from the requested path
+	 *
+	 * @var array
+	 */
 	var $path;
+	
+	/**
+	 * The request session variables
+	 *
+	 * @var array
+	 */
 	var $session;
+	
+	/**
+	 * Raw request input; this doesn't work on IIS!
+	 *
+	 * @var string
+	 */
 	var $input;
 	
-	function & get_request() {
-		static $request;
-		
-		if (!isset($request)) {
-			$request[0] = new Request();
-		}
-		
-		return $request[0];
-		
-	}
-		
+
+	/**
+	 * Constructor
+	 *
+	 * @return Request
+	 */
 	function Request() {
 		$this->get = & $_GET;
 		$this->post = & $_POST;
@@ -83,6 +125,12 @@ class Request {
 		$this->parameters = array_merge($_GET, $_POST);	
 		
 		$this->method = $_SERVER['REQUEST_METHOD'];
+		
+		// allow emulation of DELETE and PUT via hidden field in POST
+		if ($this->method == "POST" && isset($this->post['_method'])) {
+			$this->method = $this->post['_method'];
+			
+		}
 		
 		$this->input = file_get_contents('php://input');
 		
@@ -108,6 +156,11 @@ class Request {
 	
 	}
 	
+	/**
+	 * Set the path parameters to the given array
+	 *
+	 * @param array $path
+	 */
 	function set_path_parameters($path = array()) {
 		$this->path = $path;
 		

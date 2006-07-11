@@ -28,7 +28,7 @@ class Dispatcher {
 			return false;
 		}
 		
-		$request = & Request::get_request();
+		$request = new Request();
 		$response = new Response();
 		
 		$controller = Router::map($request);

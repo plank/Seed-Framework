@@ -419,7 +419,7 @@ class Controller {
 	 * @param mixed $options
 	 */
 	function redirect($options = null, $overwrite_options = null) {
-		$request = & Request::get_request();
+		$request = & $this->request;
 				
 		if ($this->has_performed()) {
 			trigger_error("Double render error", E_USER_WARNING);
@@ -436,7 +436,7 @@ class Controller {
 	}	
 	
 	function url_for($options = null, $overwrite_options = null) {
-		$request = & Request::get_request();
+		$request = $this->request;
 		
 		if (is_array($options)) {
 			return APP_ROOT.Route::url_for($request->path, $options, $overwrite_options);
