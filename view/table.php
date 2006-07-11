@@ -308,7 +308,7 @@ class Table {
 					$class = '';
 				}
 				
-				$return .= "<a href='".$this->escape(this->controller->url_for(null, $link_options))."' $class>$display</a>";
+				$return .= "<a href='".$this->escape($this->controller->url_for(null, $link_options))."' $class>$display</a>";
 				
 			} elseif (!$display) {
 				$return .= "&nbsp;";
