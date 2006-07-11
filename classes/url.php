@@ -29,7 +29,9 @@ class URL {
 	var $query;
 	var $query_array;
 	var $fragment;
+	var $directory;
 	var $file_name;
+	var $base_name;
 	var $extension;
 	
 	var $default_ports = array('http'=>'80', 'https'=>'443');
@@ -58,7 +60,7 @@ class URL {
 		// if there's no scheme, treat the url a relative
 		if (!isset($parts['scheme'])) {
 			$new_parts = @parse_url($relative_to);
-			
+
 			$transfer = array('scheme', 'host', 'user', 'pass');
 
 			foreach ($transfer as $key) {
@@ -123,12 +125,27 @@ class URL {
 			$this->port = $this->default_ports[$this->scheme];
 		}
 		
+		// get filename
 		$this->file_name = basename($this->path);
 		
-		$pos = strrpos($this->file_name, '.');
+		// get directory name
+		$this->directory = dirname($this->path);
 		
-		if ($pos !== false) {
-			$this->extension = substr($this->file_name, $pos + 1);	
+		if ($this->directory != '/') {
+			$this->directory .= '/';
+		}
+		
+		// get extension and base name
+		$file_name = explode('.', $this->file_name);
+		
+		if (count($file_name) == 1) {
+			$this->base_name = $file_name[0];
+			$this->extension = '';
+			
+		} else {
+			$this->extension = array_pop($file_name);
+			$this->base_name = implode('.', $file_name);
+				
 		}
 	
 	}
