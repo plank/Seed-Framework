@@ -54,6 +54,13 @@ function transcribe($aList, $aIsTopLevel = true) {
  */
 class Request {
 	/**
+	 * The requested url
+	 *
+	 * @var URL
+	 */
+	var $url;
+	
+	/**
 	 * The request GET variables
 	 *
 	 * @var array
@@ -116,6 +123,7 @@ class Request {
 	 * @return Request
 	 */
 	function Request() {
+		$this->url = new URL($_REQUEST['url']); //, APP_ROOT);
 		$this->get = & $_GET;
 		$this->post = & $_POST;
 		$this->cookies = & $_COOKIE;
