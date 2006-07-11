@@ -145,11 +145,13 @@ class File {
 				continue;
 			}
 			
-			$return[] = $this->path.'/'.$file;
+			$return[$file] = $this->path.'/'.$file;
 			
 		}
 
-		return $return;		
+		ksort($return);
+
+		return array_values($return);
 		
 	}
 	
@@ -172,11 +174,13 @@ class File {
 				continue;
 			}
 			
-			$return[] = new File($this->path.'/'.$file);
-			
+			$return[$file] = new File($this->path.'/'.$file);
+
 		}
 
-		return $return;
+		ksort($return);
+
+		return array_values($return);
 	}
 
 	/**
