@@ -28,9 +28,8 @@ class Router {
 	function map(& $request) {
 		
 		// strip out the query string if the url contains it
-		list($url) = explode('?', assign($request->get['url'], ''), 2);
 		
-		$path_params = Route::parse($url);
+		$path_params = Route::parse($request->url->directory.$request->url->base_name);
 		
 		if (!isset($path_params['controller'])) {
 			trigger_error("The mapper couldn't find a controller for the request '$url', please check the routings file", E_USER_ERROR);	
@@ -284,9 +283,9 @@ class Route {
 		$this->log = array();
 		
 		// explode the route and the url, getting rid of extraneous slashes
-		$route_parts = array_diff(explode('/', $this->route), array(''));
-		$url_parts = array_diff(explode('/', $url), array(''));
-
+		$route_parts = array_values(array_diff(explode('/', $this->route), array('')));
+		$url_parts = array_values(array_diff(explode('/', $url), array('')));
+		
 		$return = $this->defaults;
 	
 		$catch_all = false;
