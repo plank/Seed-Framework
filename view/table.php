@@ -257,13 +257,13 @@ class Table {
 			
 		}
 		
-		$return .= "<colgroup>\n";
+		$return .= "</colgroup>\n";
 		
 		if (count($this->row_actions) > 0) {
 			$return .= "<colgroup id='col_actions'>";
 			
 			foreach($this->row_actions as $action => $display) {
-				$return .= "<col id='col_".Inflector::underscore($action)."' />";
+				$return .= "<col id='col_".Inflector::linkify($action)."' />";
 			}
 			
 			$return .= "</colgroup>";
@@ -308,7 +308,7 @@ class Table {
 					$class = '';
 				}
 				
-				$return .= "<a href='".$this->controller->url_for(null, $link_options)."' $class>$display</a>";
+				$return .= "<a href='".$this->escape(this->controller->url_for(null, $link_options))."' $class>$display</a>";
 				
 			} elseif (!$display) {
 				$return .= "&nbsp;";
@@ -517,7 +517,7 @@ class Table {
 	}
 	
 	function escape($string) {
-		return $string; //htmlentities(utf8_decode($string));
+		return htmlspecialchars($string); //htmlentities(utf8_decode($string));
 	}
 	
 }
@@ -604,7 +604,7 @@ class TableColumn {
 	}
 	
 	function escape($string) {
-		return $string; //htmlentities(utf8_decode($string));
+		return htmlspecialchars($string); //htmlentities(utf8_decode($string));
 	}	
 }
 
