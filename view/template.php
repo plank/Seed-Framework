@@ -247,64 +247,14 @@ class Template {
 	}	
 	
 	/**
+	 * Returns a string containing pagination links
+	 *
 	 * @param Paginator $paginator
 	 */
-	function pagination_links($paginator, $link = null) {
-		$current_page = $paginator->get_current_page();
-		$num_pages = $paginator->page_count();
-		$padding = 2;
-		$link_array = null;
-			
-		if ($num_pages == 1) {
-			return "";
-		}
+	function pagination_links($paginator) {
+		$links = new PaginationView($this, $paginator);
 		
-		if ($current_page->number == 1) {
-			$return[] = "<span>&laquo;</span>";
-			$return[] = "<span>1</span>";
-		} else {
-			$return[] = $this->link_to("&laquo;", $link, array('page'=>$current_page->number - 1));
-			$return[] = $this->link_to('1', $link, array('page'=>1));
-			
-		}
-	
-		$low_page = $current_page->number - $padding;
-		
-		if ($low_page < 2) {
-			$low_page = 2;	
-		}
-		
-		$high_page = $current_page->number + $padding;
-		
-		if ($high_page > $num_pages - 1) {
-			$high_page = $num_pages - 1;
-		}
-
-		if ($low_page > 2) {
-			$return[] = '...';	
-		}
-		
-		for($x = $low_page; $x <= $high_page; $x++) {
-			if ($x == $current_page->number) {
-				$return[] = $x;
-			} else {
-				$return[] = $this->link_to($x, $link, array('page'=>$x));	
-			}
-		}
-
-		if ($high_page < $num_pages - 1) {
-			$return[] = '...';	
-		}
-		
-		if ($current_page->number == $num_pages) {
-			$return[] = "<span>$num_pages</span>";
-			$return[] = "<span>&raquo;</span>";
-		} else {
-			$return[] = $this->link_to($num_pages, $link, array('page'=>$num_pages));
-			$return[] = $this->link_to("&raquo;", $link, array('page'=>$current_page->number + 1));
-		}
-	
-		return implode(' ', $return);
+		return $links->generate();
 	}
 }
 
