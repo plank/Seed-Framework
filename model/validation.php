@@ -264,7 +264,7 @@ class ValidationRule {
 		}
 
 		
-		$this->error_messages[] = sprintf($attribute_name.' '.$message, $value);
+		$this->error_messages[] = sprintf($message, $attribute_name, $value);
 		
 	}
 	
@@ -320,7 +320,7 @@ class ValidationRule {
  */
 class PresenceValidationRule extends ValidationRule {
 	
-	var $message = "can't be empty";
+	var $message = "%s can't be empty";
 	
 	function validate_attribute($values, $attribute, $value) {
 		if (is_null($value) || $value == '') {
@@ -339,7 +339,7 @@ class PresenceValidationRule extends ValidationRule {
  * Validates that a checkbox has been checked
  */
 class AcceptanceValidationRule extends ValidationRule {
-	var $message = "must be accepted";
+	var $message = "%s must be accepted";
 
 	function validate_attribute($values, $attribute, $value) {
 		$result = ($value && true);	
@@ -358,7 +358,7 @@ class AcceptanceValidationRule extends ValidationRule {
  * Validated that a field has the same content as another
  */
 class ConfirmationValidationRule extends ValidationRule {
-	var $message = "doesn't match confirmation";	
+	var $message = "%s doesn't match confirmation";	
 	
 	var $confirmation_attribute;
 	
@@ -386,19 +386,19 @@ class ConfirmationValidationRule extends ValidationRule {
 }
 
 class InclusionValidationRule extends ValidationRule {
-	var $message = "is not included in the list";	
-	var $allow_null;
+	var $message = "%s is not included in the list";	
+	var $allow_empty;
 	var $in;
 	
 	function setup() {
-		$this->allow_null = assign($this->params['allow_null'], false);		
+		$this->allow_empty = assign($this->params['allow_empty'], false);		
 		
 		$this->in = assign($this->params['in'], array());
 		
 	}
 	
 	function validate_attribute($values, $attribute, $value) {
-		if (is_null($value) && $this->allow_null) {
+		if (!$value && $this->allow_empty) {
 			return true;
 		}
 		
@@ -415,19 +415,19 @@ class InclusionValidationRule extends ValidationRule {
 }
 
 class ExclusionValidationRule extends ValidationRule {
-	var $message = "is included in the list";	
-	var $allow_null;
+	var $message = "%s is included in the list";	
+	var $allow_empty;
 	var $in;
 	
 	function setup() {
-		$this->allow_null = assign($this->params['allow_null'], false);		
+		$this->allow_empty = assign($this->params['allow_empty'], false);		
 		
 		$this->in = assign($this->params['in'], array());
 		
 	}
 	
 	function validate_attribute($values, $attribute, $value) {
-		if (is_null($value) && $this->allow_null) {
+		if (!$value && $this->allow_empty) {
 			return true;
 		}
 		
@@ -444,7 +444,7 @@ class ExclusionValidationRule extends ValidationRule {
 }
 
 class FormatValidationRule extends ValidationRule {
-	var $message = "is invalid";
+	var $message = "%s is invalid";
 	var $regexp;
 	
 	function setup() {
@@ -467,9 +467,9 @@ class FormatValidationRule extends ValidationRule {
 }
 
 class LengthValidationRule extends ValidationRule {
-	var $wrong_length_message = 'is the wrong length (should be %d characters)';	
-	var $too_long_message = 'is too long (max is %d characters)';
-	var $too_short_message = 'is too short (min is %d characters)';
+	var $wrong_length_message = '%s is the wrong length (should be %d characters)';	
+	var $too_long_message = '%s is too long (max is %d characters)';
+	var $too_short_message = '%s is too short (min is %d characters)';
 	
 	var $minimum;
 	var $maximum;
@@ -516,7 +516,7 @@ class LengthValidationRule extends ValidationRule {
 }
 
 class NumericalityValidationRule extends ValidationRule  {
-	var $message = 'is not a number';
+	var $message = '%s is not a number';
 	var $only_integer;
 	
 	function setup() {
@@ -551,10 +551,18 @@ class NumericalityValidationRule extends ValidationRule  {
 }
 
 class EmailValidationRule extends ValidationRule {
-	var $message = 'is not a valid email address';
-
+	var $message = '%s is not a valid email address';
+	var $allow_empty;
+	
+	function setup() {
+		$this->allow_empty = assign($this->params['allow_empty'], false);	
+	}
+	
 	function validate_attribute($values, $attribute, $value) {
-				
+		if (!$value  && $this->allow_empty) {
+			return true;
+		}
+						
 		$result = is_valid_email_address($value);	
 		
 		if (!$result) {
