@@ -172,7 +172,7 @@ class Route {
 		
 		// build the result array backwards so we can ignore defaults without multiple passes
 		foreach($route_parts as $route_part) {
-			
+			$this->log[] = "Parsing token '$route_part'";
 			if ($token = $this->get_token($route_part, '*')) {
 				// token is a catch all, merge the values into the array
 				if (isset($values[$token]) && is_array($values[$token])) {
@@ -215,11 +215,11 @@ class Route {
 					// no value, but there is a default for it
 					
 					// we only add it if it's required
-					if (count($return) && isset($values[$token])) {
+					if (count($return) && isset($defaults[$token])) {
 						$this->log[] = "Added token '$token' = ".$values[$token]." from defaults";
 						
 						$return[] = $defaults[$token];	
-					}
+					} 
 					
 					unset($defaults[$token]);
 										
