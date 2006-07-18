@@ -103,7 +103,7 @@ class Template {
 			$controller = $this->controller->get_type();	
 		}
 		
-		$controller = Controller::factory($controller);
+		$controller = Controller::factory($controller, $this->controller->router);
 		
 		if (!$controller) {
 			return false;

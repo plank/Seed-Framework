@@ -187,7 +187,8 @@ class Controller {
 	 * @param string $type
 	 * @return Controller
 	 */
-	function factory($type, $router) {
+	function factory($type, $router = null) {
+		
 		$type = strtolower($type);
 		
 		Controller::import($type);
@@ -268,6 +269,12 @@ class Controller {
 
 		Logger::log('dispatch', LOG_LEVEL_DEBUG, 'controller: '.$this->get_type().', action: '.$this->action_name);
 		
+		if (substr($this->action_name, 0, 1) == '_') {
+			Logger::log('dispatch', LOG_LEVEL_WARNING, "Call to protected action '$this->action_name'");
+			$this->response->status(404);
+			return $this->response;
+		}
+		
 		$filter_result = $this->filter_chain->call_before($this->action_name);
 		
 		if (!$filter_result || $this->has_performed()) {
@@ -288,7 +295,6 @@ class Controller {
 			
 		}
 
-		
 		if (!$this->has_performed()) {
 			$this->render();
 		}
