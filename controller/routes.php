@@ -20,6 +20,13 @@
 class Router {
 	
 	/**
+	 * The array of connected routes
+	 *
+	 * @var array
+	 */
+	var $routes;
+	
+	/**
 	 * Maps a request to a specific controller and takes care of loading it
 	 * 
 	 * @param Request $request The object representing the incoming request
@@ -29,7 +36,7 @@ class Router {
 		
 		// strip out the query string if the url contains it
 		
-		$path_params = Route::parse($request->url->directory.$request->url->base_name);
+		$path_params = $this->parse($request->url->directory.$request->url->base_name);
 		
 		if (!isset($path_params['controller'])) {
 			trigger_error("The mapper couldn't find a controller for the request '$url', please check the routings file", E_USER_ERROR);	
@@ -46,9 +53,90 @@ class Router {
 		
 		$controller_path .= $path_params['controller'];
 		
-		return Controller::factory($controller_path);
+		return Controller::factory($controller_path, $this);
 		
 	}
+
+	function load_config() {
+		// register routes
+		require_once(CONFIG_PATH.'routes.php');
+		
+	}
+	
+	/**
+	 * Adds a route to the route set
+	 */
+	function connect($name = '', $route, $defaults = null, $requirements = null) {
+		if ($name) {
+			$this->routes[$name] = new Route($route, $defaults, $requirements);
+		} else {
+			$this->routes[] = new Route($route, $defaults, $requirements);			
+		}
+
+		return true;
+	}
+	
+	/**
+	 * Generates a url
+	 *
+	 * @param array $request_values The path values from the incoming request
+	 * @param array $new_values The new values to place into the url
+	 * @param array $overwrite_values Values that will overwrite the request values
+	 * @return string
+	 */
+	function url_for($request_values = null, $new_values = null, $overwrite_values = null) {
+		
+		foreach($this->routes as $route) {
+			if($result = $route->generate_url($request_values, $new_values, $overwrite_values)) {
+				return $result;	
+				
+			}
+			
+		}
+		
+		return false;
+		
+	}	
+	
+	function url_for_name($name, $request_values = null, $new_values = null, $overwrite_values = null) {
+		
+		
+		if (!key_exists($name, $this->routes)) {
+			trigger_error("Route '$name' not found", E_USER_WARNING);
+			return false;	
+			
+		}
+		
+		$route = $this->routes[$name];
+		
+		return $route->generate_url($request_values, $new_values, $overwrite_values);
+		
+	}
+	
+	/**
+	 * Parses a url
+	 *
+	 * @param string $url
+	 * @return array
+	 */
+	function parse($url) {
+		
+		
+		foreach($this->routes as $route) {
+			if($result = $route->parse_url($url)) {
+				return $result;	
+				
+			}
+			
+		}
+		
+		return false;
+		
+	}
+	
+
+	
+		
 	
 }
 
@@ -369,128 +457,6 @@ class Route {
 		}
 		
 	}
-	
-	
-	/**
-	 * Adds a route to the route set
-	 */
-	function connect($name = '', $route, $defaults = null, $requirements = null) {
-		
-		$routes = Route::_route_storage();
-		
-		if ($name) {
-			$routes[$name] = new Route($route, $defaults, $requirements);
-		} else {
-			$routes[] = new Route($route, $defaults, $requirements);			
-		}
-
-		Route::_route_storage($routes);
-		
-		return true;
-	}
-	
-	/**
-	 * Generates a url
-	 *
-	 * @param array $request_values The path values from the incoming request
-	 * @param array $new_values The new values to place into the url
-	 * @param array $overwrite_values Values that will overwrite the request values
-	 * @return string
-	 */
-	function url_for($request_values = null, $new_values = null, $overwrite_values = null) {
-		
-		$routes = Route::_route_storage();
-		
-		foreach($routes as $route) {
-			if($result = $route->generate_url($request_values, $new_values, $overwrite_values)) {
-				return $result;	
-				
-			}
-			
-		}
-		
-		return false;
-		
-	}	
-	
-	function url_for_name($name, $request_values = null, $new_values = null, $overwrite_values = null) {
-		
-		$routes = Route::_route_storage();
-		
-		if (!key_exists($name, $routes)) {
-			trigger_error("Route '$name' not found", E_USER_WARNING);
-			return false;	
-			
-		}
-		
-		$route = $routes[$name];
-		
-		return $route->generate_url($request_values, $new_values, $overwrite_values);
-		
-	}
-	
-	/**
-	 * Parses a url
-	 *
-	 * @param string $url
-	 * @return array
-	 */
-	function parse($url) {
-		
-		$routes = Route::_route_storage();
-		
-		foreach($routes as $route) {
-			if($result = $route->parse_url($url)) {
-				return $result;	
-				
-			}
-			
-		}
-		
-		return false;
-		
-	}
-	
-	/**
-	 * Returns the routes
-	 *
-	 * @static 
-	 * @return array An array containing all the current routes
-	 */
-	function get_routes() {
-		return Route::_route_storage();	
-		
-	}
-	
-	/**
-	 * Resets the routes
-	 *
-	 * @static 
-	 */
-	function reset_routes() {
-		Route::_route_storage(array());	
-		
-	}
-	
-	/**
-	 * @access private
-	 * @param array $new_routes;
-	 */
-	function _route_storage($new_routes = null) {
-		static $routes;
-		
-		if (isset($new_routes)) {
-			$routes = $new_routes;	
-			
-		}
-		
-		if (!isset($routes)) {
-			$routes = array();	
-		}
-		
-		return $routes;
-		
-	}	
 	
 	
 	

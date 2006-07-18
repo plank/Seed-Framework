@@ -11,16 +11,6 @@ class RouteTester extends UnitTestCase {
 		$this->assertEqual(Route::get_token('$controller'), 'controller');
 		$this->assertFalse(Route::get_token('controller'));
 		
-		// nothing in it
-		$this->assertEqual(Route::_route_storage(array()), array());
-
-		$route1 = new Route('$controller/$action/$id');
-		$route2 = new Route('admin/$controller/$action/$id');
-		
-		$new_routes = array($route1, 'admin'=>$route2);
-		
-		$this->assertIdentical(Route::_route_storage($new_routes), array($route1, 'admin'=>$route2));
-			
 	}
 	
 	function test_default_route() {

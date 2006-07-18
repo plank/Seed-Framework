@@ -232,9 +232,7 @@ class Seed {
 		
 		// register db
 		$db = DB::register('default', DB_TYPE, DB_HOST, DB_USER, DB_PASS, DB_NAME);		
-		
-		// register routes
-		require_once(CONFIG_PATH.'routes.php');
+
 	}
 	
 	/**

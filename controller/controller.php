@@ -48,6 +48,13 @@ class Controller {
 	var $scaffolding_class = 'scaffolding';
 	
 	/**
+	 * The router object
+	 *
+	 * @var Router
+	 */
+	var $router;
+	
+	/**
 	 * The request object
 	 *
 	 * @var Request
@@ -180,7 +187,7 @@ class Controller {
 	 * @param string $type
 	 * @return Controller
 	 */
-	function factory($type) {
+	function factory($type, $router) {
 		$type = strtolower($type);
 		
 		Controller::import($type);
@@ -200,7 +207,7 @@ class Controller {
 		}
 		
 		$controller->full_type = $type;
-		
+		$controller->router = $router;
 		return $controller;
 	}
 	
@@ -276,8 +283,8 @@ class Controller {
 			call_user_func(array(&$this->scaffolding, $this->action_name));
 			
 		} else {
-			// this should log the condition instead of triggerering an error
 			Logger::log('dispatch', LOG_LEVEL_WARNING, "Action '$this->action_name' not found in ".get_class($this));
+			$this->response->status(404);
 			
 		}
 
@@ -417,6 +424,7 @@ class Controller {
 	 * Sets the response to redirect to the passed action or url
 	 *
 	 * @param mixed $options
+	 * @return bool
 	 */
 	function redirect($options = null, $overwrite_options = null) {
 		$request = & $this->request;
@@ -427,19 +435,20 @@ class Controller {
 		}
 		
 		if (is_array($options) || is_null($options)) {
-			$options = APP_ROOT.Route::url_for($request->path, $options, $overwrite_options);
+			$options = APP_ROOT.$this->router->url_for($request->path, $options, $overwrite_options);
 		}
 		
 		$this->response->redirect($options);
 		$this->performed_redirect = true;
 		
+		return true;
 	}	
 	
 	function url_for($options = null, $overwrite_options = null) {
 		$request = $this->request;
 		
 		if (is_array($options)) {
-			return APP_ROOT.Route::url_for($request->path, $options, $overwrite_options);
+			return APP_ROOT.$this->router->url_for($request->path, $options, $overwrite_options);
 		} else {
 			$options = APP_ROOT.$options;	
 			
@@ -458,10 +467,7 @@ class Controller {
 			return $options;
 			
 		}
-		
 	}
-	
-
 }
 
 

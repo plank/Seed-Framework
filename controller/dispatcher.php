@@ -31,7 +31,10 @@ class Dispatcher {
 		$request = new Request();
 		$response = new Response();
 		
-		$controller = Router::map($request);
+		$router = new Router();
+		$router->load_config();
+		
+		$controller = $router->map($request);
 		
 		if (is_a($controller, 'Controller')) {
 			$response = $controller->process($request, $response);
@@ -41,7 +44,7 @@ class Dispatcher {
 		}
 		
 		if (is_a($response, 'Response')) {
-			$response->out();
+			$response->out($request->method);
 			return true;
 		}
 	}

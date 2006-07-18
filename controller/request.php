@@ -116,6 +116,12 @@ class Request {
 	 */
 	var $input;
 	
+	/**
+	 * The response method
+	 *
+	 * @var string
+	 */
+	var $method;
 
 	/**
 	 * Constructor
