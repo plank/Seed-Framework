@@ -77,7 +77,8 @@ class Response {
 			'location' => $to_url
 		);
 		
-		$this->body = "<html><body>You are being <a href=\"$to_url\">redirected</a>.</body></html>";
+		$this->body = "<html><head><title>".$this->response_code_string($this->response_code)."</title></head>";
+		$this->body .= "<body>You are being <a href=\"$to_url\">redirected</a>.</body></html>";
 
 	}
 
@@ -90,7 +91,7 @@ class Response {
 	function status($code, $message = '') {
 		$this->response_code = $code;
 		
-		$this->body = "<html><body><h1>".$this->response_code($code)."</h1>";
+		$this->body = "<html><head><title>".$this->response_code_string($code)."</title></head><body><h1>".$this->response_code_string($code)."</h1>";
 		
 		if ($message) {
 			$this->body .= "<p>".$message."</p>";	
@@ -107,7 +108,7 @@ class Response {
 	 */
 	function out($method = 'GET') {
 		if (!headers_sent($file, $line)) {
-			header('HTTP/1.1 '.$this->response_code($this->response_code));
+			header('HTTP/1.1 '.$this->response_code_string($this->response_code));
 
 			foreach ($this->headers as $header => $value) {
 				header("$header: $value");
@@ -130,7 +131,7 @@ class Response {
 	 * @param int $code
 	 * @return string
 	 */
-	function response_code($code = 200) {
+	function response_code_string($code = 200) {
 		$codes = array (
 		    100 => "Continue",
 		    101 => "Switching Protocols",
