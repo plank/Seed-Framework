@@ -103,9 +103,13 @@ class TreeView {
 		$return .= "HIGHLIGHT_BG = '#c9131c'\n";
 		$return .= "ICONPATH = '_images/tree/'\n\n";
 		
-		$this->result->next();
+		$node = $this->result->next();
+
+		$options = $this->link_options;
+		$options['id'] = $node->get_id();
+		$link = $this->controller->url_for($options);		
 		
-		$return .= "\taux0 = gFld(\"<span class='root'>".$this->root_label."<span>\", \"\")\n";
+		$return .= "\taux0 = gFld(\"<a href='$link' class='root'>".$this->root_label."<a>\", \"\")\n";
 		$return .= "\taux0.xID = \"0\"\n";
 		
 		while($node = $this->result->next()) {
