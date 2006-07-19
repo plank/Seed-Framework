@@ -1,8 +1,0 @@
-<IfModule mod_rewrite.c>
-
-# rewrite all files that don't exist on filesystem
-RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
-
-</IfModule>
