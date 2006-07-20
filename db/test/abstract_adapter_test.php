@@ -1,6 +1,6 @@
 <?php
 
-class TestDB extends AbstractDB {
+class TestAdapter extends AbstractAdapter {
 	
 	var $test_result = array(
 		array('id'=>1, 'name'=>'foo'),
@@ -36,7 +36,7 @@ class TestDB extends AbstractDB {
 }
 
 
-class AbstractDBTester extends UnitTestCase {
+class AbstractAdapterTester extends UnitTestCase {
 	
 	/**
 	 * @var TestDB
@@ -44,7 +44,7 @@ class AbstractDBTester extends UnitTestCase {
 	var $db;
 	
 	function setup() {
-		$this->db = new TestDB();
+		$this->db = new TestAdapter();
 	}
 	
 	function test_adapter_name() {
@@ -61,7 +61,7 @@ class AbstractDBTester extends UnitTestCase {
 		$this->assertEqual($this->db->quote_table_name('baz'), '"baz"');
 		$this->assertEqual($this->db->quoted_true(), "'t'");
 		$this->assertEqual($this->db->quoted_false(), "'f'");
-		$this->assertEqual($this->db->quoted_date('06/30/1980'), '1980-06-30 12:00:00');
+		$this->assertEqual($this->db->quoted_date('06/30/1980'), "'1980-06-30 12:00:00'");
 	}
 	
 	function test_selects() {

@@ -1,13 +1,37 @@
 <?php
 
 
-class AbstractDB {
+/**
+ * Abstract base class for connection adapters
+ *
+ * @package db
+ * @subpackage adapters
+ */
+class AbstractAdapter {
 	
+	/**
+	 * @var resource
+	 */
+	var $connection;
+	
+	/**
+	 * @var array
+	 */
 	var $native_database_types;
 	
-	function AbstractDB() {
+	
+	var $connection_options;
+	
+	/**
+	 * Constructor
+	 */
+	function AbstractAdapter() {
 		
 		
+	}
+	
+	function connect($options) {
+		$this->connection_options = $option;
 	}
 	
 	/**
@@ -18,7 +42,7 @@ class AbstractDB {
 	function adapter_name() {
 		$class_name = class_name($this);
 		
-		return substr($class_name, 0, strlen($class_name) - 2);
+		return substr($class_name, 0, strlen($class_name) - 7);
 	}
 		
 	function is_active() {
@@ -28,10 +52,35 @@ class AbstractDB {
 	// Quoting
 	
 	/**
-	 * Returns a quoted value
+	 * Returns a quoted value, depending on the variable type and the column type (if given)
+	 *
+	 * @param mixed $value
+	 * @param Column $column
+	 * @return string
 	 */
-	function quote($value, $column) {
-		return "'".$value."'";
+	function quote($value, $column = null) {
+		switch (true) {
+		
+		case is_null($value):
+			return "NULL";
+			
+		case is_bool($value):
+			if ($value === true) {
+				return is_a($column, 'Column') && $column->type == INTEGER ? '1' : $this->quoted_true();
+				
+			} else {
+				return is_a($column, 'Column') && $column->type == INTEGER ? '0' : $this->quoted_false();				
+				
+			}	
+		
+		case is_string($value):
+			return $this->quote_string($value);
+		
+		case is_numeric($value):
+			return $value;
+			
+		}		
+
 	}
 	
 	/**
@@ -86,7 +135,7 @@ class AbstractDB {
 			$value = strtotime($value);
 		}	
 		
-		return date("Y-m-d h:i:s", $value);
+		return "'".date("Y-m-d h:i:s", $value)."'";
 	}
 	
 	// Data Manipulation statements
@@ -451,6 +500,11 @@ class AbstractDB {
 		}
 		
 		return $sql;
+	}
+
+	// Logging
+	function log($sql, $name) {
+		// do nothing for now, this will be implemented later
 	}
 	
 }
