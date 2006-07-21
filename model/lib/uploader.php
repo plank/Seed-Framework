@@ -76,7 +76,7 @@ class AbstractUploader {
 	
 	/**
 	 * @param string $field
-	 * @param string $file
+	 * @param array $file
 	 */
 	function handle_upload($field, $file) {
 		if ($errors = $this->validate_file($file) !== true) {
