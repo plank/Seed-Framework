@@ -35,10 +35,10 @@ class ValidationRuleTester extends UnitTestCase {
 		// name is not present
 		$validator = new PresenceValidationRule('email');
 		$this->assertfalse($validator->validate($this->data));
-		$this->assertequal($validator->get_messages(), array("Email ".$validator->message));
+		$this->assertequal($validator->get_messages(), array(sprintf($validator->message, "Email")));
 
 		// with a custom error message
-		$validator = new PresenceValidationRule('email', array('message'=>'is required'));
+		$validator = new PresenceValidationRule('email', array('message'=>'%s is required'));
 		$this->assertfalse($validator->validate($this->data));
 		$this->assertequal($validator->get_messages(), array("Email is required"));
 		
@@ -50,7 +50,7 @@ class ValidationRuleTester extends UnitTestCase {
 		// with multiple attributes
 		$validator = new PresenceValidationRule(array('name', 'email'));
 		$this->assertfalse($validator->validate($this->data));
-		$this->assertequal($validator->get_messages(), array("Email ".$validator->message));		
+		$this->assertequal($validator->get_messages(), array(sprintf($validator->message, "Email")));
 		
 		
 	}

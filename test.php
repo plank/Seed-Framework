@@ -24,7 +24,7 @@ if (!SKIP_DB_TESTS) {
 $test = &new GroupTest('All tests');
 
 foreach($seed->components as $component) {
-	if (SKIP_DB_TESTS && $component == 'model') {
+	if (SKIP_DB_TESTS && $component == 'db') {
 		continue;	
 	
 	}
