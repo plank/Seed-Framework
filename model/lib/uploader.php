@@ -1,38 +1,74 @@
 <?php
 
-class Uploader {
+/**
+ * The uploader works in conjunction with the model to upload files onto the file system
+ *
+ */
+class AbstractUploader {
 	
 	/**
-	 * @var Model
+	 * @var bool
 	 */
-	var $model;
+	var $rename_duplicates = false;
+	
+	/**
+	 * @var array
+	 */
+	var $errors;
+	
+	/**
+	 * @var mixed
+	 */
+	var $upload_path;
 	
 	/**
 	 * @param Model $model
 	 * @return Uploader
 	 */
-	function Uploader(& $model) {
-		$this->model = & $model;
+	function Uploader() {
+		$this->rename_duplicates = defined('RENAME_DUPLICATE_UPLOADS') && RENAME_DUPLICATE_UPLOADS;
+		
+	}
+	
+	function get_upload_path($field) {
+		if (is_string($this->upload_path)) {
+			return $this->upload_path;	
+		} 
+		
+		if (is_array($this->upload_path) && isset($this->upload_path[$field])) {
+			return $this->upload_path[$field];	
+		} 
+		
+		trigger_error("Uploadpath not set");
+		
+		return false;
+		
+	}
+	
+	function update_model($field, $filename) {
+		return true;
+		
 	}
 	
 	/**
-	 * @param array $data
+	 * @param array $data An array of file 
+	 * @return mixed Returns an array containing any errors that occured, or false if there weren't any
 	 */
 	function handle_uploads($data) {
 		
-		$errors = array();
+		$this->errors = array();
 		
 		foreach($data as $field => $file) {
 			$error = $this->handle_upload($field, $file);
 			
 			if ($error) {
-				$errors[] = $error;	
+				$this->errors[] = $error;	
 			}
 			
 		}
 		
-		if (count($errors)) {
-			return $errors;
+		if (count($this->errors)) {
+			return $this->errors;
 		} else {
 			return false;
 		}
@@ -43,19 +79,19 @@ class Uploader {
 	 * @param string $file
 	 */
 	function handle_upload($field, $file) {
-		// return an error message, if the upload failed
-		if($file['tmp_name'] == '') {
-			if ($file['name'] && $file['error']) {
-				return file_upload_error_string($file['error'], $file['name']);
-			} else {
-				return false;
-			}
+		if ($errors = $this->validate_file($file) !== true) {
+			return $errors;
 		}
 
 		$filename = $file['name'];
 		
 		// get the upload path for the field
-		$upload_path = $this->model->upload_path($field);
+		$upload_path = $this->get_upload_path($field);
+		
+		if (is_array($upload_path)) {
+			$backup_paths = $new_path;
+			$upload_path = array_shift($backup_paths);	
+		}		
 		
 		// make the upload directory if it doesn't exist
 		$new_file = new File($upload_path);
@@ -66,11 +102,12 @@ class Uploader {
 		
 		// get the path for the new file
 		$new_path = $upload_path.$file['name'];
+		
 		$new_file = new File($new_path);
 		
 		// if there's already a file by that name and we're renaming duplicates,
 		// modify the name until we find a unique one.
-		if ($new_file->exists() && defined('RENAME_DUPLICATE_UPLOADS') && RENAME_DUPLICATE_UPLOADS) {
+		if ($new_file->exists() && $this->rename_duplicates) {
 			
 			$x = 1;
 			
@@ -90,10 +127,17 @@ class Uploader {
 		} 
 		
 		// try to move the upload file
-		if (move_uploaded_file($file['tmp_name'], $new_path)) {
+		if ($this->move_file($file['tmp_name'], $new_path)) {
 			// succeeded
-			$this->model->set($field, $this->model->upload_file_name($filename, $field));
+			$this->update_model($field, $filename);
+			
 			chmod($new_path, 0777);
+			
+			if (isset($backup_paths)) {
+				foreach($backup_paths as $backup_path) {
+					copy($new_path, str_replace($upload_path, $backup_path, $new_path));
+				}	
+			}
 			
 		} else {
 			// failed
@@ -103,6 +147,68 @@ class Uploader {
 		return false;
 	}	
 	
+	function move_file($source, $destination) {
+		return copy($source, $destination);
+	}
+
+	function error_string($error_value, $file_name) {
+		
+		$error_strings = array(	
+			UPLOAD_ERR_OK => "File uploaded with success.",
+			UPLOAD_ERR_INI_SIZE => "The uploaded file '%s' exceeds the upload_max_filesize directive in php.ini.",
+			UPLOAD_ERR_FORM_SIZE => "The uploaded file '%s' exceeds the MAX_FILE_SIZE directive specified in the HTML form.",
+			UPLOAD_ERR_PARTIAL => "The uploaded file '%s' was only partially uploaded.",
+			UPLOAD_ERR_NO_FILE => "No file was uploaded.",
+			UPLOAD_ERR_NO_TMP_DIR => "Missing a temporary folder.",
+			UPLOAD_ERR_CANT_WRITE => "Failed to write the file '%s' to disk."
+		);
+		
+		return sprintf($error_strings[$error_value], $file_name);
+		
+	}	
+	
+	
+	function validate_file($file) {
+		// return an error message, if the upload failed
+		if($file['tmp_name'] == '') {
+			if ($file['name'] && $file['error']) {
+				return $this->error_string($file['error'], $file['name']);
+			} else {
+				return false;
+			}
+		}
+
+		return true;
+			
+	}	
+	
+}
+
+class Uploader extends AbstractUploader {
+	
+	/**
+	 * @var Model
+	 */
+	var $model;
+	
+	function Uploader(& $model) {
+		$this->model = & $model;
+		
+		$this->rename_duplicates = defined('RENAME_DUPLICATE_UPLOADS') && RENAME_DUPLICATE_UPLOADS;
+		
+	}
+	
+	function get_upload_path($field) {
+		$upload_path = $this->model->upload_path($field);
+	}
+	
+	function update_model($field, $filename) {
+		$this->model->set($field, $this->model->upload_file_name($filename, $field));		
+	}
+	
+	function move_file($source, $destination) {
+		return move_uploaded_file($sourcem, $destination);
+	}	
 }
 
 ?>
