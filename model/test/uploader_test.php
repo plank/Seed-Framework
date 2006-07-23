@@ -30,7 +30,7 @@ class AbstractUploaderTester extends UnitTestCase {
 				
 		$this->uploader = new AbstractUploader();
 		$this->uploader->upload_path = $this->destination_path;			
-		
+		$this->uploader->rename_duplicates = true;
 	}
 
 	function test_setup() {
@@ -83,11 +83,51 @@ class AbstractUploaderTester extends UnitTestCase {
 	}
 	
 	function test_renaming_duplicates() {
+		$file = array();
 		
+		$file['name'] = 'test1.txt';
+		$file['type'] = 'text/html';
+		$file['size'] = '1';
+		$file['tmp_name'] = $this->source_path.'/test1.txt';
+		$file['error'] = '';
+		
+		$destinations[1] = $this->destination_path.'/test1.txt';
+		$destinations[2] = $this->destination_path.'/test1_1.txt';
+		
+		$this->assertFalse($this->uploader->handle_upload('test', $file));
+		$this->assertFalse($this->uploader->handle_upload('test', $file));			
+		
+		$this->assertTrue(file_exists($destinations[1]));
+		$this->assertTrue(file_exists($destinations[2]));
+		unlink($destinations[1]);
+		unlink($destinations[2]);		
 		
 	}
 	
 	function test_multiple_save_paths() {
+		
+		$this->uploader->upload_path = array($this->destination_path, $this->destination_path2);
+		
+		$file = array();
+		
+		$file['name'] = 'test1.txt';
+		$file['type'] = 'text/html';
+		$file['size'] = '1';
+		$file['tmp_name'] = $this->source_path.'/test1.txt';
+		$file['error'] = '';
+		
+		$destinations[1] = $this->destination_path.'/test1.txt';
+		$destinations[2] = $this->destination_path2.'/test1.txt';
+		
+		$this->assertFalse($this->uploader->handle_upload('test', $file));
+		
+		$this->assert_and_delete_file($destinations[1]);
+		$this->assert_and_delete_file($destinations[2]);
+	}
+	
+	function assert_and_delete_file($file) {
+		$this->assertTrue(file_exists($file));
+		unlink($file);
 		
 	}
 }

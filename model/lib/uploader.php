@@ -35,8 +35,8 @@ class AbstractUploader {
 			return $this->upload_path;	
 		} 
 		
-		if (is_array($this->upload_path) && isset($this->upload_path[$field])) {
-			return $this->upload_path[$field];	
+		if (is_array($this->upload_path)) {
+			return $this->upload_path;	
 		} 
 		
 		trigger_error("Uploadpath not set");
@@ -51,7 +51,7 @@ class AbstractUploader {
 	}
 	
 	/**
-	 * @param array $data An array of file 
+	 * @param array $data An array of file info
 	 * @return mixed Returns an array containing any errors that occured, or false if there weren't any
 	 */
 	function handle_uploads($data) {
@@ -79,7 +79,7 @@ class AbstractUploader {
 	 * @param array $file
 	 */
 	function handle_upload($field, $file) {
-		if ($errors = $this->validate_file($file) !== true) {
+		if ($errors = $this->validate_file_info($file) !== true) {
 			return $errors;
 		}
 
@@ -89,7 +89,7 @@ class AbstractUploader {
 		$upload_path = $this->get_upload_path($field);
 		
 		if (is_array($upload_path)) {
-			$backup_paths = $new_path;
+			$backup_paths = $upload_path;
 			$upload_path = array_shift($backup_paths);	
 		}		
 		
@@ -168,7 +168,7 @@ class AbstractUploader {
 	}	
 	
 	
-	function validate_file($file) {
+	function validate_file_info($file) {
 		// return an error message, if the upload failed
 		if($file['tmp_name'] == '') {
 			if ($file['name'] && $file['error']) {
