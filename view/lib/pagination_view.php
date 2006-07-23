@@ -19,56 +19,78 @@
 class PaginationView {
 	
 	/**
+	 * Reference to the parent controller, used for generating the links
+	 * 
 	 * @var Controller
 	 */
 	var $controller;
 	
 	/**
+	 * Reference to the paginator to get data from
+	 * 
 	 * @var Paginator
 	 */
 	var $paginator;
 	
 	/**
+	 * Reference to the current page
+	 * 
 	 * @var Page
 	 */
 	var $current_page;
 	
 	/**
+	 * String to use to seperate between page links
+	 * 
 	 * @var string
 	 */
 	var $seperator = " ";
 
 	/**
+	 * String to use for link to previous page
+	 * 
 	 * @var string
 	 */
 	var $previous_page_text = "&laquo;";
 	
 	/**
+	 * String to use for link to next page
+	 * 
 	 * @var string
 	 */
 	var $next_page_text = "&raquo;";
 	
 	/**
+	 * Number of pages to always display at begining and end of total pages
+	 * 
 	 * @var int
 	 */
 	var $end_size = 2;
 	
 	/**
+	 * Number of pages to display as padding around current page
+	 * 
 	 * @var int
 	 */
 	var $padding = 1;
 	
 	/**
+	 * Threshold for gap filling
+	 * 
 	 * @var int
 	 */
 	var $fill_gap_size = 2;
 	
 	/**
+	 * Total number of pages
+	 * 
 	 * @var int
 	 */
 	var $num_pages;
 	
 	/**
+	 * The of pages being generated
+	 * 
 	 * @var array
 	 */
 	var $pages;
@@ -88,6 +110,13 @@ class PaginationView {
 		
 	}
 	
+	/**
+	 * Returns a string containing a link to the given page number
+	 *
+	 * @param int $page_number
+	 * @param text $text
+	 * @return string
+	 */
 	function link_to($page_number, $text = null) {
 		
 		if (is_null($text)) {
@@ -98,6 +127,13 @@ class PaginationView {
 		
 	}
 	
+	/**
+	 * Returns a link to go to the previous page
+	 *
+	 * @param bool $first_page
+	 * @param int $page
+	 * @return string
+	 */
 	function previous_page_link($first_page, $page) {
 		if ($first_page) {
 			return "<span>".$this->previous_page_text."</span>";
@@ -106,6 +142,13 @@ class PaginationView {
 		}		
 	}
 	
+	/**
+	 * Returns a link to go to the next page
+	 *
+	 * @param bool $last_page
+	 * @param int $page
+	 * @return string
+	 */
 	function next_page_link($last_page, $page) {
 		if ($last_page) {
 			return "<span>".$this->next_page_text."</span>";
@@ -115,7 +158,7 @@ class PaginationView {
 	}
 
 	/**
-	 * Add the start and end pages
+	 * Add the start and end pages, based on the desired end_size
 	 */
 	function add_end_pages() {
 		for($x = 1; $x <= $this->end_size && $x < $this->num_pages; $x ++) {
@@ -131,7 +174,7 @@ class PaginationView {
 	/**
 	 * Returns the low page of the current page range, not including the start pages
 	 *
-	 * return int
+	 * @return int
 	 */
 	function low_page() {
 		$low_page = $this->current_page->number - $this->padding;
@@ -146,7 +189,7 @@ class PaginationView {
 	/**
 	 * Returns the high page of the current page range, not including the start pages
 	 *	
-	 * return int
+	 * @return int
 	 */
 	function high_page() {
 		$high_page = $this->current_page->number + $this->padding;
@@ -158,6 +201,10 @@ class PaginationView {
 		return $high_page;	
 	}
 	
+	/**
+	 * Adds the current page and the pages in the padding window to the pages array
+	 *
+	 */
 	function add_current_pages() {
 		for($x = $this->low_page(); $x <= $this->high_page(); $x++) {
 			$this->pages[$x] = $x;
@@ -165,6 +212,10 @@ class PaginationView {
 
 	}
 	
+	/**
+	 * Fills gaps in the pages array 
+	 *
+	 */
 	function fill_gaps() {
 		if (!$this->fill_gap_size || !$this->end_size) {
 			return;	
@@ -192,6 +243,11 @@ class PaginationView {
 		
 	}
 	
+	/**
+	 * Generate pagination links
+	 *
+	 * @return string
+	 */
 	function generate() {
 		if ($this->num_pages == 1) {
 			return "";
@@ -215,7 +271,13 @@ class PaginationView {
 		return $return;
 	}	
 	
-	
+	/**
+	 * Convert the pages array to a string of links
+	 *
+	 * @param array $pages
+	 * @param int $current_page
+	 * @return string
+	 */
 	function convert_to_links($pages, $current_page) {
 		ksort($pages);
 		
@@ -224,11 +286,12 @@ class PaginationView {
 		$return = $this->seperator;
 		
 		foreach($pages as $page) {
-			
+			// place ellipsis in gaps
 			if ($last_page && $page > $last_page + 1) {
 				$return .= "&hellip;".$this->seperator;
 			}
 			
+			// return the current page as a simple span, others as links
 			if ($page == $current_page) {
 				$return .= "<span>".$page."</span>";
 			} else {

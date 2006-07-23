@@ -184,6 +184,11 @@ class AbstractUploader {
 	
 }
 
+/**
+ * The uploader works in conjunction with the model to upload files onto the file system
+ *
+ */
+
 class Uploader extends AbstractUploader {
 	
 	/**
