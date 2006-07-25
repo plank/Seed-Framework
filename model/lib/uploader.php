@@ -212,7 +212,7 @@ class Uploader extends AbstractUploader {
 	}
 	
 	function move_file($source, $destination) {
-		return move_uploaded_file($sourcem, $destination);
+		return move_uploaded_file($source, $destination);
 	}	
 }
 
