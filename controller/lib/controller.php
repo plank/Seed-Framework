@@ -333,7 +333,7 @@ class Controller {
 			return false;	
 		}
 
-		$this->template->helper = new $helper_class_name;
+		$this->template->helper = new $helper_class_name($this->template);
 
 		$this->template->helper->template = & $this->template;
 

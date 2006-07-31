@@ -20,11 +20,6 @@ class BaseTester extends UnitTestCase {
 		$this->assertEqual($array1, array_flatten($array2));				
 
 	}
-
-	function test_translation_table() {
-		
-		
-	}
 	
 }
 
