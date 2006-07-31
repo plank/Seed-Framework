@@ -69,14 +69,17 @@ class Template {
 		ob_end_clean();		
 		
 		if ($this->layout) {
-			if (file_exists(TEMPLATE_PATH.'layouts/'.$this->layout.'.php')) {
+			
+			$layout_path = $this->get_layout_path();
+			
+			if (file_exists($layout_path)) {
 				ob_start();
-				include(TEMPLATE_PATH.'layouts/'.$this->layout.'.php');
+				include($layout_path);
 				$this->content_for_layout = ob_get_contents();
 				ob_end_clean();
 				
 			} else {
-				trigger_error('layouts/'.$this->layout.'.php not found');
+				trigger_error("layout '$layout_path' was not found", E_USER_ERROR);
 				
 			}
 			
@@ -85,6 +88,21 @@ class Template {
 		return $this->content_for_layout;
 		
 	}
+	
+	/**
+	 * Returns the path to the current layout
+	 *
+	 * @return string
+	 */
+	function get_layout_path() {
+		if (substr($this->layout, 0, 1) == '/') {
+			return $this->layout;			
+		} else {
+			return TEMPLATE_PATH.'layouts/'.$this->layout.'.php';
+		}
+		
+	}
+	
 	
 	/**
 	 * Renders a component
