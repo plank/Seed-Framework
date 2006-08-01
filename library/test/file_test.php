@@ -46,23 +46,7 @@ class FileTester extends UnitTestCase {
 		$this->assertFalse($file->exists());
 	}
 	
-	function test_list_names() {
-		$file = new File(dirname(__FILE__).'/file');
-		
-		$this->assertTrue($file->is_directory());
-		$file_names = $file->list_names();
-		
-		$x = 1;
-		
-		foreach($file_names as $file_name) {
-			if (substr(basename($file_name), 0, 1) != '.') {
-				$this->assertEqual($file_name, $file->get_path().'/0'.$x.'.txt');	
-				$x ++;
-			}
-			
-		}
-			
-	}
+	
 	
 	function test_list_files() {
 		$dir = new File(dirname(__FILE__).'/file');
@@ -73,16 +57,59 @@ class FileTester extends UnitTestCase {
 		$x = 1;
 		
 		foreach($files as $file) {
-			if (!$file->is_hidden()) {
+			if (!$file->is_hidden() && $file->is_file()) {
 				$this->assertEqual($file->path, $dir->get_path().'/0'.$x.'.txt');	
 				$x ++;
 			}
 			
 		}		
+	}	
+	
+	
+	
+	function test_list_names() {
+		$file = new File(dirname(__FILE__).'/file');
+		
+		$this->assertTrue($file->is_directory());
+		$file_names = $file->list_names();
+		
+		$x = 1;
+		
+		foreach($file_names as $file_name) {
+			if (substr(basename($file_name), 0, 1) != '.' && !is_dir($file_name)) {
+				$this->assertEqual($file_name, $file->get_path().'/0'.$x.'.txt');	
+				$x ++;
+			}
+			
+		}
+			
 	}
 
+	function test_list_names_recursive() {
+		$dir = new File(dirname(__FILE__).'/file');
 
+		$this->assertTrue($dir->is_directory());
+		$files = $dir->list_names(true);
+
+//		$this->dump($files);
 		
+		$expected = array(
+			'/01.txt',
+			'/02.txt',
+			'/03.txt',
+			'/dir',
+			'/dir/11.txt',
+			'/dir/12.txt'
+		);		
+	
+		$x = 0;
+		
+		foreach($files as $file) {
+			$this->assertEqual($dir->path.$expected[$x], $file);
+			$x ++;
+		}
+		
+	}
 	
 }
 

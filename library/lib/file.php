@@ -131,28 +131,24 @@ class File {
 	 * 
 	 * @return array
 	 */
-	function list_names() {
-		if (!$this->is_directory()) {
-			return false;
+	function list_names($recursive = false, $show_hidden = false) {
+		return array_map(array('File', '_path_from_object'), $this->list_files($recursive, $show_hidden));
+		
+	}
+	
+	/**
+	 * Returns the path of a given object, used by list_names
+	 *
+	 * @static 
+	 * @access private
+	 * @param File $file
+	 */
+	function _path_from_object($file) {
+		if (is_a($file, 'File')) {
+			return $file->get_path();
+		} else {
+			return false;	
 		}
-		
-		$return = array();
-		
-		$handle = opendir($this->path); 
-		
-		while (false !== ($file = readdir($handle))) {
-			if ($file == '.' || $file == '..') {
-				continue;
-			}
-			
-			$return[$file] = $this->path.'/'.$file;
-			
-		}
-
-		ksort($return);
-
-		return array_values($return);
-		
 	}
 	
 	/**
@@ -160,7 +156,7 @@ class File {
 	 *
 	 * @return array
 	 */
-	function list_files() {
+	function list_files($recursive = false, $show_hidden = false) {
 		if (!$this->is_directory()) {
 			return false;
 		}
@@ -169,18 +165,33 @@ class File {
 		
 		$handle = opendir($this->path); 
 		
-		while (false !== ($file = readdir($handle))) {
-			if ($file == '.' || $file == '..') {
+		while (false !== ($file_name = readdir($handle))) {
+			if ($file_name == '.' || $file_name == '..') {
 				continue;
 			}
 			
-			$return[$file] = new File($this->path.'/'.$file);
-
+			$file = new File($this->path.'/'.$file_name);
+			
+			if (!$show_hidden && $file->is_hidden()) {
+				continue;
+			}
+				
+			$return[$this->path.'/'.$file_name] = $file;
+			
+			if ($recursive) {
+				if ($file->is_directory()) {
+					$return = array_merge($return, $file->list_files(true, $show_hidden));	
+				}
+				
+			}
+			
 		}
 
 		ksort($return);
 
-		return array_values($return);
+		return $return;
+		
+		
 	}
 
 	/**
