@@ -987,11 +987,34 @@ class Model extends DataSpace {
 	 */
 	
 	function save() {
+		$this->before_save();
+		
 		if (!is_null($this->id) && $this->id != '') {
 			return $this->update();
 		} else {
 			return $this->insert();
-		}	
+		}
+		
+		$this->after_save();
+		
+	}
+	
+	/**
+	 * Called before saves
+	 *
+	 * @return bool
+	 */
+	function before_save() {
+		return true;	
+	}
+	
+	/**
+	 * Called after saves
+	 *
+	 * @return bool
+	 */
+	function after_save() {
+		return true;	
 	}
 	
 	/**
