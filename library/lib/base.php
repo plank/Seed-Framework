@@ -111,6 +111,29 @@ function array_diff_by_key($array1, $array2) {
 	return $result;
 }
 
+if (!function_exists('array_combine')) {
+	function array_combine($keys, $values) {
+		if (count($keys) != count($values) || !count($keys)) {
+			return false;
+		}
+		
+		$keys = array_values($keys);
+		$values = array_values($values);
+			
+		for($x = 0; $x < count($keys); $x++) {
+			$result[$keys[$x]] = $values[$x];	
+			
+		}	
+		
+		return $result;
+		
+	}	
+	
+}
+
+
+
+
 /**
  * Returns the current time with microseconds as a float
  *
