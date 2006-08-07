@@ -112,6 +112,14 @@ function array_diff_by_key($array1, $array2) {
 }
 
 if (!function_exists('array_combine')) {
+	
+	/**
+	 * Creates an array by using one array for keys and another for its values
+	 *
+	 * @param array $keys
+	 * @param array $values
+	 * @return array
+	 */
 	function array_combine($keys, $values) {
 		if (count($keys) != count($values) || !count($keys)) {
 			return false;
