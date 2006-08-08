@@ -99,6 +99,7 @@ class Feed {
 	 */
 	function addEntry($link, $title = '', $summary = '', $updated = '', $author_name = '') {
 		$entry = new FeedEntry();
+		$entry->id = $link;
 		$entry->link = $link;
 		$entry->title = $title;
 		$entry->summary = $summary;
@@ -151,6 +152,7 @@ class Feed {
 
 		if ($this->setUp()) {
 			$this->generator->escape_data = $this->escape_data;
+			
 			return $this->generator->generate($this);
 		} else {
 			return false;
@@ -165,6 +167,14 @@ class Feed {
 	function setUp() {
 		return true;
 	}
+	
+	/**
+	 * Sends the appropriate header for the feed
+	 */
+	function sendHeader() {
+		header('Content-type:'.$this->generator->content_type);		
+	}
+	
 	
 }
 
@@ -290,12 +300,7 @@ class FeedGenerator {
 		return date($this->date_format, $value);
 	}
 
-	/**
-	 * Sends the appropriate header for the feed
-	 */
-	function sendHeader() {
-		header('Content-type:'.$this->content_type);		
-	}
+
 	
 }
 
@@ -316,34 +321,32 @@ class Atom100Generator extends FeedGenerator {
 	 * @return bool	 
 	 */
 	function generate($feed) {
-		$this->sendHeader();
+		$result = "<?xml version='1.0' encoding='utf-8'?>\n";
+		$result .= "<feed xmlns='http://www.w3.org/2005/Atom'>\n";
 		
-		print "<?xml version='1.0' encoding='utf-8'?>";
-		print "<feed xmlns='http://www.w3.org/2005/Atom'>";
-		
-		print "  <title>".$this->escape($feed->title)."</title>";
-		print "  <link href='".$feed->link."'/>";
-		print "  <updated>".$this->date($feed->updated)."</updated>";
-		print "  <author>";
-		print "    <name>".$this->escape($feed->author_name)."</name>";
-		print "  </author>";
-		print "  <id>".$feed->id."</id>";
+		$result .= "  <title>".$this->escape($feed->title)."</title>\n";
+		$result .= "  <link href='".$feed->link."'/>\n";
+		$result .= "  <updated>".$this->date($feed->updated)."</updated>\n";
+		$result .= "  <author>\n";
+		$result .= "    <name>".$this->escape($feed->author_name)."</name>\n";
+		$result .= "  </author>\n";
+		$result .= "  <id>".$feed->id."</id>\n";
 		
 		foreach ($feed->entries as $entry) {
 		
-			print "  <entry>";
-			print "    <title>".$this->escape($entry->title)."</title>";
-			print "    <link href='".$entry->link."'/>";
-			print "    <id>".$entry->id."</id>";
-			print "    <updated>".$this->date($entry->updated)."</updated>";
-			print "    <summary>".$this->escape($entry->summary)."</summary>";
-			print "  </entry>";
+			$result .= "  <entry>\n";
+			$result .= "    <title>".$this->escape($entry->title)."</title>\n";
+			$result .= "    <link rel='alternate' href='".$entry->link."'/>\n";
+			$result .= "    <id>".$entry->id."</id>\n";
+			$result .= "    <updated>".$this->date($entry->updated)."</updated>\n";
+			$result .= "    <summary>".$this->escape($entry->summary)."</summary>\n";
+			$result .= "  </entry>\n";
 		
 		}
 		
-		print "</feed>";
+		$result .= "</feed>\n";
 		
-		return true;
+		return $result;
 	}
 	
 	function escape($value) {
@@ -377,27 +380,25 @@ class RSS091Generator extends FeedGenerator {
 	 * @return bool	 
 	 */
 	function generate($feed) {
-		$this->sendHeader();
-		
-		print "<rss version='0.91'>";
-		print "  <channel>";
-		print "    <title>".$this->escape($feed->title)."</title>";
-		print "    <link>".$feed->link."</link>";
-		print "    <description>".$this->escape($feed->description)."</description>";
-		print "    <language>en-us</language>";
+		$result = "<rss version='0.91'>\n";
+		$result .= "  <channel>\n";
+		$result .= "    <title>".$this->escape($feed->title)."</title>\n";
+		$result .= "    <link>".$feed->link."</link>\n";
+		$result .= "    <description>".$this->escape($feed->description)."</description>\n";
+		$result .= "    <language>en-us</language>\n";
 
 		foreach ($feed->entries as $entry) {		
-			print "    <item>";
-			print "      <title>".$this->escape($entry->title)."</title>";
-			print "      <link>".$entry->link ."</link>";
-			print "      <description>".$this->escape($entry->summary)."</description>";
-			print "    </item>";
+			$result .= "    <item>\n";
+			$result .= "      <title>".$this->escape($entry->title)."</title>\n";
+			$result .= "      <link>".$entry->link ."</link>\n";
+			$result .= "      <description>".$this->escape($entry->summary)."</description>\n";
+			$result .= "    </item>\n";
 		}
 		
-		print "  </channel>";
-		print "</rss>";
+		$result .= "  </channel>\n";
+		$result .= "</rss>\n";
 
-		return true;
+		return $result;
 		
 	}
 
@@ -420,44 +421,42 @@ class RSS100Generator extends FeedGenerator {
 	 * @return bool
 	 */
 	function generate($feed) {
-		$this->sendHeader();
-				
-		print "<rdf:RDF";
-		print "  xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'";
-		print "  xmlns='http://purl.org/rss/1.0/'";
-		print "  xmlns:dc='http://purl.org/dc/elements/1.1/'";
-		print ">";
-		print "  <channel rdf:about='http://www.xml.com/cs/xml/query/q/19'>";
-		print "    <title>".$this->escape($feed->title)."</title>";
-		print "    <link>".$feed->link."</link>";
-		print "    <description>".$this->escape($feed->description)."</description>";
-		print "    <language>en-us</language>";
-		print "    <items>";
-		print "      <rdf:Seq>";
+		$result = "<rdf:RDF\n";
+		$result .= "  xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'\n";
+		$result .= "  xmlns='http://purl.org/rss/1.0/'\n";
+		$result .= "  xmlns:dc='http://purl.org/dc/elements/1.1/'\n";
+		$result .= ">\n";
+		$result .= "  <channel rdf:about='http://www.xml.com/cs/xml/query/q/19'>\n";
+		$result .= "    <title>".$this->escape($feed->title)."</title>\n";
+		$result .= "    <link>".$feed->link."</link>\n";
+		$result .= "    <description>".$this->escape($feed->description)."</description>\n";
+		$result .= "    <language>en-us</language>\n";
+		$result .= "    <items>\n";
+		$result .= "      <rdf:Seq>\n";
 		
 		foreach ($feed->entries as $entry) {		
-			print "        <rdf:li rdf:resource='".$entry->link."'/>";
+			$result .= "        <rdf:li rdf:resource='".$entry->link."'/>\n";
 		}
 		
-		print "      </rdf:Seq>";		
-		print "    </items>";
-		print "  </channel>";
+		$result .= "      </rdf:Seq>\n";
+		$result .= "    </items>\n";
+		$result .= "  </channel>\n";
 
 		reset($feed->entries);
 		
 		foreach ($feed->entries as $entry) {
-			print "  <item rdf:about='".$entry->link."'>";
-			print "    <title>".$this->escape($entry->title)."</title>";
-			print "    <link>".$entry->link."</link>";
-			print "    <description>".$this->escape($entry->description)."</description>";
-			print "    <dc:creator>".$this->escape($entry->author_name)."</dc:creator>";
-			print "    <dc:date>".$this->date($entry->updated)."</dc:date>";
-			print "  </item>";
+			$result .= "  <item rdf:about='".$entry->link."'>\n";
+			$result .= "    <title>".$this->escape($entry->title)."</title>\n";
+			$result .= "    <link>".$entry->link."</link>\n";
+			$result .= "    <description>".$this->escape($entry->description)."</description>\n";
+			$result .= "    <dc:creator>".$this->escape($entry->author_name)."</dc:creator>\n";
+			$result .= "    <dc:date>".$this->date($entry->updated)."</dc:date>\n";
+			$result .= "  </item>\n";
 		}
 		
-		print "</rdf:RDF>";
+		$result .= "</rdf:RDF>\n";
 
-		return true;
+		return $result;
 	}
 
 }
@@ -479,29 +478,27 @@ class RSS200Generator extends FeedGenerator {
 	 * @return bool
 	 */
 	function generate($feed) {
-		$this->sendHeader();
-
-		print "<rss version='2.0' xmlns:dc='http://purl.org/dc/elements/1.1/'>";
-		print "  <channel>";
-		print "    <title>".$this->escape($feed->title)."</title>";
-		print "    <link>".$feed->link."</link>";
-		print "    <description>".$this->escape($feed->description)."</description>";
-		print "    <language>en-us</language>";
+		$result = "<rss version='2.0' xmlns:dc='http://purl.org/dc/elements/1.1/'>\n";
+		$result .= "  <channel>\n";
+		$result .= "    <title>".$this->escape($feed->title)."</title>\n";
+		$result .= "    <link>".$feed->link."</link>\n";
+		$result .= "    <description>".$this->escape($feed->description)."</description>\n";
+		$result .= "    <language>en-us</language>\n";
 		
 		foreach ($feed->entries as $entry) {
-			print "    <item>";
-			print "      <title>".$this->escape($entry->title)."</title>";
-			print "      <link>".$entry->link."</link>";
-			print "      <description>".$this->escape($entry->summary)."</description>";
-			print "      <dc:creator>".$this->escape($entry->author)."</dc:creator>";
-			print "      <dc:date>".$this->date($entry->updated)."</dc:date>";
-			print "    </item>";
+			$result .= "    <item>\n";
+			$result .= "      <title>".$this->escape($entry->title)."</title>\n";
+			$result .= "      <link>".$entry->link."</link>\n";
+			$result .= "      <description>".$this->escape($entry->summary)."</description>\n";
+			$result .= "      <dc:creator>".$this->escape($entry->author)."</dc:creator>\n";
+			$result .= "      <dc:date>".$this->date($entry->updated)."</dc:date>\n";
+			$result .= "    </item>\n";
 		}
 		
-		print "  </channel>";
-		print "</rss>";
+		$result .= "  </channel>\n";
+		$result .= "</rss>\n";
 		
-		return true;
+		return $result;
 	}
 
 }
