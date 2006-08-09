@@ -226,4 +226,19 @@ function absolute_anchors($text, $document_url) {
 	return preg_replace($pattern, '\1\3\5'.$document_url.'#\4\6\3\5', $text);
 	
 }
+
+
+/**
+ * Add a clone function to PHP versions earlier than 4
+ *
+ */
+if (version_compare(phpversion(), '5.0') < 0) {
+	eval('
+		function clone($object) {
+		  return $object;
+		}
+	');
+}
+
+
 ?>
