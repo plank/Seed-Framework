@@ -382,14 +382,24 @@ class Controller {
 					
 			// render template
 			$this->template->layout = $this->layout;
-			// debug($this->layout);
-			$this->response->body = $this->template->render_file($template_path);
-			$this->performed_render = true;
+			$this->render_text($this->template->render_file($template_path));
+			
 		} else {
 			trigger_error("No template found in '$template_path'", E_USER_ERROR);
 		}
 	}
+	
+	function render_text($text = '', $status = null) {
+		$this->performed_render = true;
 		
+		if (isset($status)) {
+			$this->response->response_code = $status;	
+		}
+		
+		$this->response->body = $text;
+		
+	}
+	
 	function render_component($controller, $options = null) {
 		$controller = Controller::factory($controller);
 		
