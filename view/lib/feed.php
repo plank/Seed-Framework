@@ -13,7 +13,7 @@
 /**
  * Format date as per RFC 3339
  */
-define('RFC3339_DATE_FORMAT', 'Y-m-d\TH:i:s\Z'); // 2003-12-13T18:30:02Z
+define('RFC3339_DATE_FORMAT', 'Y-m-d\TH:i:s\Z'); // e.g. 2003-12-13T18:30:02Z
 
 
 /**
@@ -70,9 +70,6 @@ class Feed {
 	 * @var FeedGenerator
 	 */
 	var $generator;
-	
-	
-	var $escape_data = false;
 	
 	function Feed($generator) {
 		$this->generator = $generator;	
@@ -139,6 +136,15 @@ class Feed {
 	}
 
 	/**
+	 * Sort all the entries in the feed
+	 *
+	 */
+	function sortEntries() {
+		usort($this->entries, array('FeedEntry', 'compare'));	
+		
+	}
+	
+	/**
 	 * Generates the rss feed
 	 *
 	 * @return bool
@@ -150,12 +156,14 @@ class Feed {
 			
 		}
 
+		$this->sortEntries();
+		
 		if ($this->setUp()) {
-			$this->generator->escape_data = $this->escape_data;
-			
 			return $this->generator->generate($this);
+			
 		} else {
 			return false;
+			
 		}
 		
 	}
@@ -221,6 +229,30 @@ class FeedEntry {
 	 * @var string
 	 */
 	var $author_name;
+	
+	/**
+	 * Compares two feed entries, returning their position relative to each other.
+	 * Useful as a call back for usort.
+	 *
+	 * @param FeedEntry $feed_entry_a
+	 * @param FeedEntry $feed_entry_b
+	 * @return int
+	 */
+	function compare($feed_entry_a, $feed_entry_b) {
+		if ($feed_entry_a->updated == $feed_entry_b->updated) {
+			if ($feed_entry_a->title == $feed_entry_b->title) {
+				return 0;	
+			}
+			
+			// title, ascending
+			return strcasecmp($feed_entry_a->title, $feed_entry_b->title);
+				
+		}
+		
+		// date, descending
+		return  ($feed_entry_a->updated < $feed_entry_b->updated) ? 1 : -1;
+		
+	}
 }
 
 /**
@@ -254,11 +286,6 @@ class FeedGenerator {
 	var $date_format = RFC3339_DATE_FORMAT;
 
 	/**
-	 * Set to true to escape entries
-	 */
-	var $escape_data = false;
-	
-	/**
 	 * Generates a feed using the passed feed object
 	 *
 	 * @param Feed $feed
@@ -276,11 +303,7 @@ class FeedGenerator {
 	 * @return string
 	 */
 	function escape($value) {
-		if ($this->escape_data) {
-			return htmlentities($value);	
-		} else {
-			return $value;
-		}
+		return htmlentities($value);	
 	}
 
 	/**
@@ -325,7 +348,7 @@ class Atom100Generator extends FeedGenerator {
 		$result .= "<feed xmlns='http://www.w3.org/2005/Atom'>\n";
 		
 		$result .= "  <title>".$this->escape($feed->title)."</title>\n";
-		$result .= "  <link href='".$feed->link."'/>\n";
+		$result .= "  <link rel='self' href='".$feed->link."'/>\n";
 		$result .= "  <updated>".$this->date($feed->updated)."</updated>\n";
 		$result .= "  <author>\n";
 		$result .= "    <name>".$this->escape($feed->author_name)."</name>\n";
@@ -339,7 +362,11 @@ class Atom100Generator extends FeedGenerator {
 			$result .= "    <link rel='alternate' href='".$entry->link."'/>\n";
 			$result .= "    <id>".$entry->id."</id>\n";
 			$result .= "    <updated>".$this->date($entry->updated)."</updated>\n";
-			$result .= "    <summary>".$this->escape($entry->summary)."</summary>\n";
+			
+			if ($entry->summary) {
+				$result .= "    <summary type='xhtml'><div xmlns='http://www.w3.org/1999/xhtml'>".$entry->summary."</div></summary>\n";
+			}
+			
 			$result .= "  </entry>\n";
 		
 		}
@@ -350,20 +377,16 @@ class Atom100Generator extends FeedGenerator {
 	}
 	
 	function escape($value) {
-		
-		if ($this->escape_data) {
-			return utf8_encode(htmlentities($value, ENT_QUOTES, 'UTF-8'));				
-		} else {
-			return utf8_encode($value);
-		}
-		
+		return utf8_encode(htmlentities($value, ENT_QUOTES, 'UTF-8'));				
 		
 	}
 	
 }
 
 /**
- * Generates RSS 0.91 feeds
+ * Generates RSS 0.91 feeds.
+ *
+ * This format is deprecated, and has been replaced by RSS 2.00, so consider using that instead.
  *
  * @package view
  * @subpackage feed 
@@ -371,7 +394,6 @@ class Atom100Generator extends FeedGenerator {
 class RSS091Generator extends FeedGenerator {
 	var $protocol = 'RSS';
 	var $version = '0.91';
-	var $date_format = RFC3339_DATE_FORMAT;
 	
 	/**
 	 * Generates a feed using the passed feed object
@@ -384,14 +406,14 @@ class RSS091Generator extends FeedGenerator {
 		$result .= "  <channel>\n";
 		$result .= "    <title>".$this->escape($feed->title)."</title>\n";
 		$result .= "    <link>".$feed->link."</link>\n";
-		$result .= "    <description>".$this->escape($feed->description)."</description>\n";
+		$result .= "    <description>".$this->escape(strip_tags($feed->description))."</description>\n";
 		$result .= "    <language>en-us</language>\n";
 
 		foreach ($feed->entries as $entry) {		
 			$result .= "    <item>\n";
 			$result .= "      <title>".$this->escape($entry->title)."</title>\n";
 			$result .= "      <link>".$entry->link ."</link>\n";
-			$result .= "      <description>".$this->escape($entry->summary)."</description>\n";
+			$result .= "      <description>".$this->escape(strip_tags($entry->summary))."</description>\n";
 			$result .= "    </item>\n";
 		}
 		
@@ -430,7 +452,6 @@ class RSS100Generator extends FeedGenerator {
 		$result .= "    <title>".$this->escape($feed->title)."</title>\n";
 		$result .= "    <link>".$feed->link."</link>\n";
 		$result .= "    <description>".$this->escape($feed->description)."</description>\n";
-		$result .= "    <language>en-us</language>\n";
 		$result .= "    <items>\n";
 		$result .= "      <rdf:Seq>\n";
 		
@@ -448,7 +469,7 @@ class RSS100Generator extends FeedGenerator {
 			$result .= "  <item rdf:about='".$entry->link."'>\n";
 			$result .= "    <title>".$this->escape($entry->title)."</title>\n";
 			$result .= "    <link>".$entry->link."</link>\n";
-			$result .= "    <description>".$this->escape($entry->description)."</description>\n";
+			$result .= "    <description>".$this->escape($entry->summary)."</description>\n";
 			$result .= "    <dc:creator>".$this->escape($entry->author_name)."</dc:creator>\n";
 			$result .= "    <dc:date>".$this->date($entry->updated)."</dc:date>\n";
 			$result .= "  </item>\n";
@@ -489,8 +510,9 @@ class RSS200Generator extends FeedGenerator {
 			$result .= "    <item>\n";
 			$result .= "      <title>".$this->escape($entry->title)."</title>\n";
 			$result .= "      <link>".$entry->link."</link>\n";
+			$result .= "      <guid>".$entry->id."</guid>\n";
 			$result .= "      <description>".$this->escape($entry->summary)."</description>\n";
-			$result .= "      <dc:creator>".$this->escape($entry->author)."</dc:creator>\n";
+			$result .= "      <dc:creator>".$this->escape($entry->author_name)."</dc:creator>\n";
 			$result .= "      <dc:date>".$this->date($entry->updated)."</dc:date>\n";
 			$result .= "    </item>\n";
 		}
