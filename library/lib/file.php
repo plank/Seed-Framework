@@ -21,7 +21,7 @@ class File {
 	/**
 	 * Constructor
 	 *
-	 * @param unknown_type $path
+	 * @param string $path
 	 * @return File
 	 */
 	function File($path) {
@@ -41,6 +41,7 @@ class File {
 	/**
 	 * Returns the base name of the file
 	 *
+	 * @param bool $without_extension  Returns the filename without the extension
 	 * @return string
 	 */
 	function get_name($without_extension = false) {
@@ -132,7 +133,14 @@ class File {
 	 * @return array
 	 */
 	function list_names($recursive = false, $show_hidden = false) {
-		return array_map(array('File', '_path_from_object'), $this->list_files($recursive, $show_hidden));
+		
+		$files = $this->list_files($recursive, $show_hidden);
+		
+		if (is_array($files)) {
+			return array_map(array('File', '_path_from_object'), $files);
+		}
+		
+		return false;
 		
 	}
 	
