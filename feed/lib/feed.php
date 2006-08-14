@@ -24,22 +24,16 @@ define('RFC3339_DATE_FORMAT', 'Y-m-d\TH:i:s\Z'); // e.g. 2003-12-13T18:30:02Z
  */
 class Feed {
 	/**
+	 * A unique id for the feed
+	 * @var string
+	 */
+	var $id;	
+	
+	/**
 	 * The title of the feed
 	 * @var string
 	 */
 	var $title;
-	
-	/**
-	 * The description of the feed
-	 * @var string
-	 */
-	var $description;
-	
-	/**
-	 * The link to the feed source
-	 * @var string
-	 */
-	var $link;
 	
 	/**
 	 * The date the feed was last updated
@@ -48,16 +42,58 @@ class Feed {
 	var $updated;
 	
 	/**
-	 * A unique id for the feed
-	 * @var string
+	 * The authors of the feed
+	 *
+	 * @var array
 	 */
-	var $id;
+	var $authors;
 	
 	/**
-	 * The name of the author of the feed
+	 * The links of the feed
+	 *
+	 * @var array
+	 */
+	var $links;
+	
+	/**
+	 * The various categories the feed belongs to
+	 *
+	 * @var array
+	 */
+	var $categories;
+	
+	/**
+	 * The various contributors to the feed
+	 *
+	 * @var array
+	 */
+	var $contributors;
+	
+	/**
 	 * @var string
 	 */
-	var $author_name;
+	var $icon;
+	
+	/**
+	 * @var string
+	 */
+	var $logo;
+	
+	/**
+	 * @var string
+	 */
+	var $rights;
+	
+	/**
+	 * @var string
+	 */
+	var $subtitle;
+	
+	/**
+	 * The description of the feed
+	 * @var string
+	 */
+	var $description;
 	
 	/**
 	 * An array conataining the feed's entried
@@ -66,20 +102,27 @@ class Feed {
 	var $entries;
 	
 	/**
-	 * The feed generator to use to generate the feed in the desired format
-	 * @var FeedFormat
+	 * Constructor
+	 *
+	 * @param mixed $format    The format of the feed
+	 * @param string $id
+	 * @param string $title
+	 * @param string $updated  The time the feed was last updated
+	 * @return Feed
 	 */
-	var $format;
-	
-	function Feed($format) {
+	function Feed($format, $id, $title, $updated) {
 		$this->setFormat($format);	
 	
+		$this->id = $id;
+		$this->title = $title;
+		$this->updated = $updated;
+		
 	}
 	
 	/**
 	 * Sets the generator to use for the feed
 	 *
-	 * @param FeedFormat $format
+	 * @param mixed $format
 	 */
 	function setFormat($format) {
 		if (is_string($format)) {
@@ -104,16 +147,19 @@ class Feed {
 	 * @param string $summary;
 	 * @param string $author_name;
 	 */
-	function addEntry($link, $title = '', $summary = '', $updated = '', $author_name = '') {
-		$entry = new FeedEntry();
+	function addEntry($id, $title, $updated, $content = '', $link = '', $summary = '', $author = '') {
+		$entry = new FeedEntry($id, $title, $updated);
 		$entry->id = $link;
-		$entry->link = $link;
 		$entry->title = $title;
-		$entry->summary = $summary;
 		$entry->updated = $updated;		
+		
+		$entry->link = $link;
+		
+		$entry->summary = $summary;
+		
 		$entry->author_name = $author_name;	
 
-		$this->appendEntry($entry);
+		return $this->appendEntry($entry);
 	}
 	
 	/**
@@ -216,40 +262,80 @@ class Feed {
  */
 class FeedEntry {
 	/**
-	 * The title of the entry
-	 * @var string
-	 */
-	var $title;
-	
-	/**
-	 * The link of the entry
-	 * @var string
-	 */
-	var $link;
-	
-	/**
 	 * The unique id of the entry
 	 * @var string
 	*/
 	var $id;
-	
+
+	/**
+	 * The title of the entry
+	 * @var string
+	 */
+	var $title;
+
 	/**
 	 * The date the entry was last updated
 	 * @var string
 	 */
 	var $updated;
+
+	/**
+	 * The authors of the entry
+	 *
+	 * @var array
+	 */
+	var $authors;
 	
 	/**
-	 * A summary of the entry
+	 * The complete contents of the entry
+	 *
+	 * @var string
+	 */
+	var $content;
+	
+	/**
+	 * The link of the entry
+	 * @var array
+	 */
+	var $links;
+	
+	/**
+	 * A short summary of the entry
+	 *
 	 * @var string
 	 */
 	var $summary;
 	
 	/**
-	 * The name of the author of the entry
+	 * @var array
+	 */
+	var $categories;
+	
+	/**
+	 * @var array
+	 */
+	var $contributors;
+	
+	/**
 	 * @var string
 	 */
-	var $author_name;
+	var $published;
+	
+	/**
+	 * @var string
+	 */
+	var $source;
+	
+	/**
+	 * @var string
+	 */
+	var $rights;
+	
+	function FeedEntry($id, $title, $updated) {
+		$this->id = $id;
+		$this->title = $title;
+		$this->updated = $updated;	
+	}
 	
 	/**
 	 * Compares two feed entries, returning their position relative to each other.
@@ -276,5 +362,23 @@ class FeedEntry {
 	}
 }
 
+// other constructs
 
+
+class FeedCategory {
+
+	var $term;
+	
+	var $scheme;
+	
+	var $label;
+	
+	function FeedCategory($term, $scheme = '', $label = '') {
+		$this->term = $term;
+		
+		$this->scheme = $scheme;
+		
+		$this->label = $label;	
+	}
+}
 ?>
