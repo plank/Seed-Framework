@@ -3,10 +3,10 @@
 /**
  * Base feed Format class
  *
- * @package view
- * @subpackage feed 
+ * @package feed
+ * @abstract 
  */
-class FeedFormat extends ExpatParser {
+class FeedFormat {
 	
 	/**
 	 * @var Feed
@@ -87,7 +87,10 @@ class FeedFormat extends ExpatParser {
 	 */		
 	function parse(& $feed, $data) {
 		$this->feed = & $feed;
-		parent::parse($data);	
+		
+		$parser = new XmlParser($this);
+		
+		return $parser->parse($data);
 		
 	}
 	

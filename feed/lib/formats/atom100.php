@@ -10,21 +10,43 @@ class Atom100Format extends FeedFormat {
 	var $protocol = 'atom';
 	var $version = '1.00';
 	
-	function character_data($content) {
+	/**
+	 * @param Feed $feed
+	 * @param string $data
+	 */
+	function parse(& $feed, $data) {
+		$data = parent::parse($feed, $data);
 		
-		if ($this->depth() == 2) {
-			if (in_array($this->current_element, array('title', 'updated', 'id'))) {
-				debug($this->current_element);
-				
-				$this->feed->{$this->current_element} = $content;
+		$feed_data = array('title', 'description', 'updated', 'id');
+		$entry_data = array('title', 'summary', 'updated', 'id');
+		
+		foreach ($feed_data as $field) {
+			if (isset($data->{$field}[0])) {
+				$this->feed->{$field} = $data->{$field}[0]->get_data();
 			}
-			
 		}
 		
+		if (isset($data->author[0]->name[0])) {
+			$this->feed->author_name = 	$data->author[0]->name[0]->get_data();
+		}
 		
+		foreach ($data->entry as $entry) {
+			$feed_entry = new FeedEntry();
+			
+			foreach ($entry_data as $field) {
+				if (isset($entry->{$field}[0])) {
+					$feed_entry->{$field} = $entry->{$field}[0]->get_data();
+				}
+			}			
+			
+			if (isset($entry->author[0]->name[0])) {
+				$feed_entry->author_name = $entry->author[0]->name[0]->get_data();
+			}
+			
+			$this->feed->appendEntry($feed_entry);
+			
+		}
 	}
-	 
-	
 	
 	/**
 	 * Generates a feed using the passed feed object
