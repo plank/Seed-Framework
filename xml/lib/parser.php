@@ -76,6 +76,8 @@ class XmlParser {
 	 */
 	function character_data($content) {
 		$node = & $this->_stack[0];
+		
+		//$node->set_data($node->get_data($content).$content);
 		$node->set_data($content);
 	}
 	

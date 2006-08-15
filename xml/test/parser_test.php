@@ -48,6 +48,15 @@ class ParserTester extends UnitTestCase {
 		
 	}
 	
+	function test_mixed_case_node() {
+		$data = "<node1><Node2>data</Node2></node1>";
+		
+		$document = $this->parser->parse($data);
+
+		$this->assertEqual($document->Node2[0]->get_data(), 'data');
+		
+	}
+		
 	function test_deep_nesting() {
 		$data = "<node><node><node>data</node></node></node>";
 		
@@ -129,6 +138,23 @@ class ParserTester extends UnitTestCase {
 		
 	}
 
+	function test_multiline_xml() {
+$data = <<<EOF
+<root>
+   ...
+   <node attribute="something">
+       Here is some data. There is a lot of data, &amp; I want to
+       be able to read the data from a terminal window, so I add
+       newlines to fit everything within 80 columns.
+   </node>
+   ...
+</root>
+EOF;
+		$document = $this->parser->parse($data);	
+		
+		$this->dump($document);
+	}
+	
 	/**
 	 * Test to see if we can properly parse a simple atom feed
 	 */

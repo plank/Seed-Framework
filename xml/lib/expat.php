@@ -79,6 +79,17 @@ class AbstractStreamParser {
 	}	
 	
 	/**
+	 * Parse the given xml_data string
+	 *
+	 * @param string $xml_data
+	 * @param string $input_encoding  Explicitely set the input encoding
+	 * @return bool
+	 */	
+	function parse($xml_data, $input_encoding = '') {
+		$this->stack = array();			
+	}
+	
+	/**
 	 * Detects and returns the input encoding
 	 *
 	 * @param string $xml_data
@@ -92,6 +103,27 @@ class AbstractStreamParser {
 		return 'UTF-8';
 
 	}
+
+	/**
+	 * Error handler
+	 * 
+	 * @param int $code
+	 * @param string $message
+	 */
+	function handle_error($code, $message = '') {
+		if (!$message) {
+			$message = $this->error_string($code);
+		}
+		
+		$line = $this->get_current_line_number();
+		$col = $this->get_current_column_number();
+
+		if (method_exists($this->handler, $this->error_handler)) {
+			call_user_func(array(& $this->handler, $this->start_element_handler), $code, $line, $col, $message);
+		} else {
+			trigger_error('Error '.$code.' at '.$line.':'.$col.': '.$message, E_USER_WARNING);
+		}
+	}	
 	
 }
 
@@ -104,6 +136,11 @@ class ExpatStreamParser extends AbstractStreamParser  {
 	 * @var resource
 	 */
 	var $parser;
+	
+	/**
+	 * @var string
+	 */
+	var $character_data;
 	
 	/**
 	 * Returns true if the character encoding is supported
@@ -123,6 +160,9 @@ class ExpatStreamParser extends AbstractStreamParser  {
 	 * @return bool
 	 */	
 	function parse($xml_data, $input_encoding = '') {
+		
+		parent::parse($xml_data, $input_encoding);
+		
 		// if the encoding wasn't specified, try to detect it
 		if (!$input_encoding) {
 			$input_encoding = $this->detect_encoding($xml_data);	
@@ -136,10 +176,14 @@ class ExpatStreamParser extends AbstractStreamParser  {
 		}
 		
 		$this->parser = xml_parser_create($input_encoding);
-		$this->stack = array();
-		
+
 		xml_set_object($this->parser, $this);
+		
+		// set options
 		xml_parser_set_option($this->parser, XML_OPTION_TARGET_ENCODING, $this->output_encoding);
+		xml_parser_set_option($this->parser, XML_OPTION_CASE_FOLDING, '0'); // case folding is evil
+		
+		// set handlers
 		xml_set_element_handler($this->parser, 'start_element', 'end_element');
 		xml_set_character_data_handler($this->parser, 'character_data');
 		
@@ -156,23 +200,32 @@ class ExpatStreamParser extends AbstractStreamParser  {
 	}
 	
 	/**
-	 * Error handler
-	 * 
+	 * Returns an error string for a given error code
+	 *
 	 * @param int $code
-	 * @param string $message
+	 * @return string
 	 */
-	function handle_error($code, $message = '') {
-		if (!$message) {
-			$message = ucfirst(xml_error_string($code));
-		}
-		$line = xml_get_current_line_number($this->parser);
-		$col = xml_get_current_column_number($this->parser);
-
-		if (method_exists($this->handler, $this->error_handler)) {
-			call_user_func(array(& $this->handler, $this->start_element_handler), $code, $line, $col, $message);
-		} else {
-			trigger_error('Error '.$code.' at '.$line.':'.$col.': '.$message, E_USER_WARNING);
-		}
+	function error_string($code) {
+		return ucfirst(xml_error_string($code));	
+	}
+	
+	/**
+	 * Returns the current line number of the parser
+	 *
+	 * @return int
+	 */
+	function get_current_line_number() {
+		return 	xml_get_current_line_number($this->parser);
+		
+	}
+	
+	/**
+	 * Returns the current column number of the parser
+	 *
+	 * @return int
+	 */
+	function get_current_column_number() {
+		return xml_get_current_column_number($this->parser);
 	}
 	
 	/**
@@ -183,18 +236,17 @@ class ExpatStreamParser extends AbstractStreamParser  {
 	 * @param array $attributes
 	 */
 	function start_element($parser, $name, $attributes) {
-		$name = strtolower($name);
 		
 		// throw an error is an element starts with xml, which is not allowed but
 		// not handled by expat
-		if (substr($name, 0, 3) == 'xml') {
+		if (strtolower(substr($name, 0, 3)) == 'xml') {
 			$this->handle_error(XML_ERROR_INVALID_TOKEN);
 		}
 		
 		array_unshift($this->stack, $name);
 		
-		$attributes = array_change_key_case($attributes);
-
+		$this->flush_character_data_buffer();
+		
 		// validate that the passed handler can handle the events
 		if (method_exists($this->handler, $this->start_element_handler)) {
 			call_user_func(array(& $this->handler, $this->start_element_handler), $name, $attributes);
@@ -209,13 +261,14 @@ class ExpatStreamParser extends AbstractStreamParser  {
 	 * @param string $name
 	 */
 	function end_element($parser, $name) {
-		$name = strtolower($name);
 		$last_node = array_shift($this->stack);
 		
 		// this error should get caught by expat, but we'll add a check just in case...
 		if ($name != $last_node) {
 			$this->handle_error(XML_ERROR_INVALID_TOKEN);
 		}
+		
+		$this->flush_character_data_buffer();
 		
 		if (method_exists($this->handler, $this->end_element_handler)) {
 			call_user_func(array(& $this->handler, $this->end_element_handler), $name);
@@ -234,10 +287,24 @@ class ExpatStreamParser extends AbstractStreamParser  {
 			return;	
 		}
 		
-		if (method_exists($this->handler, $this->character_data_handler)) {
-			call_user_func(array(& $this->handler, $this->character_data_handler), $content);	
-		}
+		$this->character_data .= $content;
+		
+
 	}
+	
+	function flush_character_data_buffer() {
+		if (!$this->character_data) {
+			return;
+		}
+		
+		if (method_exists($this->handler, $this->character_data_handler)) {
+			call_user_func(array(& $this->handler, $this->character_data_handler), $this->character_data);	
+		}			
+		
+		$this->character_data = '';
+		
+	}
+	
 }
 
 ?>

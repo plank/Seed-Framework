@@ -14,8 +14,16 @@ class RSS091Format extends FeedFormat {
 	var $protocol = 'RSS';
 	var $version = '0.91';
 	
-	function detect() {
-		
+	function detect($data) {
+		if (!$data = $this->prepare_data($data)) {
+			return false;		
+		}		
+
+		if (isset($data->version) && $data->version == "0.91") {
+			return true;	
+		}
+
+		return false;
 	}
 	
 	/**

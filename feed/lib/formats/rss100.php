@@ -11,8 +11,16 @@ class RSS100Format extends FeedFormat {
 	var $protocol = 'RSS';
 	var $version = '1.00';
 	
-	function detect() {
-		
+	function detect($data) {
+		if (!$data = $this->prepare_data($data)) {
+			return false;		
+		}		
+
+		if (isset($data->xmlns) && $data->xmlns == "http://purl.org/rss/1.0/") {
+			return true;	
+		}
+
+		return false;
 	}
 	
 	/**

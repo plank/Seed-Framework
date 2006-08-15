@@ -12,10 +12,17 @@ class RSS200Format extends FeedFormat {
 	var $protocol = 'RSS';
 	var $version = '2.00';
 	
-	function detect() {
-		
-	}
-	
+	function detect($data) {
+		if (!$data = $this->prepare_data($data)) {
+			return false;		
+		}		
+
+		if (isset($data->version) && $data->version == "2.0") {
+			return true;	
+		}
+
+		return false;
+	}	
 	/**
 	 * Generates a feed using the passed feed object
 	 *
