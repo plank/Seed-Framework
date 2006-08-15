@@ -72,26 +72,45 @@ class FeedFormat {
 	 * Generates a feed using the passed feed object
 	 *
 	 * @param Feed $feed
-	 * @return bool	 
 	 */	
 	function generate(& $feed) {
-		trigger_error('FeedFormat::generate needs to be implemented');
-		return false;
+		$feed->sortEntries();
+		
 	}
 
+	
 	/**
 	 * Parses a feed, populating the passed feed object
 	 *
-	 * @param Feed $feed
+	 * @param mixed $data
 	 * @return bool	 
 	 */		
-	function parse(& $feed, $data) {
-		$this->feed = & $feed;
+	function parse($data) {
+
+
 		
-		$parser = new XmlParser($this);
+	}
+	
+	/**
+	 * Parses a string of xml data into a Xml Tree
+	 *
+	 * @param string $data
+	 * @return XmlNode
+	 */
+	function prepare_data($data) {
+		if (is_string($data)) {
+			$parser = new XmlParser();
 		
-		return $parser->parse($data);
+			$data = $parser->parse($data); 
+		}
 		
+		if (is_object($data) && is_a($data, 'XmlNode')) {
+			return $data;
+		}
+		
+		trigger_error("Parameter 1 of FeedFormat::prepare_data() must be a string or an XmlNode object");
+		
+		return false;
 	}
 	
 	/**
@@ -121,8 +140,14 @@ class FeedFormat {
 		return date($this->date_format, $value);
 	}
 
-
+	/**
+	 * Sends the appropriate header for the feed
+	 */
+	function sendHeader() {
+		header('Content-type:'.$this->content_type);		
+	}
 	
+
 }
 
 ?>

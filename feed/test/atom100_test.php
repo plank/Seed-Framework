@@ -1,13 +1,23 @@
 <?php
 
-class Atom100Tester extends UnitTestCase {
+require_once('support.php');
 
-	function test_parsing() {
-		$data = file_get_contents(dirname(__FILE__).'/feeds/atom100.xml');
-		$feed = new Feed('atom100');
+class Atom100Tester extends FeedTestCase {
+	
+	function test_detection() {
+		$parser = FeedFormat::factory('atom100');
+	
+		$data = $this->read_feed('atom100.xml');
+		$this->assertTrue($parser->detect($data));
 		
-		$feed->parse($data);
-		$this->dump($feed);
+		$data = $this->read_feed('rss100.xml');
+		$this->assertFalse($parser->detect($data));
+
+		
+	}
+	
+	function test_parsing() {
+
 	}
 
 }

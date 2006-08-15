@@ -25,6 +25,9 @@ class RSS091Format extends FeedFormat {
 	 * @return bool	 
 	 */
 	function generate(& $feed) {
+		
+		parent::generate($feed);
+		
 		$result = "<rss version='0.91'>\n";
 		$result .= "  <channel>\n";
 		$result .= "    <title>".$this->escape($feed->title)."</title>\n";

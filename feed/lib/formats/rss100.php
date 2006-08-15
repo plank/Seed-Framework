@@ -22,6 +22,9 @@ class RSS100Format extends FeedFormat {
 	 * @return bool
 	 */
 	function generate(& $feed) {
+		
+		parent::generate($feed);
+		
 		$result = "<rdf:RDF\n";
 		$result .= "  xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'\n";
 		$result .= "  xmlns='http://purl.org/rss/1.0/'\n";

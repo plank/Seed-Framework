@@ -1,7 +1,6 @@
 <?php
 
 class FormatTester extends UnitTestCase {
-	
 
 	function test_factory() {
 		$this->assertIsA(FeedFormat::factory('atom100'), 'Atom100Format');

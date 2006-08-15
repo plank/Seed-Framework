@@ -10,13 +10,34 @@ class Atom100Format extends FeedFormat {
 	var $protocol = 'atom';
 	var $version = '1.00';
 	
-	/**
-	 * @param Feed $feed
-	 * @param string $data
-	 */
-	function parse(& $feed, $data) {
-		$data = parent::parse($feed, $data);
+	var $content_type = "application/atom+xml";
+	
+	function detect($data) {
+		if (!$data = $this->prepare_data($data)) {
+			return false;		
+		}		
 		
+		if (isset($data->xmlns) && $data->xmlns == "http://www.w3.org/2005/Atom") {
+			return true;	
+		}
+
+		return false;
+	}
+	
+	/**
+	 * Parses a feed and returns a Feed object
+	 *
+	 * @param mixed $data
+	 * @return Feed
+	 */
+	function parse($data) {
+		
+		$this->feed = & new Feed();
+		
+		if (!$data = $this->prepare_data($data)) {
+			return false;		
+		}
+			
 		$feed_data = array('title', 'description', 'updated', 'id');
 		$entry_data = array('title', 'summary', 'updated', 'id');
 		
@@ -46,6 +67,8 @@ class Atom100Format extends FeedFormat {
 			$this->feed->appendEntry($feed_entry);
 			
 		}
+		
+		return $this->feed;
 	}
 	
 	/**
@@ -55,6 +78,9 @@ class Atom100Format extends FeedFormat {
 	 * @return bool	 
 	 */
 	function generate(& $feed) {
+		
+		parent::generate($feed);
+		
 		$result = "<?xml version='1.0' encoding='utf-8'?>\n";
 		$result .= "<feed xmlns='http://www.w3.org/2005/Atom'>\n";
 		

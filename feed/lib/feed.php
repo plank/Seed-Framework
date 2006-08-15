@@ -24,70 +24,10 @@ define('RFC3339_DATE_FORMAT', 'Y-m-d\TH:i:s\Z'); // e.g. 2003-12-13T18:30:02Z
  */
 class Feed {
 	/**
-	 * A unique id for the feed
-	 * @var string
-	 */
-	var $id;	
-	
-	/**
 	 * The title of the feed
 	 * @var string
 	 */
 	var $title;
-	
-	/**
-	 * The date the feed was last updated
-	 * @var string
-	 */
-	var $updated;
-	
-	/**
-	 * The authors of the feed
-	 *
-	 * @var array
-	 */
-	var $authors;
-	
-	/**
-	 * The links of the feed
-	 *
-	 * @var array
-	 */
-	var $links;
-	
-	/**
-	 * The various categories the feed belongs to
-	 *
-	 * @var array
-	 */
-	var $categories;
-	
-	/**
-	 * The various contributors to the feed
-	 *
-	 * @var array
-	 */
-	var $contributors;
-	
-	/**
-	 * @var string
-	 */
-	var $icon;
-	
-	/**
-	 * @var string
-	 */
-	var $logo;
-	
-	/**
-	 * @var string
-	 */
-	var $rights;
-	
-	/**
-	 * @var string
-	 */
-	var $subtitle;
 	
 	/**
 	 * The description of the feed
@@ -96,49 +36,40 @@ class Feed {
 	var $description;
 	
 	/**
+	 * The link to the feed source
+	 * @var string
+	 */
+	var $link;
+	
+	/**
+	 * The date the feed was last updated
+	 * @var string
+	 */
+	var $updated;
+	
+	/**
+	 * A unique id for the feed
+	 * @var string
+	 */
+	var $id;
+	
+	/**
+	 * The name of the author of the feed
+	 * @var string
+	 */
+	var $author_name;
+	
+	/**
 	 * An array conataining the feed's entried
 	 * @var array
 	 */
 	var $entries;
 	
-	/**
-	 * Constructor
-	 *
-	 * @param mixed $format    The format of the feed
-	 * @param string $id
-	 * @param string $title
-	 * @param string $updated  The time the feed was last updated
-	 * @return Feed
-	 */
-	function Feed($format, $id, $title, $updated) {
-		$this->setFormat($format);	
+	function Feed() {
 	
-		$this->id = $id;
-		$this->title = $title;
-		$this->updated = $updated;
-		
 	}
 	
-	/**
-	 * Sets the generator to use for the feed
-	 *
-	 * @param mixed $format
-	 */
-	function setFormat($format) {
-		if (is_string($format)) {
-			$format = FeedFormat::factory($format);	
-		}
-		
-		if (is_a($format, 'FeedFormat')) {
-			$this->format = $format;
-			return true;
-		}
-		
-		trigger_error('Invalid feed format, must be a string or an object');
-		return false;
-		
-	}
-	
+
 	/**
 	 * Adds an entry to the feed
 	 *
@@ -147,19 +78,16 @@ class Feed {
 	 * @param string $summary;
 	 * @param string $author_name;
 	 */
-	function addEntry($id, $title, $updated, $content = '', $link = '', $summary = '', $author = '') {
-		$entry = new FeedEntry($id, $title, $updated);
+	function addEntry($link, $title = '', $summary = '', $updated = '', $author_name = '') {
+		$entry = new FeedEntry();
 		$entry->id = $link;
-		$entry->title = $title;
-		$entry->updated = $updated;		
-		
 		$entry->link = $link;
-		
+		$entry->title = $title;
 		$entry->summary = $summary;
-		
+		$entry->updated = $updated;		
 		$entry->author_name = $author_name;	
 
-		return $this->appendEntry($entry);
+		$this->appendEntry($entry);
 	}
 	
 	/**
@@ -201,55 +129,13 @@ class Feed {
 	}
 	
 	/**
-	 * Generates the rss feed
-	 *
-	 * @return bool
-	 */
-	function generate() {
-		if (is_null($this->format)) {
-			trigger_error('No format set in Feed');
-			return false;	
-			
-		}
-
-		$this->sortEntries();
-		
-		if ($this->setUp()) {
-			return $this->format->generate($this);
-			
-		} else {
-			return false;
-			
-		}
-		
-	}
-	
-	function parse($data) {
-		if (is_null($this->format)) {
-			trigger_error('No format set in Feed');
-			return false;	
-			
-		}
-		
-		$this->format->parse($this, $data);
-		
-	}
-
-	
-	/**
 	 * Feed setup code goes here
 	 */
 	function setUp() {
 		return true;
 	}
 	
-	/**
-	 * Sends the appropriate header for the feed
-	 */
-	function sendHeader() {
-		header('Content-type:'.$this->generator->content_type);		
-	}
-	
+
 	
 }
 
@@ -262,80 +148,40 @@ class Feed {
  */
 class FeedEntry {
 	/**
-	 * The unique id of the entry
-	 * @var string
-	*/
-	var $id;
-
-	/**
 	 * The title of the entry
 	 * @var string
 	 */
 	var $title;
-
+	
+	/**
+	 * The link of the entry
+	 * @var string
+	 */
+	var $link;
+	
+	/**
+	 * The unique id of the entry
+	 * @var string
+	*/
+	var $id;
+	
 	/**
 	 * The date the entry was last updated
 	 * @var string
 	 */
 	var $updated;
-
-	/**
-	 * The authors of the entry
-	 *
-	 * @var array
-	 */
-	var $authors;
 	
 	/**
-	 * The complete contents of the entry
-	 *
-	 * @var string
-	 */
-	var $content;
-	
-	/**
-	 * The link of the entry
-	 * @var array
-	 */
-	var $links;
-	
-	/**
-	 * A short summary of the entry
-	 *
+	 * A summary of the entry
 	 * @var string
 	 */
 	var $summary;
 	
 	/**
-	 * @var array
-	 */
-	var $categories;
-	
-	/**
-	 * @var array
-	 */
-	var $contributors;
-	
-	/**
+	 * The name of the author of the entry
 	 * @var string
 	 */
-	var $published;
-	
-	/**
-	 * @var string
-	 */
-	var $source;
-	
-	/**
-	 * @var string
-	 */
-	var $rights;
-	
-	function FeedEntry($id, $title, $updated) {
-		$this->id = $id;
-		$this->title = $title;
-		$this->updated = $updated;	
-	}
+	var $author_name;
 	
 	/**
 	 * Compares two feed entries, returning their position relative to each other.
@@ -362,23 +208,5 @@ class FeedEntry {
 	}
 }
 
-// other constructs
 
-
-class FeedCategory {
-
-	var $term;
-	
-	var $scheme;
-	
-	var $label;
-	
-	function FeedCategory($term, $scheme = '', $label = '') {
-		$this->term = $term;
-		
-		$this->scheme = $scheme;
-		
-		$this->label = $label;	
-	}
-}
 ?>

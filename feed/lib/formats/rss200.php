@@ -23,6 +23,9 @@ class RSS200Format extends FeedFormat {
 	 * @return bool
 	 */
 	function generate(& $feed) {
+		
+		parent::generate($feed);
+		
 		$result = "<rss version='2.0' xmlns:dc='http://purl.org/dc/elements/1.1/'>\n";
 		$result .= "  <channel>\n";
 		$result .= "    <title>".$this->escape($feed->title)."</title>\n";
