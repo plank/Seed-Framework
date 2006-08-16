@@ -203,7 +203,7 @@ class Uploader extends AbstractUploader {
 	}
 	
 	function get_upload_path($field) {
-		return  $this->model->upload_path($field);
+		return $this->model->upload_path($field);
 	}
 	
 	function update_model($field, $filename) {
@@ -211,8 +211,6 @@ class Uploader extends AbstractUploader {
 	}
 	
 	function move_file($source, $destination) {
-		die(debug($source, $destination));
-		
 		return move_uploaded_file($source, $destination);
 	}	
 }
