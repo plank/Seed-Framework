@@ -3,12 +3,13 @@
 /**
  * post.php, part of the seed framework
  *
- * Helper classes for posting data using a variety of methods 
+ * Helper classes for posting data using a variety of methods. These classes will eventually be deprecated 
+ * in favor of more general network classes.
  *
  * @author mateo murphy, based on code from http://sourceforge.net/projects/paypal
  * @copyright mateo murphy
  * @license The MIT License
- * @package library
+ * @package Network
  */
 
 /**

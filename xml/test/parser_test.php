@@ -152,7 +152,7 @@ $data = <<<EOF
 EOF;
 		$document = $this->parser->parse($data);	
 		
-		$this->dump($document);
+	//	$this->dump($document);
 	}
 	
 	/**

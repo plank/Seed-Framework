@@ -1,6 +1,17 @@
 <?php
 
-class Socket {
+/**
+ * simple_socket.php, part of the seed framework
+ *
+ * Class wrapping fsock functions.
+ *
+ * @author mateo murphy
+ * @copyright mateo murphy
+ * @license The MIT License
+ * @package Network
+ */
+
+class SimpleSocket {
 	var $handle;
 	
 	var $open = false;
@@ -12,7 +23,7 @@ class Socket {
 	/**
 	 * Opens a socket to a given url
 	 *
-	 * @param mixed $url
+	 * @param mixed $url  A string or an url object
 	 * @return bool
 	 */
 	function open($url) {
@@ -105,7 +116,6 @@ class Socket {
 			return false;	
 		}
 		
-		
 		return feof($this->handle);	
 		
 	}
@@ -117,6 +127,7 @@ class Socket {
 	 */
 	function close() {
 		$this->open = false;
+		
 		return fclose($this->handle);	
 		
 	}

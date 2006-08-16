@@ -12,6 +12,7 @@ require_once('framework.php');
 // test framework is expected to be in same directory as framework
 require_once('../simpletest/unit_tester.php');
 require_once('../simpletest/reporter.php');
+require_once('../simpletest/mock_objects.php');
 
 $seed = new Seed();
 $seed->include_libraries();

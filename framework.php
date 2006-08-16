@@ -42,7 +42,7 @@ class Seed {
 	 *
 	 * @var array
 	 */
-	var $components = array('library', 'support', 'view', 'db', 'model', 'controller', 'feed', 'xml');
+	var $components = array('library', 'support', 'view', 'db', 'model', 'controller', 'feed', 'xml', 'network');
 	
 	/**
 	 * A comma delimited list of file extensions the framework shouldn't handle 
