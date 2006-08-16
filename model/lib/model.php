@@ -924,7 +924,7 @@ class Model extends DataSpace {
 		
 		foreach ($this->columns as $column) {
 			if (isset($this->data[$column->name])) {
-				$fields[] = $column->name." = '".$this->db->escape($this->data[$column->name])."'";
+				$fields[] = $this->db->escape_identifier($column->name)." = '".$this->db->escape($this->data[$column->name])."'";
 			}
 		}
 		
@@ -953,7 +953,7 @@ class Model extends DataSpace {
 		
 		foreach ($this->columns as $column) {
 			if (isset($this->data[$column->name])) {
-				$fields[] = $column->name;
+				$fields[] = $this->db->escape_identifier($column->name);
 				$values[] = "'".$this->db->escape($this->data[$column->name])."'";
 			}
 		}
