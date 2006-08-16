@@ -12,6 +12,31 @@
  */
 
 /**
+ * No errors occured
+ */
+define('TRACKBACK_NO_ERROR', 0);
+
+/**
+ * The remote server returned a validation message
+ */
+define('TRACKBACK_SERVER_VALIDATION_ERROR', 1);
+
+/**
+ * The client validation failed
+ */
+define('TRACKBACK_CLIENT_VALIDATION_ERROR', 2);
+
+/**
+ * The connection to the remote server failed
+ */
+define('TRACKBACK_CONNECTION_ERROR', 3);
+
+/**
+ * The server returned an invalid response
+ */
+define('TRACKBACK_SERVER_RESPONSE_ERROR', 4);
+
+/**
  * Class for sending and receiving trackbacks
  */
 class Trackback {
@@ -56,7 +81,7 @@ class Trackback {
 	 *
 	 * @var int
 	 */
-	var $error_code = 0;
+	var $error_code = TRACKBACK_NO_ERROR;
 	
 	/**
 	 * A list of object properties with their associated properties
@@ -82,14 +107,8 @@ class Trackback {
 	function Trackback($url = null, $title = null, $excerpt = null, $blog_name = null) {
 		
 		if (is_array($url)) {
-			
-			foreach($this->meta_data as $field => $field_data) {
-				if (isset($url[$field])) {
-					
-					$this->$field = $url[$field];
-				}			
-			}
-			
+			$this->assign_data($url);			
+
 		} else {
 			$this->url = $url;
 			$this->title = $title;
@@ -100,30 +119,68 @@ class Trackback {
 		$this->validate();
 	}
 	
-
+	function assign_data($array) {
+		foreach($this->meta_data as $field => $field_data) {
+			if (isset($array[$field])) {
+				$this->$field = $array[$field];
+			}			
+		}
+	}
 	
 	/**
 	 * Send a ping to the given trackback url
 	 *
+	 * @param SimpleSocket $socket
 	 * @param string $trackback_url
 	 * @return bool
 	 */
-	function send($trackback_url) {
-		if (!$this->validate()) {
+	function send($socket, $trackback_url) {
+		if (!$string = $this->generate_request($trackback_url)) {
 			return false;	
 		}
 		
+		// open a socket and parse the response
+		if ($socket->open($string)) {
+			$response = new TrackbackResponse($this);
+			return $response->parse($socket->get_all());
+			
+		} else {
+			$this->error_code = TRACKBACK_CONNECTION_ERROR;
+			$this->error_message = "Couldn't connect to '$trackback_url'";	
+			return false;
+			
+		}
+
+	}
+
+	/**
+	 * Generates a GET request for the given url
+	 *
+	 * @param string $url
+	 * @return string
+	 */
+	function generate_request($url) {
+		if (!$this->validate()) {
+			return false;	
+
+		}
+		
+		$querystring = array();
+		
 		foreach($this->meta_data as $field => $field_data) {
-			$querystring[] = $field."=".urlencode($this->$field);
+			if (isset($this->$field) && $this->$field) {
+				$querystring[] = $field."=".urlencode($this->$field);
+			}
+
+		}
+		
+		if (count($querystring)) {
+			$url .= "?".implode('&', $querystring);	
 			
 		}
 		
-		$string = $trackback_url."?".implode('&', $querystring);
-		
-		return true;
+		return $url;
 	}
-	
-
 	
 	/**
 	 * Checks to see if the current trackback object is valid.
@@ -135,7 +192,6 @@ class Trackback {
 		$errors = array();
 		
 		foreach($this->meta_data as $field => $field_data) {
-			
 			if ($field_data['required'] && !isset($this->$field)) {
 				$errors[] = $field_data['name'];
 			}
@@ -143,16 +199,17 @@ class Trackback {
 		}
 		
 		if (count($errors)) {
-			$this->error_code = 1;
+			$this->error_code = TRACKBACK_CLIENT_VALIDATION_ERROR;
 			$this->error_message = "The following fields were missing: ".implode(', ', $errors);
 			
 			return false;	
-		} else {
 			
-			$this->error_code = 0;
+		} else {
+			$this->error_code = TRACKBACK_NO_ERROR;
 			$this->error_message = '';
 	
 			return true;
+			
 		}
 		
 	}
@@ -186,6 +243,13 @@ class TrackbackResponse {
 	var $trackback;
 	
 	/**
+	 * The error message returned by the server made 
+	 *
+	 * @var string
+	 */
+	var $invalid_response_message = 'Server returned an invalid response';
+	
+	/**
 	 * Constructor
 	 *
 	 * @param Trackback $trackback
@@ -212,12 +276,22 @@ class TrackbackResponse {
 	function parse($response) {
 		preg_match('/<error>(\d)<\/error>/', $response, $matches);
 		
+		if (!isset($matches[1])) {
+			$this->trackback->error_code = TRACKBACK_SERVER_RESPONSE_ERROR;
+			$this->trackback->error_message = $this->invalid_response_message;	
+		}
+		
 		$this->trackback->error_code = $matches[1];
 		
 		if ($this->trackback->error_code) {
 			preg_match('/<message>([^<]*)<\/message>/', $response, $matches);
 			
 			$this->trackback->error_message = $matches[1];
+
+			if (!isset($matches[1])) {
+				$this->trackback->error_code = TRACKBACK_SERVER_RESPONSE_ERROR;
+				$this->trackback->error_message = $this->invalid_response_message;	
+			}
 			
 		} else {
 			$this->trackback->error_message = '';
