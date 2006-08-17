@@ -40,7 +40,7 @@ define('TRACKBACK_SERVER_RESPONSE_ERROR', 4);
  * Class for sending and receiving trackbacks
  */
 class Trackback {
-
+	
 	/**
 	 * The url of the blog entry
 	 *
@@ -70,6 +70,20 @@ class Trackback {
 	var $blog_name;
 	
 	/**
+	 * Id of the originating resource
+	 *
+	 * @var string
+	 */
+	var $id;
+	
+	/**
+	 * The URL of a resource containing the Originating Resource.
+	 *
+	 * @var string
+	 */
+	var $source;
+	
+	/**
 	 * The last error message
 	 *
 	 * @var string
@@ -92,7 +106,9 @@ class Trackback {
 		'url' => 		array('name' => 'URL', 			'required'=>true),
 		'title' => 		array('name' => 'Title', 		'required'=>false),
 		'excerpt' => 	array('name' => 'Excerpt', 		'required'=>false),
-		'blog_name' => 	array('name' => 'Blog Name', 	'required'=>false)
+		'blog_name' => 	array('name' => 'Blog Name', 	'required'=>false),
+		'id' => 		array('name' => 'ID', 			'required'=>false),
+		'source' => 	array('name' => 'Source', 		'required'=>false),
 	);
 	
 	/**
@@ -170,7 +186,7 @@ class Trackback {
 		// open a socket and parse the response
 		$result = $http->post($this->get_data());
 		$response = new TrackbackResponse($this);
-		return $response->parse($result);
+		return $response->parse($result->body);
 			
 	}
 
@@ -236,11 +252,18 @@ class TrackbackResponse {
 	var $trackback;
 	
 	/**
-	 * The error message returned by the server made 
+	 * The error message returned when the server makes an invalid response
 	 *
 	 * @var string
 	 */
 	var $invalid_response_message = 'Server returned an invalid response';
+
+	/**
+	 * The error message returned when the server doesn't describe the error
+	 *
+	 * @var string
+	 */
+	var $no_message = 'An error occured but the server did not return a message';
 	
 	/**
 	 * Constructor
@@ -265,25 +288,28 @@ class TrackbackResponse {
 	
 	/**
 	 * Parses a response received from the server
+	 *
+	 * @todo instead of just check for the presence of error and message nodes,
+	 * we should probably check for the response being a proper xml doc
+	 * @param string $response
+	 * @return bool
 	 */
 	function parse($response) {
 		preg_match('/<error>(\d)<\/error>/', $response, $matches);
 		
-		if (!isset($matches[1])) {
-			$this->trackback->error_code = TRACKBACK_SERVER_RESPONSE_ERROR;
-			$this->trackback->error_message = $this->invalid_response_message;	
+		if (isset($matches[1])) {
+			$this->trackback->error_code = $matches[1];			
+		} else {
+			$this->trackback->error_code = 0;
 		}
-		
-		$this->trackback->error_code = $matches[1];
 		
 		if ($this->trackback->error_code) {
 			preg_match('/<message>([^<]*)<\/message>/', $response, $matches);
 			
-			$this->trackback->error_message = $matches[1];
-
-			if (!isset($matches[1])) {
-				$this->trackback->error_code = TRACKBACK_SERVER_RESPONSE_ERROR;
-				$this->trackback->error_message = $this->invalid_response_message;	
+			if (isset($matches[1])) {
+				$this->trackback->error_message = $matches[1];
+			} else {
+				$this->trackback->error_message = $this->no_message;
 			}
 			
 		} else {
