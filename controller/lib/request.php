@@ -129,7 +129,12 @@ class Request {
 	 * @return Request
 	 */
 	function Request() {
-		$this->url = new URL($_REQUEST['url']); //, APP_ROOT);
+		if (isset($_REQUEST['url'])) {
+			$this->url = new URL($_REQUEST['url']); //, APP_ROOT);	
+		} else {
+			$this->url = new URL();
+		}	
+		
 		$this->get = & $_GET;
 		$this->post = & $_POST;
 		$this->cookies = & $_COOKIE;
