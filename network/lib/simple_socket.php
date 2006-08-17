@@ -1,5 +1,8 @@
 <?php
 
+
+
+
 /**
  * simple_socket.php, part of the seed framework
  *
@@ -12,9 +15,9 @@
  */
 
 class SimpleSocket {
-	var $handle;
+	var $_handle;
 	
-	var $open = false;
+	var $connected = false;
 	
 	var $error_number;
 	
@@ -44,12 +47,12 @@ class SimpleSocket {
 		$target_url = $ssl.$url->host;
 
 		//Connect
-		$this->handle = fsockopen($target_url, $url->port, $this->error_number, $this->error_string, 1); 	
+		$this->_handle = fsockopen($target_url, $url->port, $this->error_number, $this->error_string, 1); 	
 
 		//Error checking
-		$this->open = ($this->handle && true);
+		$this->connected = ($this->_handle && true);
 
-		return $this->open;
+		return $this->connected;
 		
 	}
 	
@@ -60,11 +63,11 @@ class SimpleSocket {
 	 * @return int The number of bytes written
 	 */
 	function put($string) {
-		if (!$this->open) {
+		if (!$this->connected) {
 			return false;	
 		}
 		
-		return fputs($this->handle, $string, strlen($string));
+		return fputs($this->_handle, $string, strlen($string));
 		
 	}
 	
@@ -75,11 +78,11 @@ class SimpleSocket {
 	 * @return string
 	 */
 	function get($length = null) {
-		if (!$this->open) {
+		if (!$this->connected) {
 			return false;	
 		}
 		
-		return fgets($this->handle, $length);
+		return fgets($this->_handle, $length);
 		
 	}
 	
@@ -89,7 +92,7 @@ class SimpleSocket {
 	 * @return string
 	 */
 	function get_all() {
-		if (!$this->open) {
+		if (!$this->connected) {
 			return false;	
 		}		
 		
@@ -97,7 +100,7 @@ class SimpleSocket {
 		
 		//loop through the response from the server 
 		while(!$this->eof()) {
-			$response .= @fgets($this->handle, 1024);
+			$response .= @fgets($this->_handle, 1024);
 		} 
 	
 		$this->close();
@@ -112,11 +115,11 @@ class SimpleSocket {
 	 * @return bool
 	 */
 	function eof() {
-		if (!$this->open) {
+		if (!$this->connected) {
 			return false;	
 		}
 		
-		return feof($this->handle);	
+		return feof($this->_handle);	
 		
 	}
 
@@ -126,9 +129,9 @@ class SimpleSocket {
 	 * @return bool
 	 */
 	function close() {
-		$this->open = false;
+		$this->connected = false;
 		
-		return fclose($this->handle);	
+		return fclose($this->_handle);	
 		
 	}
 	

@@ -31,6 +31,11 @@ foreach($seed->components as $component) {
 	}
 	
 	$path = $component.'/test/';
+	
+	if (file_exists($path.'support.php')) {
+		require_once($path.'support.php');	
+	}
+	
 	// include all classes
 	$dir = dir($path);
 	

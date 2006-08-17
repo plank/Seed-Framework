@@ -9,7 +9,7 @@ class BaseTrackbackTester extends UnitTestCase {
 	var $normal_response;
 	var $error_response;
 		
-	function TrackbackTester() {
+	function BaseTrackbackTester() {
 		parent::UnitTestCase();
 		
 		$this->normal_response = <<<EOL
@@ -94,24 +94,24 @@ class TrackbackTester extends BaseTrackbackTester {
 		
 	}
 	
-	function test_generate_request() {
-		$url = 'http://www.company.com/';
+	function test_set_and_get_data() {
+		
+		$trackback = new Trackback();
+		
 		$data = array('url'=>'URL', 'title'=>'Title', 'excerpt'=>'Excerpt', 'blog_name'=>'Blog Name');
 		
-		$trackback = new Trackback($data);
-		$this->assertEqual($trackback->generate_request($url), 'http://www.company.com/?url=URL&title=Title&excerpt=Excerpt&blog_name=Blog+Name');
-		
-		
-		$data = array('url'=>'URL', 'title'=>'Title');
+		$trackback->set_data($data);
 
-		$trackback = new Trackback($data);
-		$this->assertEqual($trackback->generate_request($url), 'http://www.company.com/?url=URL&title=Title');
+		$this->assertEqual($trackback->url, $data['url']);
+		$this->assertEqual($trackback->title, $data['title']);
+		$this->assertEqual($trackback->excerpt, $data['excerpt']);
+		$this->assertEqual($trackback->blog_name, $data['blog_name']);			
 		
-		$data = array();
-
-		$trackback = new Trackback($data);
-		$this->assertFalse($trackback->generate_request($url));
+		$trackback->blog_name = "New blog name";
 		
+		$data['blog_name'] = "New blog name";
+		
+		$this->assertEqual($data, $trackback->get_data());
 		
 	}
 	
@@ -127,7 +127,7 @@ class TrackbackTester extends BaseTrackbackTester {
 		$response->parse($this->error_response);
 		
 		$this->assertEqual($trackback->error_code, TRACKBACK_SERVER_VALIDATION_ERROR);
-		$this->assertEqual($trackback->error_message, 'You must include a URL and ID');		
+		$this->assertEqual($trackback->error_message, 'You must include a URL');		
 
 	}
 	
@@ -139,14 +139,18 @@ class TrackbackTester extends BaseTrackbackTester {
 class TrackbackSendTester extends BaseTrackbackTester {
 
 	/**
-	 * @var SimpleSocket
+	 * @var HTTP
+	 */
+	var $http;
+	
+	/**
+	 * @var TestSocket
 	 */
 	var $socket;
 	
 	function setup() {
-		$this->socket = new MockSimpleSocket();
-		
-		$this->socket->setReturnValue('get_all', $this->normal_response);		
+		$this->socket = & new TestSocket();
+		$this->http = & new HTTP($this->socket);
 		
 	}
 
@@ -154,9 +158,10 @@ class TrackbackSendTester extends BaseTrackbackTester {
 		$url = 'http://www.company.com/';
 		$data = array('url'=>'URL', 'title'=>'Title', 'excerpt'=>'Excerpt', 'blog_name'=>'Blog Name');
 		
-		$this->socket->setReturnValue('open', true);
+		$this->socket->get_data = $this->normal_response;
+		
 		$trackback = new Trackback($data);
-		$trackback->send($this->socket, $url);
+		$trackback->send($this->http, $url);
 		
 		$this->assertEqual($trackback->error_code, TRACKBACK_NO_ERROR);
 		$this->assertEqual($trackback->error_message, '');
@@ -167,58 +172,52 @@ class TrackbackSendTester extends BaseTrackbackTester {
 		$data = array();
 		$url = 'http://www.company.com/';
 		
-		$this->socket->setReturnValue('open', true);
-		$this->socket->setReturnValue('get_all', $this->error_response);
+		$this->socket->get_data = $this->error_response;
 		
 		$trackback = new Trackback($data);
-		$trackback->send($this->socket, $url);
+		$trackback->send($this->http, $url);
 		
 		$this->assertEqual($trackback->error_code, TRACKBACK_CLIENT_VALIDATION_ERROR);
 		$this->assertEqual($trackback->error_message, 'The following fields were missing: URL');
 		
 	}	
-	
+
 	function test_cant_connect() {
 		$url = 'http://www.company.com/';
 		$data = array('url'=>'URL', 'title'=>'Title', 'excerpt'=>'Excerpt', 'blog_name'=>'Blog Name');
 		
-		$this->socket->setReturnValue('open', false);
+		$this->socket->allow_connect = false;
 		
 		$trackback = new Trackback($data);
-		$trackback->send($this->socket, $url);
+		$trackback->send($this->http, $url);
 		
 		$this->assertEqual($trackback->error_code, TRACKBACK_CONNECTION_ERROR);
 		$this->assertEqual($trackback->error_message, "Couldn't connect to 'http://www.company.com/'");
 		
 	}
-	
+
 	function test_validated_send() {
 		$url = 'http://www.company.com/';
 		
 		$good_data = array('url'=>'URL', 'title'=>'Title', 'excerpt'=>'Excerpt', 'blog_name'=>'Blog Name');
-		$good_request = $url.'?url=URL&title=Title&excerpt=Excerpt&blog_name=Blog+Name';
-		
-		
+
 		$bad_data = array('title'=>'Title', 'excerpt'=>'Excerpt', 'blog_name'=>'Blog Name');
-		$bad_request = $url.'?title=Title&excerpt=Excerpt&blog_name=Blog+Name';
-		
-		$this->socket->setReturnValue('open', true);
-		$this->socket->setReturnValue('get_all', $this->normal_response, array($good_request));
-		$this->socket->setReturnValue('get_all', $this->error_response, array($bad_request));
+
+		$this->socket->get_data = $this->normal_response;		
 		
 		$trackback = new Trackback($good_data);
-		$trackback->send($this->socket, $url);
+		$trackback->send($this->http, $url);
 		
 		$this->assertEqual($trackback->error_code, TRACKBACK_NO_ERROR);
 		$this->assertEqual($trackback->error_message, '');
 		
 		$trackback = new Trackback($bad_data);
-		$trackback->send($this->socket, $url);
+		$trackback->send($this->http, $url);
 		
 		$this->assertEqual($trackback->error_code, TRACKBACK_CLIENT_VALIDATION_ERROR);
 		$this->assertEqual($trackback->error_message, 'The following fields were missing: URL');
 	}
-	
+
 }
 
 

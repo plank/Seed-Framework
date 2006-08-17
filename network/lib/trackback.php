@@ -107,7 +107,7 @@ class Trackback {
 	function Trackback($url = null, $title = null, $excerpt = null, $blog_name = null) {
 		
 		if (is_array($url)) {
-			$this->assign_data($url);			
+			$this->set_data($url);			
 
 		} else {
 			$this->url = $url;
@@ -119,7 +119,12 @@ class Trackback {
 		$this->validate();
 	}
 	
-	function assign_data($array) {
+	/**
+	 * Assigns an array of data to the properties of the object
+	 *
+	 * @param array $array
+	 */
+	function set_data($array) {
 		foreach($this->meta_data as $field => $field_data) {
 			if (isset($array[$field])) {
 				$this->$field = $array[$field];
@@ -128,60 +133,48 @@ class Trackback {
 	}
 	
 	/**
+	 * Returns the properties of the object as an array
+	 *
+	 * @return array
+	 */
+	function get_data() {
+		$result = array();
+		
+		foreach($this->meta_data as $field => $field_data) {
+			if ($this->$field) {
+				$result[$field] = $this->$field;
+			}			
+		}
+		
+		return $result;
+	}
+	
+	/**
 	 * Send a ping to the given trackback url
 	 *
-	 * @param SimpleSocket $socket
+	 * @param HTTP $http
 	 * @param string $trackback_url
 	 * @return bool
 	 */
-	function send($socket, $trackback_url) {
-		if (!$string = $this->generate_request($trackback_url)) {
+	function send($http, $trackback_url) {
+		if (!$this->validate()) {
 			return false;	
+		}
+		
+		if (!$http->open($trackback_url)) {
+			$this->error_code = TRACKBACK_CONNECTION_ERROR;
+			$this->error_message = "Couldn't connect to '$trackback_url'";	
+			return false;			
 		}
 		
 		// open a socket and parse the response
-		if ($socket->open($string)) {
-			$response = new TrackbackResponse($this);
-			return $response->parse($socket->get_all());
+		$result = $http->post($this->get_data());
+		$response = new TrackbackResponse($this);
+		return $response->parse($result);
 			
-		} else {
-			$this->error_code = TRACKBACK_CONNECTION_ERROR;
-			$this->error_message = "Couldn't connect to '$trackback_url'";	
-			return false;
-			
-		}
-
 	}
 
-	/**
-	 * Generates a GET request for the given url
-	 *
-	 * @param string $url
-	 * @return string
-	 */
-	function generate_request($url) {
-		if (!$this->validate()) {
-			return false;	
 
-		}
-		
-		$querystring = array();
-		
-		foreach($this->meta_data as $field => $field_data) {
-			if (isset($this->$field) && $this->$field) {
-				$querystring[] = $field."=".urlencode($this->$field);
-			}
-
-		}
-		
-		if (count($querystring)) {
-			$url .= "?".implode('&', $querystring);	
-			
-		}
-		
-		return $url;
-	}
-	
 	/**
 	 * Checks to see if the current trackback object is valid.
 	 *

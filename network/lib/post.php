@@ -10,7 +10,7 @@
  * @copyright mateo murphy
  * @license The MIT License
  * @package Network
- */
+*/
 
 /**
  * The location of the curl.exec
