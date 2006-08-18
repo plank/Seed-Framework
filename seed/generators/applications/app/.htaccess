@@ -1,5 +1,11 @@
 <IfModule mod_rewrite.c>
-    RewriteEngine on
-    RewriteRule	^$	public/	[L]
-    RewriteRule	(.*)	public/$1	[L]
+	RewriteEngine on
+#	RewriteCond %{REQUEST_FILENAME} !-f	
+	RewriteRule   ^$   public/   [L]
+	
+#	RewriteCond %{REQUEST_FILENAME} !-f
+#	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteRule   ^(.*)$ public/$1 [L]
 </IfModule>
+
+Options -Indexes
