@@ -209,7 +209,14 @@ class HTTP {
 	
 }
 
-
+/**
+ * Class representing HTTP Responses
+ *
+ * @author mateo murphy
+ * @copyright mateo murphy
+ * @license The MIT License
+ * @package Network
+ */
 class HTTPResponse {
 	
 	/**
