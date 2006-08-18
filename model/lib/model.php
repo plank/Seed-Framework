@@ -67,10 +67,18 @@ class DataSpace {
 				return null;	
 			}
 			
-			$model = Model::factory($options['class_name']);
+			if ($options['polymorphic']) {
+				$class_name = $this->data[$field.'_type'];
+			} else {
+				$class_name = $options['class_name'];
+			}
+			
+			$foreign_key = $options['foreign_key'];
+			
+			$model = Model::factory($class_name);
 			
 			return $model->find('first', array(
-				'conditions' => $model->id_field." = ".$this->data[$options['foreign_key']]." AND ".$options['conditions'],
+				'conditions' => $model->id_field." = ".$this->data[$foreign_key]." AND ".$options['conditions'],
 				'order' => $options['order']
 			));
 			
@@ -95,8 +103,14 @@ class DataSpace {
 			
 			$model = Model::factory($options['class_name']);
 			
+			$condition = $options['foreign_key']." = ".$this->get_id();
+			
+			if ($options['as']) {
+				$condition .= ' AND '.$options['as']."_type = '".$this->type."'";
+			}
+			
 			return $model->find('all', array(
-				'conditions' => $options['foreign_key']." = ".$this->get_id()." AND ".$options['conditions'],
+				'conditions' => $condition." AND ".$options['conditions'],
 				'order' => $options['order']
 			));			
 			
@@ -374,14 +388,30 @@ class Model extends DataSpace {
 			$options['conditions'] = '1 = 1';
 		}
 		
-		if (!isset($options['order'])) {
-			$class = model::factory($options['class_name']);
-			
-			$options['order'] = $class->id_field.' ASC';	
+		if (!isset($options['polymorphic'])) {
+			$options['polymorphic'] = false;
 		}
-		
-		if (!isset($options['foreign_key'])) {
-			$options['foreign_key'] = Inflector::underscore($options['class_name']).'_id';
+
+		if ($options['polymorphic']) {
+			if (!isset($this->columns[$field.'_id']) || !isset($this->columns[$field.'_type'])) {
+				trigger_error("Required fields for polymorphic association '$field' missing", E_USER_WARNING);
+				return false;
+			}
+			
+			$options['foreign_key'] = $field.'_id';
+			
+		} else {
+			// order doesn't work for polymorphic classes, as they belong to several classes
+			if (!isset($options['order'])) {
+				$class = model::factory($options['class_name']);
+				
+				$options['order'] = $class->id_field.' ASC';	
+			}
+			
+			if (!isset($options['foreign_key'])) {
+				$options['foreign_key'] = Inflector::underscore($options['class_name']).'_id';
+			}	
+				
 		}
 		
 		$this->belongs_to_data[$field] = $options;	
@@ -423,6 +453,8 @@ class Model extends DataSpace {
 	 *   order
 	 *   group
 	 *   foreign_key
+	 *	 dependent
+	 *	 as
 	 */
 	function has_many($field, $options = null) {
 		if (is_null($options)) {
@@ -441,12 +473,20 @@ class Model extends DataSpace {
 			$options['order'] = 'id ASC';	
 		}
 		
-		if (!isset($options['foreign_key'])) {
-			$options['foreign_key'] = $this->table_name().'_id';
-		}
-		
 		if (!isset($options['dependent'])) {
 			$options['dependent'] = false;
+		}
+		
+		if (!isset($options['as'])) {
+			$options['as'] = false;	
+			
+			if (!isset($options['foreign_key'])) {
+				$options['foreign_key'] = $this->table_name().'_id';
+			}
+			
+		} else {
+			$options['foreign_key'] = $options['as'].'_id';
+			
 		}
 		
 		$this->has_many_data[$field] = $options;	 

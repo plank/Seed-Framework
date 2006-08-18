@@ -1,8 +1,6 @@
 <?php
 
 
-
-
 class TestModel extends Model  {
 	
 	
@@ -13,6 +11,7 @@ class NewsModel extends Model {
 	function setup() {
 		$this->belongs_to('user');	
 		$this->has_and_belongs_to_many('category');
+		$this->has_many('tag', array('as'=>'taggable'));
 	}
 	
 }
@@ -30,7 +29,16 @@ class UserModel extends Model {
 
 	function setup() {
 		$this->has_many('news');
+		$this->has_many('tag', array('as'=>'taggable'));		
 	}
+	
+}
+
+class TagModel extends Model {
+	
+	function setup() {
+		$this->belongs_to('taggable', array('polymorphic'=>true));	
+	}	
 	
 }
 
@@ -245,6 +253,90 @@ class ModelTester extends UnitTestCase {
 		$this->assertFalse($results->has_next());
 		
 		
+	}
+	
+	function test_polymorphic_has_many() {
+		if (SKIP_DB_TESTS) return;
+		
+		$news = NewsModel::find(1);
+		$tags = $news->get('tag');
+		
+		$tag = $tags->next();
+		$this->assertIsA($tag, 'TagModel');
+		$this->assertEqual($tag->get('name'), 'Article 1, Tag 1');
+
+		$tag = $tags->next();
+		$this->assertIsA($tag, 'TagModel');
+		$this->assertEqual($tag->get('name'), 'Article 1, Tag 2');
+		
+		$this->assertFalse($tags->next());
+		
+		$user = UserModel::find(1);
+		$tags = $user->get('tag');
+		
+		$tag = $tags->next();
+		$this->assertIsA($tag, 'TagModel');
+		$this->assertEqual($tag->get('name'), 'Admin Tag');
+
+		$this->assertFalse($tags->next());
+	}
+	
+	function test_polymorphic_belongs_to() {
+		if (SKIP_DB_TESTS) return;
+		
+		// 1st tag
+		$tag = TagModel::find(1);
+		$this->assertEqual($tag->get('name'), 'Article 1, Tag 1');
+
+		$news = $tag->get('taggable');
+		
+		$this->assertIsA($news, 'NewsModel');
+		$this->assertEqual($news->get('title'), 'Article 1');
+
+		// 2nd tag
+		$tag = TagModel::find(2);
+		$this->assertEqual($tag->get('name'), 'Article 1, Tag 2');
+
+		$news = $tag->get('taggable');
+		
+		$this->assertIsA($news, 'NewsModel');
+		$this->assertEqual($news->get('title'), 'Article 1');
+
+		// 3rd tag
+		$tag = TagModel::find(3);
+		$this->assertEqual($tag->get('name'), 'Article 2, Tag 1');
+
+		$news = $tag->get('taggable');
+		
+		$this->assertIsA($news, 'NewsModel');
+		$this->assertEqual($news->get('title'), 'Article 2');
+
+		// 4th tag
+		$tag = TagModel::find(4);
+		$this->assertEqual($tag->get('name'), 'Article 2, Tag 2');
+
+		$news = $tag->get('taggable');
+		
+		$this->assertIsA($news, 'NewsModel');
+		$this->assertEqual($news->get('title'), 'Article 2');
+		
+		// 3rd tag
+		$tag = TagModel::find(5);
+		$this->assertEqual($tag->get('name'), 'Admin Tag');
+
+		$news = $tag->get('taggable');
+		
+		$this->assertIsA($news, 'UserModel');
+		$this->assertEqual($news->get('username'), 'admin');
+
+		// 4th tag
+		$tag = TagModel::find(6);
+		$this->assertEqual($tag->get('name'), 'Author Tag');
+
+		$news = $tag->get('taggable');
+		
+		$this->assertIsA($news, 'UserModel');
+		$this->assertEqual($news->get('username'), 'author');		
 	}
 	
 }

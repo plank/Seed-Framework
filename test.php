@@ -1,7 +1,7 @@
 <?php
 
 // DB settings
-define('SKIP_DB_TESTS', true);		// set this to true to skip tests require the database
+define('SKIP_DB_TESTS', false);		// set this to true to skip tests require the database
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', 'wilmag');
@@ -135,6 +135,28 @@ function setup_db($db) {
 	$db->query("INSERT INTO `category_news` ( `category_id` , `news_id` ) VALUES ('1', '1'), ('2', '1');");
 	$db->query("INSERT INTO `category_news` ( `category_id` , `news_id` ) VALUES ('2', '2'), ('3', '2');");
 	$db->query("INSERT INTO `category_news` ( `category_id` , `news_id` ) VALUES ('3', '3'), ('4', '3');");
+	
+	
+	$db->drop_table('tag', true);
+	
+	$db->query("CREATE TABLE `tag` (
+		  `id` int(11) unsigned NOT NULL auto_increment,
+		  `name` varchar(255) NOT NULL default '',
+		  `taggable_type` varchar(255) NOT NULL default '',
+		  `taggable_id` int(11) unsigned NOT NULL default '0',
+		  PRIMARY KEY  (`id`),
+		  KEY `taggable_index` (`taggable_type`,`taggable_id`)
+		) TYPE=MyISAM AUTO_INCREMENT=7 ;"
+	);
+
+	$db->query("INSERT INTO `tag` VALUES (1, 'Article 1, Tag 1', 'news', 1);");
+	$db->query("INSERT INTO `tag` VALUES (2, 'Article 1, Tag 2', 'news', 1);");
+	$db->query("INSERT INTO `tag` VALUES (3, 'Article 2, Tag 1', 'news', 2);");
+	$db->query("INSERT INTO `tag` VALUES (4, 'Article 2, Tag 2', 'news', 2);");
+	$db->query("INSERT INTO `tag` VALUES (5, 'Admin Tag', 'user', 1);");
+	$db->query("INSERT INTO `tag` VALUES (6, 'Author Tag', 'user', 2);");
+
+	
 }
 
 
