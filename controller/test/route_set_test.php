@@ -10,12 +10,17 @@ class RouteSetTester extends UnitTestCase {
 	}
 	
 	function test_connecting() {
-		$this->assertTrue($this->router->connect('', '$controller/$action/$id'));
+		$this->router->connect();
+		$this->assertError('No route passed to connect');
+		
+		$this->assertTrue($this->router->connect('$controller/$action/$id'));
 		$this->assertTrue($this->router->connect('admin', '$controller/$action/$id'));
 
 		$routes = $this->router->routes;
 		$this->assertIsA($routes[0], 'Route');		
 		$this->assertIsA($routes['admin'], 'Route');
+		$this->assertEqual(count($routes), 2);
+
 	}
 	
 	/**
@@ -24,23 +29,23 @@ class RouteSetTester extends UnitTestCase {
 	 */
 	function test_complete_parse() {
 		
-		$this->router->connect('', 'blog/',
+		$this->router->connect('blog/',
 			array('controller'=>'blog', 'action'=>'index')
 		);
 		
-		$this->router->connect('', 'blog/$year/$month/$day', 
+		$this->router->connect('blog/$year/$month/$day', 
 			array('controller'=>'blog', 'action'=>'show_date', 'month'=>null, 'day'=>null), 
 			array('year'=>'/^(19|20)\d\d$/', 'month'=>'/^[01]?\d$/', 'day'=>'/^[0-3]?\d$/')
 		);
 		
-		$this->router->connect('', 'blog/show/$id',
+		$this->router->connect('blog/show/$id',
 			array('controller'=>'blog', 'action'=>'show'),
 			array('id'=>'/\d+/')
 		);
 		
-		$this->router->connect('', 'blog/$controller/$action/$id');
+		$this->router->connect('blog/$controller/$action/$id');
 		
-		$this->router->connect('', '*anything',
+		$this->router->connect('*anything',
 			array('controller'=>'blog', 'action'=>'unkown_request')
 		);
 		
@@ -60,17 +65,17 @@ class RouteSetTester extends UnitTestCase {
 	 * Do the same for generating
 	 */
 	function test_complete_generation() {
-		$this->router->connect('', 'blog/$year/$month/$day', 
+		$this->router->connect('blog/$year/$month/$day', 
 			array('controller'=>'blog', 'action'=>'show_date', 'month'=>null, 'day'=>null), 
 			array('year'=>'/^(19|20)\d\d$/', 'month'=>'/^[01]?\d$/', 'day'=>'/^[0-3]?\d$/')
 		);
 		
-		$this->router->connect('', 'blog/show/$id',
+		$this->router->connect('blog/show/$id',
 			array('controller'=>'blog', 'action'=>'show'),
 			array('id'=>'/\d+/')
 		);
 		
-		$this->router->connect('', 'blog/$controller/$action/$id');
+		$this->router->connect('blog/$controller/$action/$id');
 
 		$request = array('controller'=>'blog', 'action'=>'show_date', 'year'=>'2005', 'month'=>'4', 'day'=>'15');
 		

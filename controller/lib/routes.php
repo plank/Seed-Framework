@@ -65,8 +65,29 @@ class Router {
 	
 	/**
 	 * Adds a route to the route set
+	 *
+	 * @param string $name
+	 * @param string $route
+	 * @param array $defaults
+	 * @param array $requirements
 	 */
-	function connect($name = '', $route, $defaults = null, $requirements = null) {
+	function connect($name = false, $route = null, $defaults = null, $requirements = null) {
+		if ($name === false) {
+			trigger_error('No route passed to connect', E_USER_WARNING);
+			return false;
+		}
+		
+		$args = func_get_args();
+		$args = array_merge($args, array_fill(0, 4, null));
+		
+		if (is_null($route) || is_array($route)) {
+			$name = false;
+		} else {
+			$name = array_shift($args);	
+		}
+		
+		list ($route, $defaults, $requirements) = $args;
+		
 		if ($name) {
 			$this->routes[$name] = new Route($route, $defaults, $requirements);
 		} else {
