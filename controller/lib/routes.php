@@ -66,29 +66,31 @@ class Router {
 	/**
 	 * Adds a route to the route set
 	 *
-	 * @param string $name
+	 * @param string $name			This argument can be omitted by making the route the first argument
 	 * @param string $route
 	 * @param array $defaults
 	 * @param array $requirements
 	 */
-	function connect($name = false, $route = null, $defaults = null, $requirements = null) {
-		if ($name === false) {
+	function connect($name = null, $route = null, $defaults = null, $requirements = null) {
+		if (is_null($name)) {
 			trigger_error('No route passed to connect', E_USER_WARNING);
 			return false;
 		}
 		
+		// get the arguments from the function and pad the rest of the array so that the list call works
 		$args = func_get_args();
 		$args = array_merge($args, array_fill(0, 4, null));
 		
+		// was a name given?
 		if (is_null($route) || is_array($route)) {
-			$name = false;
+			$name = null;
 		} else {
 			$name = array_shift($args);	
 		}
 		
 		list ($route, $defaults, $requirements) = $args;
 		
-		if ($name) {
+		if (isset($name)) {
 			$this->routes[$name] = new Route($route, $defaults, $requirements);
 		} else {
 			$this->routes[] = new Route($route, $defaults, $requirements);			
