@@ -109,6 +109,13 @@ class Router {
 	 */
 	function url_for($request_values = null, $new_values = null, $overwrite_values = null) {
 		
+		// hack for requesting controllers in absolute mode
+		if (isset($new_values['controller']) && substr($new_values['controller'], 0, 1) == '/') {
+			$new_values['controller'] = substr($new_values['controller'], 1);
+			unset($request_values['module']);
+		}
+		// end hack		
+		
 		foreach($this->routes as $route) {
 			if($result = $route->generate_url($request_values, $new_values, $overwrite_values)) {
 				return $result;	
@@ -235,7 +242,7 @@ class Route {
 	 * @return string
 	 */
 	function generate_url($request_values = null, $new_values = null, $overwrite_values = null) {
-
+		
 		$this->log = array();
 		
 		if (is_null($request_values)) {

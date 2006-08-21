@@ -462,7 +462,7 @@ class Controller {
 	
 	function url_for($options = null, $overwrite_options = null) {
 		$request = $this->request;
-		
+
 		if (is_array($options)) {
 			return APP_ROOT.$this->router->url_for($request->path, $options, $overwrite_options);
 		} else {
