@@ -171,7 +171,13 @@ class HTTP {
 	 * @param array $headers
 	 */
 	function _write_headers($method, $headers) {
-		$this->socket->put($method." ".$this->url->path." HTTP/1.1\r\n"); // :".$this->url->port."
+		$path = $this->url->path;
+		
+		if ($this->url->query) {
+			$path .= '?'.$this->url->query;	
+		}
+		
+		$this->socket->put($method." ".$path." HTTP/1.1\r\n"); 
 		
 		foreach ($headers as $key => $value) {
 			$this->socket->put($key.": ".$value."\r\n");	
@@ -278,6 +284,23 @@ class HTTPResponse {
 		
 		$this->headers = $this->parse_headers($headers);
 		
+		$this->body = $this->parse_body($this->body, $this->is_chunked());
+		
+	}
+	
+	/**
+	 * Returns true if the transfer encoding is set to chunked
+	 *
+	 * @return bool
+	 */
+	function is_chunked() {
+		if (isset($this->headers['Transfer-Encoding']) && strtolower($this->headers['Transfer-Encoding']) == 'chunked') {
+			return true;	
+			
+		}	
+		
+		return false;
+		
 	}
 	
 	/**
@@ -313,6 +336,39 @@ class HTTPResponse {
 				$result[$matches[1]] = $matches[2];	
 			}
 			
+		}
+		
+		return $result;
+		
+	}
+	
+	/**
+	 * Parses a chunk encoded body
+	 *
+	 * @param string $body
+	 * @param bool $chunked
+	 * @return bool
+	 */
+	function parse_body($body, $chunked = false) {
+		if (!$chunked) {
+			return $body;	
+		}
+
+		$result = '';
+		$pointer = 0;
+		
+		while($pointer < strlen($body)) {
+			$chunkstring = substr($body, $pointer, strpos($body, "\r\n", $pointer) - $pointer);
+			$chunksize = hexdec($chunkstring);
+
+			if ($chunksize == 0) {
+				break;	
+			}
+
+			$pointer += strlen($chunkstring) + 2;
+			$result .= substr($body, $pointer, $chunksize);
+			$pointer += $chunksize + 2;
+
 		}
 		
 		return $result;
