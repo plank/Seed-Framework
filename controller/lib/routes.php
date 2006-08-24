@@ -37,7 +37,7 @@ class Router {
 		// strip out the query string if the url contains it
 		
 		$path_params = $this->parse($request->url->directory.$request->url->base_name);
-		
+
 		if (!isset($path_params['controller'])) {
 			trigger_error("The mapper couldn't find a controller for the request '$url', please check the routings file", E_USER_ERROR);	
 			return false;
@@ -109,12 +109,7 @@ class Router {
 	 */
 	function url_for($request_values = null, $new_values = null, $overwrite_values = null) {
 		
-		// hack for requesting controllers in absolute mode
-		if (isset($new_values['controller']) && substr($new_values['controller'], 0, 1) == '/') {
-			$new_values['controller'] = substr($new_values['controller'], 1);
-			unset($request_values['module']);
-		}
-		// end hack		
+		$this->_fix_params($request_values, $new_values, $overwrite_values);	
 		
 		foreach($this->routes as $route) {
 			if($result = $route->generate_url($request_values, $new_values, $overwrite_values)) {
@@ -130,6 +125,7 @@ class Router {
 	
 	function url_for_name($name, $request_values = null, $new_values = null, $overwrite_values = null) {
 		
+		$this->_fix_params($request_values, $new_values, $overwrite_values);	
 		
 		if (!key_exists($name, $this->routes)) {
 			trigger_error("Route '$name' not found", E_USER_WARNING);
@@ -151,7 +147,6 @@ class Router {
 	 */
 	function parse($url) {
 		
-		
 		foreach($this->routes as $route) {
 			if($result = $route->parse_url($url)) {
 				return $result;	
@@ -163,10 +158,22 @@ class Router {
 		return false;
 		
 	}
-	
 
+	/**
+	 * Arranges module and controller params on in requests
+	 *
+	 * @param array $request_values The path values from the incoming request
+	 * @param array $new_values The new values to place into the url
+	 * @param array $overwrite_values Values that will overwrite the request values
+	 */
+	function _fix_params(& $request_values, & $new_values, & $overwrite_values) {
+		if (isset($new_values['controller']) && substr($new_values['controller'], 0, 1) == '/') {
+			$new_values['controller'] = substr($new_values['controller'], 1);
+			unset($request_values['module']);
+		}
+
+	}
 	
-		
 	
 }
 
