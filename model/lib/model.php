@@ -33,7 +33,9 @@ class DataSpace {
 	function DataSpace($data = null) {
 		if (isset($data)) {
 			$this->data = $data;
-		} 
+		} else {
+			$this->data = array();	
+		}
 	}
 	
 	/**
@@ -215,8 +217,7 @@ class DataSpace {
 			} else {
 				if ($this->field_exists($field)) {
 					if (is_array($value)) {
-						$value = $this->version->columns[$field]->array_to_type(array_values($value));			
-						
+						$value = $this->columns[$field]->array_to_type(array_values($value));			
 					}
 
 					if (method_exists($this, 'set_'.$field)) {
@@ -488,7 +489,7 @@ class Model extends DataSpace {
 			$options['foreign_key'] = $options['as'].'_id';
 			
 		}
-		
+	
 		$this->has_many_data[$field] = $options;	 
 		
 	}
