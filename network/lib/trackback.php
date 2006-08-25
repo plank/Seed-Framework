@@ -136,6 +136,16 @@ class Trackback {
 	}
 	
 	/**
+	 * Returns the validity status of the object
+	 *
+	 * @return bool
+	 */
+	function is_valid() {
+		return ($this->error_code == 0);	
+		
+	}
+	
+	/**
 	 * Assigns an array of data to the properties of the object
 	 *
 	 * @param array $array

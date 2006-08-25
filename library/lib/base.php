@@ -240,5 +240,13 @@ if (version_compare(phpversion(), '5.0') < 0) {
 	');
 }
 
-
+/**
+ * Returns the current date/time as an ISO 8601 formated date
+ *
+ * @return string
+ */
+function now() {
+	return date('Y-m-d H:i:s');	
+	
+}
 ?>
