@@ -114,7 +114,7 @@ class Request {
 	 *
 	 * @var string
 	 */
-	var $input;
+	var $body;
 	
 	/**
 	 * The response method
@@ -129,8 +129,8 @@ class Request {
 	 * @return Request
 	 */
 	function Request() {
-		if (isset($_REQUEST['url'])) {
-			$this->url = new URL($_REQUEST['url']); //, APP_ROOT);	
+		if (isset($_GET['url'])) {
+			$this->url = new URL($_GET['url']); //, APP_ROOT);	
 		} else {
 			$this->url = new URL();
 		}	
@@ -151,7 +151,7 @@ class Request {
 			
 		}
 		
-		$this->input = file_get_contents('php://input');
+		$this->body = file_get_contents('php://input');
 		
 	}
 	
