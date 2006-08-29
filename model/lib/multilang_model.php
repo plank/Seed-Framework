@@ -241,7 +241,7 @@ class MultilangModel extends Model {
 			} else {
 				if ($this->field_exists($field)) {
 					if (is_array($value)) {
-						$value = $this->version->columns[$field]->array_to_type(array_values($value));
+						$value = $this->columns[$field]->array_to_type(array_values($value));
 					}
 
 					if (method_exists($this, 'set_'.$field)) {
