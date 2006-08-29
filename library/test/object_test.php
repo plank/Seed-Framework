@@ -20,7 +20,7 @@ class ObjectTester extends UnitTestCase {
 	function test_class_name() {
 		
 		
-		$this->assertEqual($this->obj->get_class_name(), 'mockobject');
+		$this->assertEqual(strtolower($this->obj->get_class_name()), 'mockobject');
 		
 		
 	}
