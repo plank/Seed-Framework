@@ -70,7 +70,7 @@ function message($type = 'debug', $arg = '') {
 	
 	$return = "<div class='{$type}_box' style='border:1px solid #ccc'>\n";
 	$return .= "<div style='font-family: monaco, courrier; padding: 4px; border-bottom: 1px solid #ccc; background-color:{$bar_color}; color:{$text_color}'>".ucfirst($type)."</div>\n";
-	$return .= "<pre style='font-family: monaco, courrier; padding: 4px; background-color: white; overflow: auto'>\n";
+	$return .= "<pre style='font-family: monaco, courrier; padding: 4px; background-color: white; color: black; overflow: auto'>\n";
 	
 	foreach ($args as $arg) {
 		$return .= htmlentities(print_r($arg, true), ENT_QUOTES)."\n";	
