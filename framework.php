@@ -1,5 +1,6 @@
 <?php
 
+error_reporting(E_ALL);
 
 /**
  * Bootstrap code for the framework
