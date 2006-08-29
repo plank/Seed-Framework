@@ -165,8 +165,10 @@ class Template {
 			return false;
 		}
 		
-		$partial = new Template();
-		$partial->controller = $this->controller;
+		$partial = & new Template();
+		$partial->helper = & $this->helper;
+		$partial->controller = & $this->controller;
+		$partial->flash = & $this->flash;
 		
 		if (isset($local_assigns)) {
 			foreach($local_assigns as $name => $value) {
@@ -232,6 +234,7 @@ class Template {
 	}
 	
 	function show_flash($name, $class_name = null) {
+		
 		$value = $this->flash->get($name);
 		
 		if (!$value) {
