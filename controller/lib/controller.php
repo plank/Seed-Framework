@@ -396,8 +396,14 @@ class Controller {
 			$this->response->response_code = $status;	
 		}
 		
-		$this->response->body = $text;
+		if ($text) {
+			$this->response->body = $text;
+		}
 		
+	}
+	
+	function render_nothing() {
+		$this->render_text();	
 	}
 	
 	function render_component($controller, $options = null) {
