@@ -347,6 +347,10 @@ class AbstractAdapter {
 			$options = array();	
 		}
 		
+		if (!isset($options['limit'])) {
+			$options['limit'] = null;
+		}	
+		
 		$add_column_sql = "ALTER TABLE ".$this->quote_table_name($table_name)." ADD ".$this->quote_column_name($column_name);
 		$add_column_sql .= " ".$this->type_to_sql($type, $options['limit']);
 		$add_column_sql = $this->add_column_options($add_column_sql, $options);
@@ -490,6 +494,10 @@ class AbstractAdapter {
 	}
 	
 	function add_column_options($sql, $options) {
+		if (!isset($options['column'])) {
+			$options['column'] = null;	
+		}
+		
 		if (isset($options['default'])) {
 			$sql .= " DEFAULT ".$this->quote($options['default'], $options['column']);
 			

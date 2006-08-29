@@ -93,7 +93,7 @@ class ParserTester extends UnitTestCase {
 		// test attribute shortcuts
 		$this->assertEqual($document->node[0]->type, 'foo');
 		$this->assertNull($document->node[0]->typse);
-
+		$this->assertError();
 		
 		$this->assertNull($document->node[0]->get_data());
 		

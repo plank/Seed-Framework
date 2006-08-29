@@ -276,9 +276,16 @@ class HTTPResponse {
 	 * @param string $string
 	 */
 	function parse_response($string) {
-		list($headers, $this->body) = explode("\r\n\r\n", $string, 2);
 		
-		$headers = explode("\r\n", $headers);
+		$parts  = explode("\r\n\r\n", $string, 2);
+		
+		if (isset($parts[1])) {
+			$this->body = $parts[1];	
+		} else {
+			$this->body = '';	
+		}
+		
+		$headers = explode("\r\n", $parts[0]);
 		
 		list($this->http_version, $this->response_code, $this->message) = $this->parse_status_line(array_shift($headers));
 		

@@ -51,6 +51,8 @@ class TestAroundFilter1 extends AroundFilter {
 
 class TestAroundFilter2 extends AroundFilter {
 	
+	var $counter = 0;	
+	
 	function before() {
 		$this->counter ++; 		
 		return true;
@@ -65,6 +67,8 @@ class TestAroundFilter2 extends AroundFilter {
 
 class TestAroundFilter3 extends AroundFilter {
 
+	var $counter = 0;
+		
 	function before() {
 		$this->counter ++; 		
 		return true;

@@ -62,7 +62,10 @@ class DataSpace {
 		if (isset($this->belongs_to_data[$field])) {
 			
 			$options = $this->belongs_to_data[$field];
-			
+
+			if (!isset($options['order'])) {
+				$options['order'] = null;	
+			}			
 //			debug($options);
 			
 			if (!key_exists($options['foreign_key'], $this->data)) {
@@ -74,6 +77,8 @@ class DataSpace {
 			} else {
 				$class_name = $options['class_name'];
 			}
+			
+
 			
 			$foreign_key = $options['foreign_key'];
 			
@@ -89,6 +94,10 @@ class DataSpace {
 		if (isset($this->has_one_data[$field])) {
 			$options = $this->has_one_data[$field];
 			
+			if (!isset($options['order'])) {
+				$options['order'] = null;	
+			}
+						
 			$model = Model::factory($options['class_name']);
 			
 			return $model->find('first', array(
@@ -103,6 +112,10 @@ class DataSpace {
 			
 			$options = $this->has_many_data[$field];
 			
+			if (!isset($options['order'])) {
+				$options['order'] = null;	
+			}
+						
 			$model = Model::factory($options['class_name']);
 			
 			$condition = $options['foreign_key']." = ".$this->get_id();
@@ -122,6 +135,10 @@ class DataSpace {
 			
 			$options = $this->has_and_belongs_to_many_data[$field];
 			
+			if (!isset($options['order'])) {
+				$options['order'] = null;	
+			}
+						
 			$model = Model::factory($options['class_name']);
 			
 			return $model->find('all', array(
