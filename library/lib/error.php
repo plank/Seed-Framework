@@ -179,7 +179,8 @@ function error_string($error_value) {
 		E_COMPILE_WARNING => "warning",
 		E_USER_ERROR => "error",
 		E_USER_WARNING => "warning",
-		E_USER_NOTICE => "notice"
+		E_USER_NOTICE => "notice",
+		E_STRICT => "notice"
 	);
 	
 	return $error_strings[$error_value];
