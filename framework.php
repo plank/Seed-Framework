@@ -2,6 +2,8 @@
 
 error_reporting(E_ALL);
 
+define('SEED_PHP_VERSION', substr(phpversion(), 0, 1));
+
 /**
  * Bootstrap code for the framework
  * 
@@ -359,7 +361,6 @@ foreach($default_values as $name => $value) {
 		define($name, $value);
 	}
 }
-
 
 // Framework path constants
 

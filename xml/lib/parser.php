@@ -54,8 +54,12 @@ class XmlParser {
 			
 		}
 		
-		// place it on the stack
-		array_unshift($this->_stack, & $node);
+		if (SEED_PHP_VERSION == 4) {
+			// place it on the stack
+			array_unshift($this->_stack, & $node);
+		} else {
+			array_unshift($this->_stack, $node);
+		}
 		
 	}
 	
