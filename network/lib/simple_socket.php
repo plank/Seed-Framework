@@ -23,6 +23,8 @@ class SimpleSocket {
 	
 	var $error_string;
 	
+	var $connect_timeout = 30;
+	
 	/**
 	 * Opens a socket to a given url
 	 *
@@ -47,7 +49,7 @@ class SimpleSocket {
 		$target_url = $ssl.$url->host;
 
 		//Connect
-		$this->_handle = fsockopen($target_url, $url->port, $this->error_number, $this->error_string, 1); 	
+		$this->_handle = @fsockopen($target_url, $url->port, $this->error_number, $this->error_string, $this->connect_timeout); 	
 
 		//Error checking
 		$this->connected = ($this->_handle && true);
