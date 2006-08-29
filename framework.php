@@ -13,6 +13,11 @@
 /**
  * Custom error handler
  */
+require_once('library/lib/base.php');
+
+/**
+ * Custom error handler
+ */
 require_once('library/lib/error.php');
 
 /**
