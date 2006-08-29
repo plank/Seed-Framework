@@ -233,8 +233,10 @@ class Seed {
 			define('DB_TYPE', 'mysql');
 		}
 		
-		// register db
-		$db = DB::register('default', DB_TYPE, DB_HOST, DB_USER, DB_PASS, DB_NAME);		
+		if (defined('DB_HOST')) {
+			// register db
+			$db = DB::register('default', DB_TYPE, DB_HOST, DB_USER, DB_PASS, DB_NAME);		
+		}
 
 	}
 	
