@@ -1179,10 +1179,10 @@ class Model extends DataSpace {
  *
  * @package model
  */
-class ModelIterator extends Iterator {
+class ModelIterator extends SeedIterator {
 	
 	/**
-	 * @var Iterator
+	 * @var SeedIterator
 	 */
 	var $iterator;
 	
@@ -1194,7 +1194,7 @@ class ModelIterator extends Iterator {
 	/**
 	 * Constructor
 	 *
-	 * @param Iterator $iterator
+	 * @param SeedIterator $iterator
 	 * @param string $model_type
 	 * @return ModelIterator
 	 */

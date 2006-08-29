@@ -415,7 +415,7 @@ class MysqlDB extends DB {
  * @package model
  * @subpackage db
  */
-class MysqlIterator extends Iterator  {
+class MysqlIterator extends SeedIterator  {
 	
 	function _validate_data($data) {
 		if (!is_resource($data)) {

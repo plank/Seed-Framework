@@ -8,7 +8,7 @@ class IteratorTester extends UnitTestCase  {
 	function test_strings() {
 		$array = array('One', 'Two', 'Three');
 		
-		$iterator = new Iterator($array);
+		$iterator = new SeedIterator($array);
 		
 		// iterator should return each item in the array in turn
 		foreach ($array as $value) {

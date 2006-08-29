@@ -14,7 +14,7 @@
  *
  * @package library
  */
-class Iterator {
+class SeedIterator {
 	/**
 	 * Variable to hold the data being iterated over
 	 *
@@ -33,9 +33,9 @@ class Iterator {
 	 * Constructor
 	 *
 	 * @param array $data
-	 * @return Iterator
+	 * @return SeedIterator
 	 */
-	function Iterator($data) {
+	function SeedIterator($data) {
 
 		if (!$this->_validate_data($data)) {
 			return false;

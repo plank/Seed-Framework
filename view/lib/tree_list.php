@@ -19,7 +19,7 @@
 class TreeList {
 	
 	/**
-	 * @var Iterator
+	 * @var SeedIterator
 	 */
 	var $result;
 	
@@ -61,7 +61,7 @@ class TreeList {
 	/**
 	 * Constuctor
 	 *
-	 * @param Iterator $iterator
+	 * @param SeedIterator $iterator
 	 * @param Controller $controller
 	 * @return TreeList
 	 */

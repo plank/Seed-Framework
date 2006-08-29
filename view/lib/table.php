@@ -49,7 +49,7 @@ class Table {
 	/**
 	 * An iterator.
 	 *
-	 * @var Iterator
+	 * @var SeedIterator
 	 */
 	var $result;
 	
@@ -113,12 +113,12 @@ class Table {
 	/**
 	 * Constructor
 	 *
-	 * @param Iterator $iterator
+	 * @param SeedIterator $iterator
 	 * @param Controller $controller
 	 * @return Table
 	 */
 	function Table($iterator, $controller = null) {
-		if (!is_a($iterator, 'Iterator')) {
+		if (!is_a($iterator, 'SeedIterator')) {
 			trigger_error("Parameter 1 is not an Iterator", E_USER_WARNING);
 			return false;
 		}

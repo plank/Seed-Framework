@@ -88,14 +88,14 @@ class ModelTester extends UnitTestCase {
 		
 		// result should be an iterator with a single result, #1
 		$results = TestModel::find(array(1));
-		$this->assertIsA($results, 'Iterator');
+		$this->assertIsA($results, 'SeedIterator');
 		$model = $results->next();
 		$this->assertEqual($model->get('name'), 'one');
 		$this->assertFalse($results->has_next());
 		
 		// result should be an iterator containing #1, #4, and #5
 		$results = TestModel::find(1, 4, 5);
-		$this->assertIsA($results, 'Iterator');
+		$this->assertIsA($results, 'SeedIterator');
 
 		$this->assertEqual($results->size(), 3);
 		

@@ -475,7 +475,7 @@ sql;
  * @package model
  * @subpackage db
  */
-class PgsqlIterator extends Iterator  {
+class PgsqlIterator extends SeedIterator  {
 	
 	function _validate_data($data) {
 		if (!is_resource($data)) {

@@ -18,7 +18,7 @@
 class TreeView {
 	
 	/**
-	 * @var Iterator
+	 * @var SeedIterator
 	 */
 	var $result;
 	
@@ -65,7 +65,7 @@ class TreeView {
 	/**
 	 * Constuctor
 	 *
-	 * @param Iterator $iterator
+	 * @param SeedIterator $iterator
 	 * @param Controller $controller
 	 * @return TreeList
 	 */
