@@ -15,6 +15,11 @@
  */
 function error_handler($errno, $errstr, $errfile, $errline)
 {
+	// ignore e_strict errors
+	if ($errno == E_STRICT) {
+		return;	
+	}
+	
 	message(error_string($errno), $errstr, "occured in $errfile in line $errline\n");
 	die();
 }
