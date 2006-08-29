@@ -16,7 +16,7 @@
 # I dunno, 20 months?  Alright.  Go team.
 #
 
-error_reporting(E_STRICT);
+//error_reporting(E_STRICT);
 
 include('spyc.php');
 
