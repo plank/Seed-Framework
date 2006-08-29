@@ -11,6 +11,11 @@
  */
 
 /**
+ * Custom error handler
+ */
+require_once('library/lib/error.php');
+
+/**
  * The file class is needed for handling requests
  */
 require_once('library/lib/file.php');
