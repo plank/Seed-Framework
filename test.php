@@ -1,13 +1,15 @@
 <?php
 
-// DB settings
-define('SKIP_DB_TESTS', false);		// set this to true to skip tests require the database
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'unit_tests');
 
 require_once('framework.php');
+
+$config_file = dirname(dirname(__FILE__)).'/seed_config/tests.php';
+
+if (!file_exists($config_file)) {
+	die("Config file for tests not found in '$config_file', please create it");
+}
+
+require_once($config_file);
 
 // test framework is expected to be in same directory as framework
 require_once('../simpletest/unit_tester.php');
