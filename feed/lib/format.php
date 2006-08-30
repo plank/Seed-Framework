@@ -38,9 +38,9 @@ class FeedFormat {
 
 	
 	function factory($format) {
-		$format = ucfirst(strtolower($format));
-		
-		$class_name = $format.'Format';
+		$format = strtolower($format);
+
+		$class_name = ucfirst($format).'Format';
 		
 		if (class_exists($class_name)) {
 			return new $class_name;	
