@@ -89,6 +89,8 @@ class ModelTester extends UnitTestCase {
 	function test_creation() {
 		if (SKIP_DB_TESTS) return;
 		
+		$this->dump('Model version: '.Model::version());
+		
 		$model = new TestModel($this->db);
 		$this->assertNoErrors();
 		
