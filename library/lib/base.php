@@ -11,6 +11,17 @@
  */
 
 /**
+ * Load PHP4 or 5 specific functions
+ */
+if (version_compare(phpversion(), '5.0') < 0) {
+	require_once('base/php4.php');
+	
+} else {
+	require_once('base/php5.php');
+	
+}
+
+/**
  * Returns the value of var, or the value of default if var isn' set.
  * Useful for assigning array elements that are not cartain to exist
  *
@@ -28,24 +39,6 @@ function assign(& $var, $default = '') {
 }
 
 
-/**
- * Returns the name of the class that called the function
- *
- * @return string
- */
-function class_name() {
-	if (SEED_PHP_VERSION == '5') {
-		trigger_error('class_name is not supported by PHP5', E_USER_ERROR);
-	}
-	
-	$trace = debug_backtrace();
-
-	if (isset($trace[1]['class'])) {
-		return $trace[1]['class'];
-	} else {
-		return false;
-	}
-}
 
 /**
  * Flatten a multidimensional array into a single array. Does not maintain keys.
@@ -231,19 +224,6 @@ function absolute_anchors($text, $document_url) {
 	
 }
 
-
-/**
- * Add a clone function to PHP versions earlier than 4
- *
- */
-if (version_compare(phpversion(), '5.0') < 0) {
-	eval('
-		function clone($object) {
-		  return $object;
-		}
-	');
-}
-
 /**
  * Returns the current date/time as an ISO 8601 formated date
  *
@@ -253,4 +233,5 @@ function now() {
 	return date('Y-m-d H:i:s');	
 	
 }
+
 ?>

@@ -13,7 +13,7 @@
 /**
  * Define the E_STRICT error level if it doesn't exist
  */
-if (!defined(E_STRICT)) {
+if (!defined('E_STRICT')) {
 	define('E_STRICT', 2048);	
 }
 
