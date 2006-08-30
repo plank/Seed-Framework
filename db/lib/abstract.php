@@ -40,7 +40,7 @@ class AbstractAdapter {
 	 * @return string
 	 */
 	function adapter_name() {
-		$class_name = class_name($this);
+		$class_name = strtolower(get_class($this));
 		
 		return substr($class_name, 0, strlen($class_name) - 7);
 	}

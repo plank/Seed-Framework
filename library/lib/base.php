@@ -34,6 +34,10 @@ function assign(& $var, $default = '') {
  * @return string
  */
 function class_name() {
+	if (SEED_PHP_VERSION == '5') {
+		trigger_error('class_name is not supported by PHP5', E_USER_ERROR);
+	}
+	
 	$trace = debug_backtrace();
 
 	if (isset($trace[1]['class'])) {

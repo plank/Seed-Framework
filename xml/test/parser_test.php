@@ -119,21 +119,21 @@ class ParserTester extends UnitTestCase {
 		$data = "<root><node </root>";
 		
 		$document = $this->parser->parse($data);
-		$this->assertError('Error 4 at 1:12: Not well-formed');
+		$this->assertError();
 		
 		// mismatched tags
 		$data = "<foo><bar></foo></bar>";
 		
 		$document = $this->parser->parse($data);
-		$this->assertError('Error 7 at 1:12: Mismatched tag');
+		$this->assertError();
 		
 		$data = "<foo><xml /></foo>";
 		$document = $this->parser->parse($data);
-		$this->assertError('Error 4 at 1:5: Not well-formed');
+		$this->assertError();
 
 		$data = "<0foo><1bar /></0foo>";
 		$document = $this->parser->parse($data);
-		$this->assertError('Error 4 at 1:1: Not well-formed');
+		$this->assertError();
 		
 		
 	}

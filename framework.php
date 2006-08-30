@@ -375,12 +375,25 @@ define('FRAMEWORK_PATH', dirname(__FILE__).'/');
 define('FRAMEWORK_TEMPLATE_PATH', FRAMEWORK_PATH.'templates/');
 
 
-// Application path constants
+/**
+ * Path to the called script
+ * 
+ * PATH_TRANSLATED doesn't exist under IIS, but maybe we should simply
+ * always use SCRIPT_FILENAME anyway?
+ */
+if (isset($_SERVER['PATH_TRANSLATED'])) {
+	define('SCRIPT_PATH', $_SERVER['PATH_TRANSLATED']);	
+	
+} else {
+	define('SCRIPT_PATH', $_SERVER['SCRIPT_FILENAME']);	
+	
+}
 
 /**
  * Path to the root of the application
  */
-define('APP_PATH', dirname(dirname($_SERVER['PATH_TRANSLATED'])).'/');	
+define('APP_PATH', dirname(dirname(SCRIPT_PATH)).'/');	
+
 
 /**
  * Path to the root of controllers

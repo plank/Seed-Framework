@@ -39,7 +39,7 @@ class TestAdapter extends AbstractAdapter {
 class AbstractAdapterTester extends UnitTestCase {
 	
 	/**
-	 * @var TestDB
+	 * @var AbstractAdapter
 	 */
 	var $db;
 	

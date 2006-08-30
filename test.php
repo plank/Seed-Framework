@@ -4,7 +4,7 @@
 define('SKIP_DB_TESTS', false);		// set this to true to skip tests require the database
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
-define('DB_PASS', 'wilmag');
+define('DB_PASS', '');
 define('DB_NAME', 'unit_tests');
 
 require_once('framework.php');
