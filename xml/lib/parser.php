@@ -54,7 +54,7 @@ class XmlParser {
 			
 		}
 		
-		array_unshift_byref($this->_stack, & $node);
+		array_unshift_byref($this->_stack, $node);
 		
 	}
 	
