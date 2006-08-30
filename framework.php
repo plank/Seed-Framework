@@ -216,6 +216,7 @@ class Seed {
 	 * Include the general config files
 	 */
 	function include_config() {
+
 		// Require general config file
 		require_once(CONFIG_PATH.'config.php');
 
@@ -381,13 +382,7 @@ define('FRAMEWORK_TEMPLATE_PATH', FRAMEWORK_PATH.'templates/');
  * PATH_TRANSLATED doesn't exist under IIS, but maybe we should simply
  * always use SCRIPT_FILENAME anyway?
  */
-if (isset($_SERVER['PATH_TRANSLATED'])) {
-	define('SCRIPT_PATH', $_SERVER['PATH_TRANSLATED']);	
-	
-} else {
-	define('SCRIPT_PATH', $_SERVER['SCRIPT_FILENAME']);	
-	
-}
+define('SCRIPT_PATH', $_SERVER['SCRIPT_FILENAME']);	
 
 /**
  * Path to the root of the application

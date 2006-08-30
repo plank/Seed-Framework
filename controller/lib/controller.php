@@ -236,7 +236,7 @@ class Controller {
 			return 'base';
 		} 
 		
-		return Inflector::underscore(str_replace('controller', '', get_class($this)));
+		return Inflector::underscore(str_replace('controller', '', strtolower(get_class($this))));
 		
 	}
 	
@@ -313,6 +313,7 @@ class Controller {
 	function include_helper() {
 
 		$type = $this->get_type();
+
 		$helper_file_name = HELPER_PATH.$type.'_helper.php';
 
 		if (!file_exists($helper_file_name)) {

@@ -75,11 +75,11 @@ class Finder {
 		$class_name = Inflector::camelize($type).'Finder';
 		
 		if (!class_exists($class_name)) {
-			Model::import($type);
+			Finder::import($type);
 		}
 		
 		if (!class_exists($class_name)) {
-			trigger_error("Class '$class_name' not found in '$path'", E_USER_ERROR);
+			trigger_error("Class '$class_name' not found", E_USER_ERROR);
 			return false;
 		}
 		

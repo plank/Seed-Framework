@@ -1,5 +1,93 @@
 <?php
 
+require_once('finder.php');
+
+class MultilangFinder extends Finder {
+	/**
+	 * Adds a join to the versions table to the finder sql construction
+	 *
+	 * @param array $options
+	 * @return string
+	 */
+	function construct_finder_sql($options) {
+		// get field and table names
+		$table_name = $this->model->table_name();
+		$version_table_name = $this->model->version_table_name();
+		$id_field = $this->model->id_field;
+		$foreign_key = $this->model->foreign_key();
+		$version_field = $this->model->version_field;
+		$language_field = $this->model->language_field;
+		$default_language = $this->model->default_language;
+		
+		if (isset($options['latest_field'])) {
+			$latest_field = $options['latest_field'];
+			
+		} else {
+			$latest_field = $this->model->latest_field;
+			
+		}
+		
+		// add the join to the version table
+		$options['joins'] = "$version_table_name ON $table_name.$id_field = $version_table_name.$foreign_key";
+		
+		if (!isset($options['select'])) {
+			$options['select'] = "$table_name.*, $version_table_name.*";	
+		}
+		
+		// a special condition string used to identify which revision to pull
+		// by default, we want the latest version
+		if (!isset($options['version_conditions'])) {
+			$options['version_conditions'] = "$version_table_name.$latest_field = 1";
+		}
+		
+		if (!isset($options['language'])) {
+			$options['language'] = $default_language;	
+		}
+		
+		// original function, which needs to be called from here for 'this' to work... refactoring in sight! //
+		$query = new SelectQueryBuilder($this->table_name());
+		
+		if (isset($options['select'])) {
+			$query->add_fields($options['select']);
+		}
+		
+		if (isset($options['joins'])) {
+			$query->add_join_string($options['joins']);
+		}
+		
+		if (isset($options['conditions'])) {
+			$query->add_conditions($options['conditions']);	
+		}
+
+		if (isset($options['version_conditions'])) {
+			$query->add_conditions($options['version_conditions']);
+		}
+		
+		$query->add_conditions($language_field." = '".$options['language']."'");
+		
+		if (isset($options['group'])) {
+			$query->add_group_by($options['group']);	
+		}
+		
+		if (isset($options['order'])) {
+			$query->order = $options['order'];	
+		}
+		
+		if (isset($options['limit'])) {
+			$query->limit = $options['limit'];	
+		}
+		
+		if (isset($options['offset'])) {
+			$query->offset = $options['offset'];	
+		}
+
+//		die(debug($query->generate()));
+		
+		return $query->generate();
+		
+	}	
+}
+
 /**
  * Second attempt at a versioned model, with support for multiple languages
  */
@@ -50,6 +138,13 @@ class MultilangModel extends Model {
 	var $default_language = 'en';
 	
 	/**
+	 * The foreign key
+	 *
+	 * @var string
+	 */
+	var $foreign_key;
+	
+	/**
 	 * All languages
 	 *
 	 * @var array
@@ -86,91 +181,6 @@ class MultilangModel extends Model {
 		$this->has_many('versions', array('class_name' => $this->type.'_version', 'order'=>'revision'));
 		
 	}	
-	
-	/**
-	 * Adds a join to the versions table to the finder sql construction
-	 *
-	 * @param array $options
-	 * @return string
-	 */
-	function construct_finder_sql($options) {
-		// get field and table names
-		$table_name = this::call('table_name');
-		$version_table_name = this::call('version_table_name');
-		$id_field = this::get_var('id_field');
-		$foreign_key = this::call('foreign_key');
-		$version_field = this::get_var('version_field');
-		$language_field = this::get_var('language_field');
-		$default_language = this::get_var('default_language');
-		
-		if (isset($options['latest_field'])) {
-			$latest_field = $options['latest_field'];
-			
-		} else {
-			$latest_field = this::get_var('latest_field');
-			
-		}
-		
-		// add the join to the version table
-		$options['joins'] = "$version_table_name ON $table_name.$id_field = $version_table_name.$foreign_key";
-		
-		if (!isset($options['select'])) {
-			$options['select'] = "$table_name.*, $version_table_name.*";	
-		}
-		
-		// a special condition string used to identify which revision to pull
-		// by default, we want the latest version
-		if (!isset($options['version_conditions'])) {
-			$options['version_conditions'] = "$version_table_name.$latest_field = 1";
-		}
-		
-		if (!isset($options['language'])) {
-			$options['language'] = $default_language;	
-		}
-		
-		// original function, which needs to be called from here for 'this' to work... refactoring in sight! //
-		$query = new SelectQueryBuilder(this::call('table_name'));
-		
-		if (isset($options['select'])) {
-			$query->add_fields($options['select']);
-		}
-		
-		if (isset($options['joins'])) {
-			$query->add_join_string($options['joins']);
-		}
-		
-		if (isset($options['conditions'])) {
-			$query->add_conditions($options['conditions']);	
-		}
-
-		if (isset($options['version_conditions'])) {
-			$query->add_conditions($options['version_conditions']);
-		}
-		
-		$query->add_conditions($language_field." = '".$options['language']."'");
-		
-		if (isset($options['group'])) {
-			$query->add_group_by($options['group']);	
-		}
-		
-		if (isset($options['order'])) {
-			$query->order = $options['order'];	
-		}
-		
-		if (isset($options['limit'])) {
-			$query->limit = $options['limit'];	
-		}
-		
-		if (isset($options['offset'])) {
-			$query->offset = $options['offset'];	
-		}
-
-//		die(debug($query->generate()));
-		
-		return $query->generate();
-		
-	}
-	
 
 	/**
 	 * Returns true if the field is set i.e. has a value other than null
@@ -190,13 +200,12 @@ class MultilangModel extends Model {
 	 * @return string
 	 */
 	function version_table_name() {
-		
-		$table = this::get_var('version_table');
+		$table = $this->version_table;
 		
 		if ($table) {
 			return $table;	
 		} else {
-			return this::call('table_name').'_versions';
+			return $this->table_name().'_versions';
 		}
 		
 	}
@@ -208,12 +217,12 @@ class MultilangModel extends Model {
 	 * @return string
 	 */	
 	function foreign_key() {
-		$foreign_key = this::get_var('foreign_key');
+		$foreign_key = $this->foreign_key;
 		
 		if ($foreign_key) {
 			return $foreign_key;	
 		} else {
-			return this::call('table_name').'_id';
+			return $this->table_name().'_id';
 		}			
 		
 	}
