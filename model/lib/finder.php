@@ -70,7 +70,11 @@ class Finder {
 	 * @param string $type
 	 * @return Model
 	 */
-	function factory($type) {
+	function factory($type, $db = null) {
+		
+		if (is_null($db)) {
+			$db = DB::get_db();	
+		}
 		
 		$class_name = Inflector::camelize($type).'Finder';
 		
@@ -83,7 +87,7 @@ class Finder {
 			return false;
 		}
 		
-		$model = new $class_name(DB::get_db());
+		$model = new $class_name($db);
 		
 		if (!is_a($model, 'Finder')) {
 			trigger_error("Class '$class_name' doesn't extend Model", E_USER_ERROR);
@@ -331,6 +335,48 @@ class Finder {
 
 		return $query->generate();
 	}	
+	
+}
+
+
+/**
+ * A registry of finder objects
+ *
+ */
+class FinderPool {
+
+	/**
+	 * @var array
+	 */
+	var $_finders;
+	
+	/**
+	 * @var DB
+	 */
+	var $db;
+	
+	/**
+	 * Constructor
+	 */
+	function FinderPool(& $db) {
+		$this->db = & $db;	
+		
+		$this->_finders = array();
+	}
+	
+	
+	function get($name) {
+		if (!isset($this->_finders[$name])) {
+			$this->_finders[$name] = & Finder::factory($name);
+		}	
+		
+		return $this->_finders[$name];
+	}
+	
+	function __get($name) {
+		return $this->get($name);		
+	
+	}
 	
 }
 
