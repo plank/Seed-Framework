@@ -321,7 +321,7 @@ class MultilangModel extends Model {
 		}
 		
 		$lang = $this->version->get('lang');
-		$finder = $this->finder();
+		$finder = $this->version->finder();
 		// set latest_field to 0 for other versions
 		$finder->update_all(
 			"$this->latest_field = 0", $this->foreign_key()." = ".$this->get_id()." AND ".$this->language_field." = '".$lang."'"
@@ -396,7 +396,7 @@ class MultilangModel extends Model {
 	
 	function change_flag($from, $to) {
 		$lang = $this->version->get($this->language_field);
-		$finder = Finder::factory($this->version->_get_type());
+		$finder = $this->version->finder();
 		
 		// set any previous prending version to draft
 		$finder->update_all(
