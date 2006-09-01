@@ -14,6 +14,11 @@ class Finder {
 	
 	function Finder(& $db) {
 		$this->db = & $db;
+		
+		if (!is_a($this->db, 'DB')) {
+			trigger_error("Paramter passed to Finder constructor must be a DB", E_USER_ERROR);
+		}
+		
 		$this->model = & Model::factory($this->get_type());
 		
 		if (!is_a($this->model, 'Model')) {
@@ -108,7 +113,7 @@ class Finder {
 	function find($args) {
 		$args = func_get_args();
 		$arg_count = count($args);
-		
+
 		// if there's more than one argument and the last one is an array, assume
 		// that it's the options.
 		if($arg_count > 1 && is_array($args[$arg_count - 1])) {
