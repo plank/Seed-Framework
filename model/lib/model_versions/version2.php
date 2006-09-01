@@ -384,6 +384,13 @@ class Model extends DataSpace {
 		$this->setup();
 		
 	}
+
+	/**
+	 * @return Finder
+	 */	
+	function & finder() {
+		return Finder::factory($this->_get_type());	
+	}
 	
 	/**
 	 * @return int

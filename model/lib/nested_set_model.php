@@ -212,20 +212,22 @@ class NestedSetModel extends Model {
 		$upper_bound = $upper_item->get_right();
 		$lower_bound = $lower_item->get_left();
 
+		$finder = $this->finder();
+		
 		// make the space after the higher item
-		$this->update_all(
+		$finder->update_all(
 			"$this->left_column = ($this->left_column + $dif), $this->right_column = ($this->right_column + $dif)",
 			"$this->left_column >= $upper_bound"
 		);
 		
 		// move the lower item and all its children after the higher item
-		$this->update_all(
+		$finder->update_all(
 			"$this->left_column = ($this->left_column + $move_amount), $this->right_column = ($this->right_column + $move_amount)", 
 			"$this->left_column >= ".$lower_item->get_left()." AND $this->right_column <= ".$lower_item->get_right()
 		);
 
 		// remove the space left 
-		$this->update_all(
+		$finder->update_all(
 			"$this->left_column = ($this->left_column - $dif), $this->right_column = ($this->right_column - $dif)",
 			"$this->left_column >= $lower_bound"
 		);
@@ -252,12 +254,14 @@ class NestedSetModel extends Model {
 		
 		$this->db->lock_table($this->table_name());
 		
+		$finder = $this->finder();
+		
 		// move stuff to the right in the database
-		$this->update_all(
+		$finder->update_all(
 			"$this->left_column = ($this->left_column + 2)", "$this->left_column >= $right_bound"
 		);
 		
-		$this->update_all(
+		$finder->update_all(
 			"$this->right_column = ($this->right_column + 2)", "$this->right_column >= $right_bound"
 		);
 		
@@ -272,18 +276,20 @@ class NestedSetModel extends Model {
 	 * Deletes the item and all its child nodes
 	 */
 	function delete() {
+		$finder = $this->finder();
+		
 		if ($this->deleted_field) {
-			$this->update_all('deleted = 1', $this->left_column." > ".$this->get_left()." AND ".$this->right_column." < ".$this->get_right());
+			$finder->update_all('deleted = 1', $this->left_column." > ".$this->get_left()." AND ".$this->right_column." < ".$this->get_right());
 			
 		} else {
 			$dif = $this->get_right() - $this->get_left() + 1;
 	
 			// delete the children
-			$this->delete_all($this->left_column." > ".$this->get_left()." AND ".$this->right_column." < ".$this->get_right());
+			$finder->delete_all($this->left_column." > ".$this->get_left()." AND ".$this->right_column." < ".$this->get_right());
 			
 			// fill in the gap
-			$this->update_all("$this->left_column = ($this->left_column - $dif)", $this->left_column." >= ".$this->get_right());
-			$this->update_all("$this->right_column = ($this->right_column - $dif)", $this->right_column." >= ".$this->get_right());		
+			$finder->update_all("$this->left_column = ($this->left_column - $dif)", $this->left_column." >= ".$this->get_right());
+			$finder->update_all("$this->right_column = ($this->right_column - $dif)", $this->right_column." >= ".$this->get_right());		
 
 		}
 			
