@@ -380,7 +380,8 @@ class Model extends DataSpace {
 			$this->data[$column->name] = $column->default;
 		}		
 		
-		$this->validate = new Validation();
+		$this->validate = new Validation($this->type);
+		$this->validate->model = & $this;
 		$this->setup();
 		
 	}
@@ -817,6 +818,15 @@ class Model extends DataSpace {
 		
 		$this->after_save();
 		
+	}
+	
+	/**
+	 * Returns true if the record is new
+	 *
+	 * @return bool
+	 */
+	function is_new_record() {
+		return is_null($this->id) || $this->id == '';
 	}
 	
 	/**

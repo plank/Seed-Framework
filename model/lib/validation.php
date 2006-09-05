@@ -2,9 +2,26 @@
 
 class Validation {
 	
+	/**
+	 * The validation rules to run
+	 *
+	 * @var array
+	 */
 	var $validations;
 	
+	/**
+	 * The errors raised by the validation
+	 *
+	 * @var array
+	 */
 	var $errors;
+	
+	/**
+	 * The model object that validation rules are being run against
+	 *
+	 * @var Model
+	 */
+	var $model;
 	
 	/**
 	 * Constructor
@@ -14,7 +31,6 @@ class Validation {
 	function Validation() {
 		$this->validations = array();		
 		$this->errors = array();
-		
 		$this->setup();
 	}
 
@@ -32,15 +48,14 @@ class Validation {
 	 */
 	function run($values, $create = true) {
 		$valid = true;
-		
+
 		foreach ($this->validations as $validation) {
 			if ($validation->validate($values, $create) === false) {
 				$valid = false;
 				$this->errors = array_merge($this->errors, $validation->get_messages());
 			} 	
-			
 		}
-		
+
 		return $valid;
 		
 	}
@@ -70,7 +85,9 @@ class Validation {
 	function add($type, $attribute, $options = null) {
 		$rule = ValidationRule::factory($type, $attribute, $options);
 		
-		$this->validations[] = $rule;
+		$rule->model = & $this->model;
+
+		$this->validations[] = & $rule;
 		
 		return $rule;
 	}
@@ -101,6 +118,13 @@ class Validation {
 
 class ValidationRule {
 
+	/**
+	 * The model to run the validation rule on
+	 *
+	 * @var Model
+	 */
+	var $model;
+	
 	/**
 	 * The atributes to run the validation rule on
 	 *
@@ -221,7 +245,7 @@ class ValidationRule {
 		
 	}
 	
-	function factory($type, $attributes, $params = null) {
+	function factory($type, $attributes, $params = null, $model_type = '') {
 		$type = strtolower($type);		
 		
 		$class_name = Inflector::camelize($type).'ValidationRule';
@@ -231,7 +255,7 @@ class ValidationRule {
 			return false;
 		}
 		
-		$rule = new $class_name($attributes, $params);
+		$rule = new $class_name($attributes, $params, $model_type);
 		
 		if (!is_a($rule, __CLASS__)) {
 			trigger_error("Class '$class_name' doesn't extend ValidationRule", E_USER_ERROR);
@@ -576,5 +600,30 @@ class EmailValidationRule extends ValidationRule {
 	
 }
 
+class UniquenessValidationRule extends ValidationRule {
+	var $message = "%s is already taken";
+	
+	function validate_attribute($values, $attribute, $value) {
+		
+		$condition = $this->model->db->escape_identifier($attribute)." = '".$this->model->db->escape($value)."'";
+		
+		if (!$this->model->is_new_record()) {
+			$condition .= ' AND '.$this->model->id_field." <> ".$this->model->id;
+			
+		}
+		
+		$finder = $this->model->finder();
+		$result = $finder->find('first', array('conditions' => $condition));
+	
+		if ($result) {
+			$this->add_error_message($attribute, $value);	
+			return false;	
+		}
+		
+		return true;
+		
+	}
+	
+}
 
 ?>
