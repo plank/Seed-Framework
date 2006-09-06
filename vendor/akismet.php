@@ -77,9 +77,8 @@ class Akismet {
 
 
 	/**
-	 *	@throws	Exception	An exception is thrown if your API key is invalid.
-	 *	@param	string	Your WordPress API key.
-	 *	@param	string	$blogURL			The URL of your blog.
+	 *	@param	string	$blogURL		  The URL of your blog.	
+	 *	@param	string	$wordPressAPIKey  Your WordPress API key.
 	 */
 	function Akismet($blogURL, $wordPressAPIKey) {
 		$this->blogURL = $blogURL;
@@ -129,7 +128,9 @@ class Akismet {
 		return explode("\r\n\r\n", $socketWriteRead->getResponse(), 2);
 	}
 
-	// Formats the data for transmission	echo $sql;
+	/**
+	 * Formats the data for transmission	echo $sql;
+	 */
 	function getQueryString() {
 		foreach($_SERVER as $key => $value) {
 			if(!in_array($key, $this->ignore)) {
