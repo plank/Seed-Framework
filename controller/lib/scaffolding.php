@@ -37,7 +37,7 @@ class Scaffolding {
 	function index() {
 		$type = $this->get_type();
 		
-		$model = Model::factory($type);
+		$finder = Finder::factory($type);
 		
 		$options = array();
 		
@@ -51,13 +51,13 @@ class Scaffolding {
 		
 		$current_page = assign($this->controller->params['page'], 1);
 		
-		$this->controller->template->pages = new Paginator($this->controller, $model->count(), 20, $current_page);
+		$this->controller->template->pages = new Paginator($this->controller, $finder->count(), 20, $current_page);
 		
 		$current_page = $this->controller->template->pages->get_current_page();
 		
 		list($options['limit'], $options['offset']) = $current_page->to_sql();
 		
-		$result = $model->find('all', $options);
+		$result = $finder->find('all', $options);
 		
 		$this->controller->template->table = & Table::factory($this->get_type(), $result, $this->controller);
 
@@ -75,8 +75,8 @@ class Scaffolding {
 		
 		if ($id) {
 			$type = $this->get_type();
-			$model = Model::factory($type);
-			$model = $model->find($id);
+			$finder = Finder::factory($type);
+			$model = $finder->find($id);
 			
 			$this->controller->template->$type = $model;
 		} else {
@@ -97,8 +97,8 @@ class Scaffolding {
 		
 		if ($id) {
 			$type = $this->get_type();
-			$model = Model::factory($type);
-			$model = $model->find($id);
+			$finder = Finder::factory($type);
+			$model = $finder->find($id);
 			
 			$this->controller->template->$type = $model;
 			
@@ -134,8 +134,8 @@ class Scaffolding {
 			trigger_error('No id for delete', E_USER_WARNING);
 		} else {
 			$id = $this->controller->params['id'];
-			$model = Model::factory($this->get_type());
-			$model = $model->find($id);
+			$finder = Finder::factory($type);
+			$model = $finder->find($id);
 			$model->delete();
 			
 			$this->controller->flash->next('flag', 'result: the item was successfully deleted');						
@@ -189,8 +189,8 @@ class Scaffolding {
 		} elseif (!isset($this->controller->params['cancel'])) {
 			$id = $this->controller->params['id'];
 			
-			$model = Model::factory($this->get_type());
-			$model = $model->find($id);
+			$finder = Finder::factory($type);
+			$model = $finder->find($id);
 			$model->assign($this->controller->request->post);
 			
 			if (count($this->controller->request->files)) {

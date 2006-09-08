@@ -1,5 +1,5 @@
 <?php
 
-seed_require_dir('lib/');
+seed_require_dir(dirname(__FILE__).'/lib/');
 
 ?>

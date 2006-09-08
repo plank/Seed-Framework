@@ -109,13 +109,6 @@ function start() {
  * This class handles the requests, loading the libraries and config files only if needed. Call the start() method to start execution. 
  */
 class SeedFramework {
-
-	/**
-	 * All the files in each of these components will be included
-	 *
-	 * @var array
-	 */
-	var $components = array('library', 'support', 'db', 'feed', 'xml', 'network', 'model', 'controller', 'view');
 	
 	/**
 	 * A comma delimited list of file extensions the framework shouldn't handle 
@@ -346,12 +339,13 @@ class SeedFramework {
 	 * Include all the libraries
 	 */
 	function include_libraries() {
-		foreach($this->components as $component) {
-			$path = FRAMEWORK_PATH.$component.'/lib/';
+		seed_include('support');
 		
-			// include all classes
-			seed_require_dir($path);
-		}		
+		seed_include('model');
+		
+		seed_include('controller');
+		
+		seed_include('view');
 		
 	}
 	

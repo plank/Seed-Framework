@@ -9,6 +9,8 @@
  * @package controller
  */
 
+seed_include('network/http');
+
 /**
  * Represents a response to an HTTP Request
  *

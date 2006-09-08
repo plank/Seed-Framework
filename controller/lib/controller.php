@@ -247,6 +247,7 @@ class Controller {
 	 * @return bool
 	 */
 	function process($request, $response) {
+
 		$this->request = $request;
 		$this->params = $request->parameters;
 		$this->response = $response;
@@ -278,6 +279,7 @@ class Controller {
 		$filter_result = $this->filter_chain->call_before($this->action_name);
 		
 		if (!$filter_result || $this->has_performed()) {
+			Logger::log('dispatch', LOG_LEVEL_WARNING, "Filter chain returned false");
 			return $this->response;	
 			
 		}

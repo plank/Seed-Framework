@@ -8,6 +8,8 @@
  * @package controller
  */
 
+seed_include('network/http');
+seed_include('network/url');
 
 /**
  * The following chunk of code strips slashes from the gpc array
