@@ -7,7 +7,8 @@
  * @license The MIT License
  * @package model
  */
-// require_once('iterator.php');
+
+seed_include('library/iterator');
 
 /**
  * The date format used for database queries

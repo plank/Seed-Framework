@@ -1,5 +1,6 @@
 <?php
 
+seed_include('library/iterator');
 
 /**
  * Abstract base class for connection adapters
