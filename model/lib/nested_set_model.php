@@ -114,8 +114,8 @@ class NestedSetModel extends Model {
 	 */
 	function get_left_sibling() {
 		$condition = $this->right_column.' = '.($this->get_left() - 1);
-
-		$sibling = $this->find('first', array('conditions'=>$condition));
+		$finder = $this->finder();
+		$sibling = $finder->find('first', array('conditions'=>$condition));
 		
 //		debug($condition, 'this', $this->dump_data(), 'left sibling', $sibling->dump_data());
 		
@@ -134,8 +134,8 @@ class NestedSetModel extends Model {
 	 */
 	function get_right_sibling() {
 		$condition = $this->left_column.' = '.($this->get_right() + 1);
-
-		$sibling = $this->find('first', array('conditions'=>$condition));
+		$finder = $this->finder();
+		$sibling = $finder->find('first', array('conditions'=>$condition));
 		
 //		debug($condition, 'this', $this->dump_data(), 'right sibling', $sibling->dump_data());		
 		
