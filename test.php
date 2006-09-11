@@ -16,21 +16,27 @@ require_once('../simpletest/unit_tester.php');
 require_once('../simpletest/reporter.php');
 require_once('../simpletest/mock_objects.php');
 
-$seed = new Seed();
-$seed->include_libraries();
 
 if (!SKIP_DB_TESTS) {
+	seed_include('db');
+	
 	db::register('default', 'mysql');
 }
 
 
 $test = &new GroupTest('All tests');
 
-foreach($seed->components as $component) {
-	if (SKIP_DB_TESTS && $component == 'db') {
-		continue;	
+$components = array('controller', 'feed', 'library', 'network', 'support', 'view', 'xml');
+
+if (!SKIP_DB_TESTS) {
+	$components[] = 'db';
+	$components[] = 'model';	
 	
-	}
+}
+
+foreach($components as $component) {
+	
+	seed_include($component);
 	
 	$path = $component.'/test/';
 	
