@@ -33,6 +33,8 @@ function error_handler($errno, $errstr, $errfile, $errline)
 
 set_error_handler('error_handler');
 
+ini_set('html_errors', 0);
+
 /**
  * Prints a debug message to screen
  */
@@ -45,6 +47,9 @@ function debug() {
 	
 }
 
+/**
+ * Prints a debug message if the first argument evaluates to true
+ */
 function debug_if() {
 	$args = func_get_args();
 	

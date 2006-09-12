@@ -10,6 +10,8 @@
  * @subpackage html
  */
 
+seed_include('library/date');
+
 /**
  * Class for generating html forms
  *
