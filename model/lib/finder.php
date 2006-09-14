@@ -75,7 +75,7 @@ class Finder {
 	 * @param string $type
 	 * @return Model
 	 */
-	function factory($type, $db = null) {
+	function & factory($type, $db = null) {
 		
 		if (is_null($db)) {
 			$db = DB::get_db();	

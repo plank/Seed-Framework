@@ -164,6 +164,41 @@ class Date {
 		return Date::days_in_month($this->get_year(), $this->get_month());	
 	}
 	
+	/**
+	 * Returns the number of years in the past the object represents
+	 *
+	 * @param mixed $date	 
+	 * @return float
+	 */
+	function get_years_between($date = null) {
+		return $this->get_seconds_between($date) / 60 / 60 / 24 / 365;
+	
+	}
+	
+	/**
+	 * Returns the number of days between the current date and the passed date
+	 *
+	 * @param mixed $date
+	 * @return float
+	 */
+	function get_days_between($date = null) {
+		return 	$this->get_seconds_between($date) / 60 / 60 / 24;
+	}
+	
+	/**
+	 * Returns the number of seconds between the current date and the passed date,
+	 * equivalent to $date - $this;
+	 *
+	 * @param mixed $date
+	 * @return int
+	 */
+	function get_seconds_between($date = null) {
+		if (!is_a($date, 'Date')) {
+			$date = new Date($date);	
+		}
+		
+		return $date->date - $this->date;	
+	}
 	
 	/**
 	 * Returns the name of a given day for the current locale

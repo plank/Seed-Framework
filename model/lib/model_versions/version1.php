@@ -604,7 +604,7 @@ class Model extends DataSpace {
 	 * @param string $type
 	 * @return Model
 	 */
-	function factory($type) {
+	function & factory($type) {
 		
 		$class_name = Inflector::camelize($type).'Model';
 		
