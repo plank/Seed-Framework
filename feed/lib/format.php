@@ -37,7 +37,7 @@ class FeedFormat {
 	var $date_format = RFC3339_DATE_FORMAT;
 
 	
-	function factory($format) {
+	function & factory($format) {
 		$format = strtolower($format);
 
 		$class_name = ucfirst($format).'Format';

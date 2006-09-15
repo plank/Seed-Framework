@@ -15,6 +15,7 @@
  */
 define('RFC3339_DATE_FORMAT', 'Y-m-d\TH:i:s\Z'); // e.g. 2003-12-13T18:30:02Z
 
+define('RFC2822_DATE_FORMAT', 'D, j M Y H:i:s T'); // e.g. Wed, 6 Jul 2005 13:00:00 PDT
 
 /**
  * A feed generation class
@@ -30,41 +31,65 @@ class Feed {
 	var $title;
 	
 	/**
+	 * The subtitle of the feed
+	 * @var string
+	 */
+	var $subtitle;
+	
+	/**
 	 * The description of the feed
+	 * 
 	 * @var string
 	 */
 	var $description;
 	
 	/**
 	 * The link to the feed source
+	 * 
 	 * @var string
 	 */
 	var $link;
 	
 	/**
 	 * The date the feed was last updated
+	 * 
 	 * @var string
 	 */
 	var $updated;
 	
 	/**
 	 * A unique id for the feed
+	 * 
 	 * @var string
 	 */
 	var $id;
 	
 	/**
 	 * The name of the author of the feed
+	 * 
 	 * @var string
 	 */
 	var $author_name;
 	
 	/**
+	 * The copyright of the feed
+	 *
+	 * @var string
+	 */
+	var $copyright;
+	
+	/**
 	 * An array conataining the feed's entried
+	 * 
 	 * @var array
 	 */
 	var $entries;
 	
+	/**
+	 * Constructor
+	 *
+	 * @return Feed
+	 */
 	function Feed() {
 	
 	}
@@ -130,6 +155,7 @@ class Feed {
 	
 	/**
 	 * Feed setup code goes here
+	 * 
 	 */
 	function setUp() {
 		return true;
