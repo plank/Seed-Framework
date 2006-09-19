@@ -1,5 +1,7 @@
 <?php
 
+require_once('expat.php');
+
 /**
  * Class for parsing XML Files
  */

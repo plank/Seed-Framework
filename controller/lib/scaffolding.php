@@ -228,7 +228,7 @@ class Scaffolding {
 			if (file_exists($scaffold_template)) {
 				$this->controller->render($scaffold_template);
 			} else {
-				trigger_error("No scaffold template for '$action'");	
+				trigger_error("No scaffold template for '$action' in $scaffold_template");	
 			}
 			
 		}

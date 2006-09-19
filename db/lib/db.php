@@ -9,13 +9,14 @@
  */
 
 seed_include('library/iterator');
+seed_include('library/logger');
 
 /**
  * The date format used for database queries
  */
-define('SQL_DATE_TIME_FORMAT', 'Y-m-d h:i:s');
-define('SQL_DATE_FORMAT', 'Y-m-d h:i:s'); // deprecated, but we need to keep for now
-define('SQL_TIME_FORMAT', 'h:i:s');
+define('SQL_DATE_TIME_FORMAT', 'Y-m-d H:i:s');
+define('SQL_DATE_FORMAT', 'Y-m-d H:i:s'); // deprecated, but we need to keep for now
+define('SQL_TIME_FORMAT', 'H:i:s');
 
 /**
  * Serves as a factory for creating db objects as well as a registry of created db objects
@@ -41,7 +42,7 @@ class DB {
 	 * @param string $database
 	 * @return DB
 	 */
-	function factory($type, $host = DB_HOST, $user = DB_USER, $pass = DB_PASS, $database = DB_NAME) {
+	function & factory($type, $host = DB_HOST, $user = DB_USER, $pass = DB_PASS, $database = DB_NAME) {
 		$class_name = ucfirst($type).'DB';
 
 		if (!class_exists($class_name)) {

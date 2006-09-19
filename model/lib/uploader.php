@@ -1,5 +1,7 @@
 <?php
 
+seed_include('library/file');
+
 /**
  * The uploader works in conjunction with the model to upload files onto the file system
  *

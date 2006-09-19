@@ -1,5 +1,7 @@
 <?php
 
+seed_include('xml/parser');
+
 /**
  * Base feed Format class
  *

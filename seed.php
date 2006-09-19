@@ -60,7 +60,7 @@ seed_include('library/error');
  * @return bool
  */
 function seed_include($path) {
-	
+	$path = strtolower($path);	
 	$path_parts = explode('/', $path);
 	
 	if (!count($path_parts) || count($path_parts) > 2) {
@@ -86,6 +86,21 @@ function seed_include($path) {
 	
 	return true;
 	
+}
+
+function seed_vendor_include($path) {
+	$path = strtolower($path);
+	
+	$path = dirname(__FILE__).'/vendor/'.$path.'.php';	
+	
+	if (!file_exists($path)) {
+		trigger_error("Couldn't find required class in '$path'", E_USER_WARNING);
+		return false;		
+	}
+	
+	require_once($path);
+	
+	return true;
 }
 
 /**

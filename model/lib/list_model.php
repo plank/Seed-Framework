@@ -10,8 +10,10 @@
 
 /**
  * Extends the model class
+ *
+ * For some reason require_once isn't working in some cases...
  */
-require_once('model.php');
+class_exists('model') || require('model.php');
 
 /**
  * A model that acts as a list

@@ -339,8 +339,6 @@ class SeedFramework {
 	 * Include all the libraries
 	 */
 	function include_libraries() {
-		seed_include('support');
-		
 		seed_include('model');
 		
 		seed_include('controller');

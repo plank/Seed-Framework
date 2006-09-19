@@ -14,40 +14,7 @@ seed_include('network/url');
 /**
  * The following chunk of code strips slashes from the gpc array
  */
-
-// clean gpc of slashes
-if (get_magic_quotes_gpc()) {
-	$_GET = transcribe($_GET);
-	$_POST = transcribe($_POST);
-	$_COOKIE = transcribe($_COOKIE);	
-	$_REQUEST = transcribe($_REQUEST);
-
-	$HTTP_GET_VARS = $_GET;
-	$HTTP_POST_VARS = $_GET;
-	$HTTP_COOKIE_VARS = $_COOKIE;
-}
-
-/**
- * Recursively strips slashes from an array
- */
-function transcribe($aList, $aIsTopLevel = true) {
-   $gpcList = array();
-   $isMagic = get_magic_quotes_gpc();
-  
-   foreach ($aList as $key => $value) {
-       $decodedKey = ($isMagic && !$aIsTopLevel) ? stripslashes($key) : $key;
-       
-       if (is_array($value)) {
-           $decodedValue = transcribe($value, false);
-       } else {
-           $decodedValue = ($isMagic) ? stripslashes($value):$value;
-       }
-       
-       $gpcList[$decodedKey] = $decodedValue;
-   }
-   
-   return $gpcList;
-}
+fix_magic_quotes();
 
 /**
  * Simple request object
