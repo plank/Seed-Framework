@@ -14,6 +14,10 @@ seed_include('library/logger');
 
 
 // CONSTANTS //
+/**
+ * Path to the root of the framework templates. This is where the scaffold template are located.
+ */
+define('FRAMEWORK_TEMPLATE_PATH', FRAMEWORK_PATH.'framework/templates/');
 
 /**
  * Path to the root of the application

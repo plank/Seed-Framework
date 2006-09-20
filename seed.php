@@ -25,11 +25,6 @@ define('SEED_PHP_VERSION', substr(phpversion(), 0, 1));
 define('FRAMEWORK_PATH', dirname(__FILE__).'/');
 
 /**
- * Path to the root of the framework templates. This is where the scaffold template are located.
- */
-define('FRAMEWORK_TEMPLATE_PATH', FRAMEWORK_PATH.'templates/');
-
-/**
  * Path to the called script
  */
 define('SCRIPT_PATH', $_SERVER['SCRIPT_FILENAME']);	
