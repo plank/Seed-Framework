@@ -108,12 +108,12 @@ class Date {
 	}
 	
 	/**
-	 * Returns the current hours
+	 * Returns the current hours as a value from 00 to 23
 	 *
 	 * @return int
 	 */
 	function get_hours() {
-		return date('h', $this->date);		
+		return date('H', $this->date);		
 	}
 	
 	/**
