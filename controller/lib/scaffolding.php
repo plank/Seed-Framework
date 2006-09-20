@@ -189,7 +189,7 @@ class Scaffolding {
 		} elseif (!isset($this->controller->params['cancel'])) {
 			$id = $this->controller->params['id'];
 			
-			$finder = Finder::factory($type);
+			$finder = Finder::factory($this->get_type());
 			$model = $finder->find($id);
 			$model->assign($this->controller->request->post);
 			
@@ -228,7 +228,7 @@ class Scaffolding {
 			if (file_exists($scaffold_template)) {
 				$this->controller->render($scaffold_template);
 			} else {
-				trigger_error("No scaffold template for '$action' in $scaffold_template");	
+				trigger_error("No scaffold template for '$action' found in '$scaffold_template'", E_USER_ERROR);
 			}
 			
 		}
