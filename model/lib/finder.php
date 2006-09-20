@@ -110,7 +110,7 @@ class Finder {
 	 * @param mixed $args,...
 	 * @return mixed
 	 */
-	function find($args) {
+	function & find($args) {
 		$args = func_get_args();
 		$arg_count = count($args);
 

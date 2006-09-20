@@ -406,6 +406,14 @@ class Model extends DataSpace {
 	
 	}
 	
+	/**
+	 * Options are:
+	 *   class_name
+	 *   conditions
+	 *   polymorphic
+	 *   foreign_key
+	 *	 order
+	 */	
 	function belongs_to($field, $options = null) {
 		
 		if (is_null($options)) {
