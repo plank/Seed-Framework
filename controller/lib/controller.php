@@ -27,6 +27,13 @@ class Controller {
 	var $full_type;
 	
 	/**
+	 * The type of model associated with the controller
+	 *
+	 * @var string
+	 */
+	var $model;
+	
+	/**
 	 * DB object
 	 * 
 	 * @var db
@@ -153,6 +160,10 @@ class Controller {
 			$this->layout = $this->get_type();
 		}
 		
+		if (!isset($this->model)) {
+			$this->model = $this->get_type();	
+		}
+		
 		$this->template = new Template();
 		
 		if (class_exists($this->scaffolding_class)) {
@@ -167,6 +178,12 @@ class Controller {
 		
 	}
 	
+	/**
+	 * Requires the file for the given type
+	 *
+	 * @param string $type
+	 * @return bool
+	 */
 	function import($type) {
 		$type = strtolower($type);		
 		
@@ -178,6 +195,8 @@ class Controller {
 		}
 		
 		require_once($path);
+		
+		return true;
 		
 	}
 	
@@ -282,6 +301,11 @@ class Controller {
 			Logger::log('dispatch', LOG_LEVEL_WARNING, "Filter chain returned false");
 			return $this->response;	
 			
+		}
+		
+		// import the model type
+		if ($this->model) {
+			Model::import($this->model);
 		}
 		
 		// make sure the method exists and that it's not protected
