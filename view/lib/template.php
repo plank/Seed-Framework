@@ -223,6 +223,35 @@ class Template {
 		
 	}
 
+	/**
+	 * Returns a button that posts to a given url
+	 *
+	 * @return string
+	 */
+	function button_to($text = '', $options = null, $overwrite_options = null) {
+		// if $options is false, simply return the text
+		if (!$options && !$overwrite_options) {
+			return $text;
+		}
+	
+		// if it's a string,
+		if (!is_array($options) && !is_array($overwrite_options)) {
+			// link directly to it
+			$link = $options;			
+			
+		} else {
+			// use $options as params for url_for
+			$link = $this->controller->url_for($options, $overwrite_options);
+			
+		}
+		
+		$result = "<form method='post' action='$link' class='button-to'>";
+		$result .= "<input type='submit' value='$text' />";
+		$result .= "</form>";
+		
+		return $result;
+		
+	}
 	
 	function url_for($options = null, $overwrite_options = null) {
 		return $this->controller->url_for($options, $overwrite_options);	

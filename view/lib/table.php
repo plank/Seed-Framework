@@ -426,7 +426,7 @@ class Table {
 				
 			}
 			
-			$return .= "<td class='".Inflector::underscore($display)."'>";
+			$return .= "<td class='action_".Inflector::linkify($display)."'>";
 			
 			$skip = false;
 			
