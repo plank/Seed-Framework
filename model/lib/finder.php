@@ -133,7 +133,8 @@ class Finder {
 		
 		if ($args[0] == 'all') {
 			$sql = $this->construct_finder_sql($options);
-			return $this->find_by_sql($sql);
+			$result = $this->find_by_sql($sql);
+			return $result;
 
 		}
 			
