@@ -252,7 +252,9 @@ class Finder {
 	}
 	
 	function & find_by_sql($sql) {
-		return new ModelIterator($this->db->query_iterator($sql), $this->get_type());
+		$result = new ModelIterator($this->db->query_iterator($sql), $this->get_type());
+		
+		return $result;
 	}
 	
 	function update_all($updates, $conditions = null) {
