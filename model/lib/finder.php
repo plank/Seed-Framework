@@ -168,11 +168,11 @@ class Finder {
 			
 			$result = $this->find('all', $options);
 
-			if ($expects_array) {
-				return $result;	
-			} else {
-				return $result->next();
+			if (!$expects_array) {
+				$result = $result->next();
 			}
+			
+			return $result;	
 			
 		} else {
 			// find multiple ids
