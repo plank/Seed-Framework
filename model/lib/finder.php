@@ -191,7 +191,7 @@ class Finder {
 	 * An optional argument array can be added at the end, which works like passing options to the regular
 	 * find method
 	 */
-	function find_all_by($field, $value, $options = null) {
+	function & find_all_by($field, $value, $options = null) {
 		$args = func_get_args();
 		
 		$options = $this->_arguments_to_options($args);
@@ -210,7 +210,7 @@ class Finder {
 	 * An optional argument array can be added at the end, which works like passing options to the regular
 	 * find method
 	 */	
-	function find_by($field, $value, $options = null) {
+	function & find_by($field, $value, $options = null) {
 		$args = func_get_args();
 		
 		$options = $this->_arguments_to_options($args);
@@ -251,7 +251,7 @@ class Finder {
 		
 	}
 	
-	function find_by_sql($sql) {
+	function & find_by_sql($sql) {
 		return new ModelIterator($this->db->query_iterator($sql), $this->get_type());
 	}
 	
