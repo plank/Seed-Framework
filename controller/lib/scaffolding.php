@@ -134,7 +134,7 @@ class Scaffolding {
 			trigger_error('No id for delete', E_USER_WARNING);
 		} else {
 			$id = $this->controller->params['id'];
-			$finder = Finder::factory($type);
+			$finder = Finder::factory($this->get_type());
 			$model = $finder->find($id);
 			$model->delete();
 			
