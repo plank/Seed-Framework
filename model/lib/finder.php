@@ -127,7 +127,8 @@ class Finder {
 		if ($args[0] == 'first') {
 			$options['limit'] = 1;
 			$result = $this->find('all', $options);
-			return $result->next();
+			$result = $result->next();
+			return $result;
 
 		}
 		
