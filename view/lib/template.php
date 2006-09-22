@@ -246,7 +246,7 @@ class Template {
 		}
 		
 		$result = "<form method='post' action='$link' class='button-to'>";
-		$result .= "<input type='submit' value='$text' />";
+		$result .= "<div><input type='submit' value='$text' /></div>";
 		$result .= "</form>";
 		
 		return $result;
