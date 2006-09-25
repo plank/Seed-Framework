@@ -315,7 +315,7 @@ class Finder {
 		$query = new SelectQueryBuilder($this->db->escape_identifier($this->table_name()));
 		
 		if (isset($options['select'])) {
-			$query->fields = $options['select'];	
+			$query->add_fields($options['select']);	
 		}
 		
 		if (isset($options['joins'])) {

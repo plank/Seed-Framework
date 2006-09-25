@@ -1,20 +1,15 @@
 <?php
 
-
-class TestFinder extends Finder {
-	
-	
-}
+// Test
+class TestFinder extends Finder { }
 
 class TestModel extends Model  {
 	
 	
 }
 
-class NewsFinder extends Finder {
-	
-	
-}
+// News
+class NewsFinder extends Finder { }
 
 class NewsModel extends Model {
 	
@@ -26,10 +21,8 @@ class NewsModel extends Model {
 	
 }
 
-class CategoryFinder extends Finder {
-	
-	
-}
+// Category
+class CategoryFinder extends Finder { }
 
 class CategoryModel extends Model {
 	
@@ -40,10 +33,8 @@ class CategoryModel extends Model {
 	
 }
 
-class UserFinder extends Finder {
-	
-
-}
+// User
+class UserFinder extends Finder { }
 
 class UserModel extends Model {
 
@@ -54,10 +45,8 @@ class UserModel extends Model {
 	
 }
 
-class TagFinder extends Finder {
-	
-	
-}
+// Tag
+class TagFinder extends Finder { }
 
 class TagModel extends Model {
 	
@@ -67,6 +56,44 @@ class TagModel extends Model {
 	
 }
 
+
+// Firm
+class FirmFinder extends Finder { }
+
+class FirmModel extends Model {
+
+	function setup() {
+		$this->has_many('client');
+		$this->has_many('invoice', array('through' => 'client'));
+	}
+	
+}
+
+// Client
+class ClientFinder extends Finder { }
+
+class ClientModel extends Model {
+
+	function setup() {
+		$this->belongs_to('firm');
+		$this->has_many('invoice');
+	}
+	
+}
+
+// Invoice
+class InvoiceFinder extends Finder { }
+
+class InvoiceModel extends Model {
+
+	function setup() {
+		$this->belongs_to('client');	
+		
+	}
+}
+
+
+// Tester
 class ModelTester extends UnitTestCase {
 	
 	/**
@@ -390,7 +417,47 @@ class ModelTester extends UnitTestCase {
 		$this->assertEqual($news->get('username'), 'author');		
 	}
 	
+	function test_has_many_through() {
+		$finder = new FirmFinder($this->db);
+		
+		$firm = $finder->find(1);
+		
+		$invoices = $firm->get('invoice');
+		
+		$invoice = $invoices->next();
+		$this->assertEqual($invoice->get('amount'), '10.00');
+		
+		$invoice = $invoices->next();
+		$this->assertEqual($invoice->get('amount'), '20.00');
 
+		$invoice = $invoices->next();
+		$this->assertEqual($invoice->get('amount'), '30.00');
+
+		$invoice = $invoices->next();
+		$this->assertEqual($invoice->get('amount'), '40.00');
+		
+		$this->assertFalse($invoices->next());
+		
+		$firm = $finder->find(2);
+		
+		$invoices = $firm->get('invoice');
+		
+		$invoice = $invoices->next();
+		$this->assertEqual($invoice->get('amount'), '50.00');
+		
+		$invoice = $invoices->next();
+		$this->assertEqual($invoice->get('amount'), '60.00');
+
+		$invoice = $invoices->next();
+		$this->assertEqual($invoice->get('amount'), '70.00');
+
+		$invoice = $invoices->next();
+		$this->assertEqual($invoice->get('amount'), '80.00');		
+		
+		$this->assertFalse($invoices->next());		
+		
+	}
+	
 }
 
 

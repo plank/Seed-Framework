@@ -116,16 +116,43 @@ class DataSpace {
 						
 			$finder = Finder::factory($options['class_name']);
 			
-			$condition = $options['foreign_key']." = ".$this->get_id();
-			
-			if ($options['as']) {
-				$condition .= ' AND '.$options['as']."_type = '".$this->type."'";
+			// choose the table the conditions will be applied to
+			if ($options['through']) {
+				$join_model = Model::factory($options['through']);
+				
+				$table_name = $join_model->table;
+					
+			} else {
+				$table_name = $finder->table_name();	
+				
 			}
 			
-			return $finder->find('all', array(
-				'conditions' => $condition." AND ".$options['conditions'],
-				'order' => $options['order']
-			));			
+			$condition = $table_name.'.'.$options['foreign_key']." = ".$this->get_id();
+			
+			if ($options['as']) {
+				$condition .= ' AND '.$table_name.'.'.$options['as']."_type = '".$this->type."'";
+			}
+			
+			if ($options['through']) {
+				$select = $finder->table_name().'.*';
+				
+				$join = $join_model->table.' ON '.$finder->table_name().'.'.$join_model->type.'_id = '.$join_model->table.'.id';
+
+				return $finder->find('all', array(
+					'select' => $select,
+					'joins' => $join,
+					'conditions' => $condition." AND ".$options['conditions'],
+					'order' => $options['order']
+				));
+				
+			} else {
+			
+				return $finder->find('all', array(
+					'conditions' => $condition." AND ".$options['conditions'],
+					'order' => $options['order']
+				));		
+			
+			}	
 			
 		}
 		
@@ -387,6 +414,8 @@ class Model extends DataSpace {
 	}
 
 	/**
+	 * Returns the associated finder for this model
+	 *
 	 * @return Finder
 	 */	
 	function & finder() {
@@ -396,6 +425,8 @@ class Model extends DataSpace {
 	}
 	
 	/**
+	 * Returns the current model version
+	 *
 	 * @return int
 	 */
 	function version() {
@@ -407,12 +438,18 @@ class Model extends DataSpace {
 	}
 	
 	/**
+	 * Adds a 1-to-1 or n-to-1 relation to another class, depending on the corresponding
+	 * relationship on the other class
+	 * 
+	 * @param string $field
+	 * @param array $options
 	 * Options are:
 	 *   class_name
 	 *   conditions
 	 *   polymorphic
 	 *   foreign_key
 	 *	 order
+	 * @return Model
 	 */	
 	function belongs_to($field, $options = null) {
 		
@@ -458,6 +495,19 @@ class Model extends DataSpace {
 		
 	}
 	
+	/**
+	 * Adds a 1-1 relation to another class
+	 *
+	 * @param string $field
+	 * @param array $options
+	 * Options are:
+	 *  class_name
+	 *  conditions
+	 *  order
+	 *  foreign_key
+	 *  dependant
+	 * @return Model
+	 */
 	function has_one($field, $options = null) {
 		if (is_null($options)) {
 			$options = array();
@@ -487,6 +537,10 @@ class Model extends DataSpace {
 	}
 	
 	/**
+	 * Adds a 1-n relation to another class
+	 *
+	 * @param string $field
+	 * @param array $options
 	 * Options are:
 	 *   class_name
 	 *   conditions
@@ -495,6 +549,7 @@ class Model extends DataSpace {
 	 *   foreign_key
 	 *	 dependent
 	 *	 as
+	 * @return ModelIterator
 	 */
 	function has_many($field, $options = null) {
 		if (is_null($options)) {
@@ -529,11 +584,19 @@ class Model extends DataSpace {
 			
 		}
 	
+		if (!isset($options['through'])) {
+			$options['through'] = false;	
+		}
+		
 		$this->has_many_data[$field] = $options;	 
 		
 	}
 	
 	/**
+	 * Adds an n-to-n relationship to another class.
+	 *
+	 * @param string $field
+	 * @param array $options
 	 * Options are:
 	 *  class_name
 	 *  join_table
@@ -541,6 +604,7 @@ class Model extends DataSpace {
 	 *  association_foreign_key
 	 *  conditions
 	 *  order
+	 * @return ModelIterator
 	 */
 	function has_and_belongs_to_many($field, $options = null) {
 		if (is_null($options)) {
@@ -636,7 +700,6 @@ class Model extends DataSpace {
 	/**
 	 * Returns the name of the table used for persisting this class
 	 *
-	 * @static 
 	 * @return string
 	 */
 	function table_name() {

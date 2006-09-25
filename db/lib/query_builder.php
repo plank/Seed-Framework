@@ -261,6 +261,7 @@ class SelectQueryBuilder {
 				$sql .= "COUNT(*) as count";
 			}
 		} else {
+
 			$sql .= implode(', ', $this->get_fields());
 		}
 		

@@ -155,16 +155,16 @@ function setup_db($db) {
 	$db->query("INSERT INTO `category_news` ( `category_id` , `news_id` ) VALUES ('2', '2'), ('3', '2');");
 	$db->query("INSERT INTO `category_news` ( `category_id` , `news_id` ) VALUES ('3', '3'), ('4', '3');");
 	
-	
+	// tag table
 	$db->drop_table('tag', true);
 	
 	$db->query("CREATE TABLE `tag` (
-		  `id` int(11) unsigned NOT NULL auto_increment,
-		  `name` varchar(255) NOT NULL default '',
-		  `taggable_type` varchar(255) NOT NULL default '',
-		  `taggable_id` int(11) unsigned NOT NULL default '0',
-		  PRIMARY KEY  (`id`),
-		  KEY `taggable_index` (`taggable_type`,`taggable_id`)
+		`id` int(11) unsigned NOT NULL auto_increment,
+		`name` varchar(255) NOT NULL default '',
+		`taggable_type` varchar(255) NOT NULL default '',
+		`taggable_id` int(11) unsigned NOT NULL default '0',
+		PRIMARY KEY  (`id`),
+		KEY `taggable_index` (`taggable_type`,`taggable_id`)
 		) TYPE=MyISAM AUTO_INCREMENT=7 ;"
 	);
 
@@ -175,6 +175,47 @@ function setup_db($db) {
 	$db->query("INSERT INTO `tag` VALUES (5, 'Admin Tag', 'user', 1);");
 	$db->query("INSERT INTO `tag` VALUES (6, 'Author Tag', 'user', 2);");
 
+	// firm table
+	
+	$db->drop_table('firm', true);
+	
+	$db->query("CREATE TABLE `firm` (
+		`id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
+		`name` VARCHAR( 255 ) NOT NULL ,
+		PRIMARY KEY ( `id` )
+		);"
+	);
+	
+	$db->query("INSERT INTO `firm` ( `id` , `name` ) VALUES ('', 'Firm A'), ('', 'Firm B');");
+	
+	$db->drop_table('client', true);
+	
+	$db->query("CREATE TABLE `client` (
+		`id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
+		`name` VARCHAR( 255 ) NOT NULL ,
+		`firm_id` INT( 11 ) UNSIGNED NOT NULL ,
+		PRIMARY KEY ( `id` )
+		);"
+	);
+	
+
+	$db->query("INSERT INTO `client` ( `id` , `name` , `firm_id` ) VALUES ('', 'Client A', '1'), ('', 'Client B', '1');");
+	$db->query("INSERT INTO `client` ( `id` , `name` , `firm_id` ) VALUES ('', 'Client C', '2'), ('', 'Client D', '2');");	
+	
+	$db->drop_table('invoice', true);
+	
+	$db->query("CREATE TABLE `invoice` (
+		`id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
+		`client_id` INT( 11 ) UNSIGNED NOT NULL ,
+		`amount` DECIMAL( 10, 2 ) NOT NULL ,
+		PRIMARY KEY ( `id` )
+		);
+	");
+
+	$db->query("INSERT INTO `invoice` ( `id` , `client_id` , `amount` ) VALUES ('', '1', '10.00'), ('', '1', '20.00');");
+	$db->query("INSERT INTO `invoice` ( `id` , `client_id` , `amount` ) VALUES ('', '2', '30.00'), ('', '2', '40.00');");
+	$db->query("INSERT INTO `invoice` ( `id` , `client_id` , `amount` ) VALUES ('', '3', '50.00'), ('', '3', '60.00');");
+	$db->query("INSERT INTO `invoice` ( `id` , `client_id` , `amount` ) VALUES ('', '4', '70.00'), ('', '4', '80.00');");	
 	
 }
 
