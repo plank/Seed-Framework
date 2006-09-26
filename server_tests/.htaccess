@@ -1,0 +1,3 @@
+<IfModule mod_rewrite.c>
+	RewriteRule ^(.*)$ test_script.php?rewrite=true [QSA,L]
+</IfModule>
