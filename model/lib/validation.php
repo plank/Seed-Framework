@@ -607,8 +607,8 @@ class UniquenessValidationRule extends ValidationRule {
 		
 		$condition = $this->model->db->escape_identifier($attribute)." = '".$this->model->db->escape($value)."'";
 		
-		if (!$this->model->is_new_record()) {
-			$condition .= ' AND '.$this->model->id_field." <> ".$this->model->id;
+		if (isset($values[$this->model->id_field]) && $values[$this->model->id_field]) {
+			$condition .= ' AND '.$this->model->id_field." <> ".$values[$this->model->id_field];
 			
 		}
 		

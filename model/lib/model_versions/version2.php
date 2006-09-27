@@ -407,7 +407,7 @@ class Model extends DataSpace {
 			$this->data[$column->name] = $column->default;
 		}		
 		
-		$this->validate = new Validation($this->type);
+		$this->validate = & new Validation($this->type);
 		$this->validate->model = & $this;
 		$this->setup();
 		
@@ -897,7 +897,7 @@ class Model extends DataSpace {
 	 * @return bool
 	 */
 	function is_new_record() {
-		return is_null($this->id) || $this->id == '';
+		return (is_null($this->id) || $this->id == '');
 	}
 	
 	/**
@@ -999,9 +999,9 @@ class Model extends DataSpace {
 	 * @return array
 	 */
 	function dump_data() {
-
+		
 		if ($this->id_field) {
-			$return = array_merge(array($this->id_field=>$this->id), $this->data);
+			$return = array_merge($this->data, array($this->id_field=>$this->id));
 		} else {
 			$return = $this->data;
 		}
@@ -1020,14 +1020,14 @@ class Model extends DataSpace {
 	 * @return bool
 	 */
 	function validate_on_create() {
-		return $this->validate->run($this->data, true);
+		return $this->validate->run($this->dump_data(), true);
 	}
 
 	/**
 	 * @return bool
 	 */
 	function validate_on_update() {
-		return $this->validate->run($this->data, false);
+		return $this->validate->run($this->dump_data(), false);
 	}
 	
 }
