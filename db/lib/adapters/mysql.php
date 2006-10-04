@@ -25,7 +25,7 @@ class MysqlDB extends DB {
 	 */
 	function MysqlDB($host = DB_HOST, $user = DB_USER, $pass = DB_PASS, $database = DB_NAME) {
 		$this->link = mysql_connect($host, $user, $pass) or trigger_error("Couldn't connect to database", E_USER_ERROR);
-
+		mysql_query("SET NAMES 'utf8'", $this->link);
 		$this->select_db($database);
 		
 	}
