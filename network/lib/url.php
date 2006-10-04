@@ -102,7 +102,17 @@ class URL {
 			$query_parts = explode('&', $this->query);
 			
 			foreach ($query_parts as $query_part) {
-				list($key, $value) = explode('=', $query_part, 2);	
+				$key_values = explode('=', $query_part, 2);
+				
+				$key = $key_values[0];
+				
+				if (isset($key_values[1])) {
+					$value = $key_values[1];
+					
+				} else {
+					$value = '';
+					
+				}
 				
 				$this->query_array[$key] = $value;
 				
