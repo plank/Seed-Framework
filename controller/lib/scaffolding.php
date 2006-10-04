@@ -41,6 +41,11 @@ class Scaffolding {
 		
 		$options = array();
 		
+		if (isset($finder->model->deleted_field)) {
+			$options['conditions'] = $finder->model->deleted_field.' = 0';
+		
+		}		
+		
 		if (isset($this->controller->params['sortby']) && isset($this->controller->params['sortdir'])) {
 			$options['order'] = $this->controller->params['sortby']." ".$this->controller->params['sortdir'];	
 
