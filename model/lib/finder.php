@@ -242,6 +242,10 @@ class Finder {
 		
 		$conditions = array();
 		
+		if (isset($options['conditions'])) {
+			$conditions[] = $options['conditions'];	
+		}		
+		
 		for ($x = 0; $x < count($args); $x += 2) {
 			$conditions[] = $args[$x]." = '".$args[$x + 1]."'";
 			
