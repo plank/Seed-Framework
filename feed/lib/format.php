@@ -22,6 +22,13 @@ class FeedFormat {
 	var $content_type = 'Text/XML';
 	
 	/**
+	 * The character encoding
+	 *
+	 * @var string
+	 */
+	var $encoding = 'UTF-8';
+	
+	/**
 	 * The protocol of the feed (atom or RSS)
 	 * @var string
 	 */
@@ -62,7 +69,9 @@ class FeedFormat {
 			return false;	
 		}
 		
-		return new $class_name;
+		$obj = new $class_name;
+		
+		return $obj;
 		
 	}
 	
@@ -122,7 +131,7 @@ class FeedFormat {
 	 * @return string
 	 */
 	function escape($value) {
-		return htmlentities($value);	
+		return htmlspecialchars($value, ENT_QUOTES, $this->encoding);	
 	}
 
 	/**

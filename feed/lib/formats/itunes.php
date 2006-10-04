@@ -47,18 +47,21 @@ class ItunesFormat extends FeedFormat {
 		$result .= "    <itunes:owner>\n";
 		$result .= "      <itunes:name>".$this->escape($feed->author_name)."</itunes:name>";
 		$result .= "    </itunes:owner>\n";
-		$result .= "    <itunes:image>".$this->escape($feed->image)."</itunes:image>\n";
+		if (isset($feed->image)) {
+			$result .= "    <itunes:image>".$this->escape($feed->image)."</itunes:image>\n";
+		}
 //		$result .= "    <itunes:category>".$this->escape($feed->category)."</itunes:category>\n";
 		
 		
 		foreach ($feed->entries as $entry) {
 			$result .= "    <item>\n";
 			$result .= "      <title>".$this->escape($entry->title)."</title>\n";
-			$result .= "      <link>".$entry->link."</link>\n";
+			$result .= "      <itunes:author>".$this->escape($entry->author_name)."</itunes:author>\n";
+			$result .= "      <itunes:subtitle>".$this->escape($entry->subtitle)."</itunes:subtitle>>\n";
+			$result .= "      <itunes:summary>".$this->escape($entry->summary)."</itunes:summary>\n";
+			$result .= "      <enclosure url='".$entry->link."' length='".$entry->link_length."' type='".$entry->link_type."' />\n";
 			$result .= "      <guid>".$entry->id."</guid>\n";
-			$result .= "      <description>".$this->escape($entry->summary)."</description>\n";
-			$result .= "      <dc:creator>".$this->escape($entry->author_name)."</dc:creator>\n";
-			$result .= "      <dc:date>".$this->date($entry->updated)."</dc:date>\n";
+			$result .= "      <pubDate>".$this->date($entry->updated)."</pubDate>\n";
 			$result .= "    </item>\n";
 		}
 		

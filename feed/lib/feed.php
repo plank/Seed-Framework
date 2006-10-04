@@ -79,6 +79,13 @@ class Feed {
 	var $copyright;
 	
 	/**
+	 * The URL of an image
+	 *
+	 * @var string
+	 */
+	var $image;
+	
+	/**
 	 * An array conataining the feed's entried
 	 * 
 	 * @var array
@@ -100,10 +107,11 @@ class Feed {
 	 *
 	 * @param string $link
 	 * @param string $title
-	 * @param string $summary;
-	 * @param string $author_name;
+	 * @param string $summary
+	 * @param string $author_name
+	 * @return FeedEntry
 	 */
-	function addEntry($link, $title = '', $summary = '', $updated = '', $author_name = '') {
+	function & addEntry($link, $title = '', $summary = '', $updated = '', $author_name = '') {
 		$entry = new FeedEntry();
 		$entry->id = $link;
 		$entry->link = $link;
@@ -113,6 +121,8 @@ class Feed {
 		$entry->author_name = $author_name;	
 
 		$this->appendEntry($entry);
+		
+		return $entry;
 	}
 	
 	/**
@@ -180,10 +190,38 @@ class FeedEntry {
 	var $title;
 	
 	/**
+	 * The subtitle of the entry
+	 * 
+	 * @var string
+	 */
+	var $subtitle;
+	
+	/**
 	 * The link of the entry
 	 * @var string
 	 */
 	var $link;
+	
+	/**
+	 * The media type of the link
+	 *
+	 * @var string
+	 */
+	var $link_type = 'text/html';
+	
+	/**
+	 * The relationship of the link
+	 *
+	 * @var string
+	 */
+	var $link_rel = 'alternate';
+	
+	/**
+	 * The content length of the link
+	 *
+	 * @var int
+	 */
+	var $link_length;
 	
 	/**
 	 * The unique id of the entry

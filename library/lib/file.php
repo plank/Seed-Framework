@@ -87,6 +87,19 @@ class File {
 	}
 	
 	/**
+	 * Returne the size of the file, in bytes
+	 *
+	 * @return int  Returns false if the file is not actually a file
+	 */
+	function get_size() {
+		if ($this->is_file()) {
+			return filesize($this->path);	
+		} else {
+			return false;	
+		}
+	}
+	
+	/**
 	 * Returns true if this file object represents a directory
 	 *
 	 * @return bool
