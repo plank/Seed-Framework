@@ -104,6 +104,8 @@ class Request {
 			$this->url = new URL();
 		}	
 		
+		$_GET = array_merge($_GET, $this->url->query_array);
+		
 		$this->get = & $_GET;
 		$this->post = & $_POST;
 		$this->cookies = & $_COOKIE;
