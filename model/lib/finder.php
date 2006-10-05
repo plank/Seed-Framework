@@ -199,11 +199,12 @@ class Finder {
 		$options = $this->_arguments_to_options($args);
 
 		if ($options) {
-			return $this->find('all', $options);	
+			$result = & $this->find('all', $options);	
+		} else {
+			$result = false;	
 		}
 		
-		return false;
-		
+		return $result;
 	}
 	
 	/**
