@@ -52,7 +52,8 @@ class FeedFormat {
 		$class_name = ucfirst($format).'Format';
 		
 		if (class_exists($class_name)) {
-			return new $class_name;	
+			$result = new $class_name;
+			return $result;	
 		}
 		
 		$file_name = dirname(__FILE__).'/formats/'.$format.'.php';
@@ -69,9 +70,8 @@ class FeedFormat {
 			return false;	
 		}
 		
-		$obj = new $class_name;
-		
-		return $obj;
+		$result = new $class_name;
+		return $result;	
 		
 	}
 	
