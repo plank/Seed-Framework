@@ -134,7 +134,7 @@ class Feed {
 	 */
 	function appendEntry(& $data) {
 		if (is_object($data) && is_a($data, 'FeedEntry')) {
-			$this->entries[] = $data;
+			$this->entries[] = & $data;
 			return true;
 			
 		} elseif (is_array($data)) {
