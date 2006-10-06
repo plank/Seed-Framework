@@ -21,6 +21,35 @@ class BaseTester extends UnitTestCase {
 
 	}
 	
+	function test_explode_quoted() {
+		
+		// some simple strings
+		$this->assertEqual(explode_quoted(" ", "piece1 piece2 piece3 piece4 piece5 piece6"), array("piece1", "piece2", "piece3", "piece4", "piece5", "piece6"));
+		$this->assertEqual(explode_quoted(" ", '"piece1 piece2" "piece3 piece4" "piece5 piece6"'), array("piece1 piece2", "piece3 piece4", "piece5 piece6"));
+		$this->assertEqual(explode_quoted(" ", "'piece1 piece2' 'piece3 piece4' 'piece5 piece6'", "'"), array("piece1 piece2", "piece3 piece4", "piece5 piece6"));
+		$this->assertEqual(
+			explode_quoted(" ", "'piece1 piece2' 'piece3 piece4' 'piece5 piece6'", "'", null, false), 
+			array("'piece1 piece2'", "'piece3 piece4'", "'piece5 piece6'")
+		);
+		
+		// with escaped quote
+		$this->assertEqual(explode_quoted(",", '"piece \" 1","test this","hi"'), array('piece " 1', 'test this', 'hi'));		
+		
+		// csv test
+		$this->assertEqual(explode_quoted(",", '"testing, stuff, here","is testing ok",200,456'), array("testing, stuff, here", "is testing ok", 200, 456));
+		
+		// sql test
+		$this->assertEqual(
+			explode_quoted(";", "SELECT * FROM test WHERE data = 'hello; \'goodbye;\'';SELECT * FROM test", "'", null, false),
+			array("SELECT * FROM test WHERE data = 'hello; 'goodbye;''", "SELECT * FROM test")
+		);
+
+		// postgress/sybase style quoting isn't supported yet, will trigger an error
+		$this->assertError(explode_quoted(";", "SELECT * FROM test WHERE data = 'hello; ''goodbye;''';SELECT * FROM test", "'", "'", false));
+
+		
+	}
+	
 }
 
 

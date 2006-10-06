@@ -416,6 +416,17 @@ class DisplayFormControl extends FormControl {
 	
 }
 
+class StaticFormControl extends FormControl {
+	function generate($value = null) {
+		if ($this->params['text']) {
+			return '<strong>'.$this->params['text'].'</strong>';
+		} else {
+			return '<hr />';
+		}
+		
+	}	
+}
+
 /**
  * Class for hidden form controls
  *

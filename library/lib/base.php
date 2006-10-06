@@ -285,4 +285,62 @@ function fix_magic_quotes() {
 	return true;
 
 }
+
+/**
+ * Quote aware explode function
+ *
+ * @param string $seperator
+ * @param string $str
+ * @param string $quote_character
+ * @param string $escape_character  Quote characters preceded by the escape character are ignored. Default value is a backslash
+ * @param bool $unquote			    If set to true, quoted chunks are unquoted
+ * @return array
+ */
+function explode_quoted($seperator, $str, $quote_character = '"', $escape_character = null, $unquote = true){
+
+	if (is_null($escape_character)) {
+		$escape_character = '\\';	
+	}
+	
+	if (!$seperator) {
+		return false;	
+	}
+	
+	$seperator = preg_quote($seperator, '/');
+	$quote_character = preg_quote($quote_character, '/');
+	$escape_character = preg_quote($escape_character, '/');
+	
+	if ($quote_character == $escape_character) {
+		// haven't been able to find a regex to do this, so we'll trigger an error for now:
+		trigger_error("Escape characters that are the same as quote characters are not permited", E_USER_ERROR);
+		return false;
+		
+	} else if ($escape_character) {
+		$qc = "(?<!".$escape_character.")".$quote_character;
+		$nqc = "(?:[^".$quote_character."]|(?<=".$escape_character.")".$quote_character.")";
+	
+	} else {
+		$qc = $quote_character;
+		$nqc = "[^".$qc."]";
+	}
+	
+	$expr = "/".$seperator."(?=(?:".$nqc."*".$qc.$nqc."*".$qc.")*(?!".$nqc."*".$qc."))/";
+	
+	$results = preg_split($expr, trim($str));
+	
+	// unquote values
+	if ($unquote) {
+		$results = preg_replace("/^".$quote_character."(.*)".$quote_character."$/","$1", $results);
+	} 
+	
+	// unescape quotes
+	if ($escape_character) {
+		$results = preg_replace("/".$escape_character.$quote_character."/", $quote_character, $results);
+	}
+	
+	return $results;	
+	
+}
+
+
 ?>
