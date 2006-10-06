@@ -10,15 +10,24 @@ class MysqlDB extends DB {
 
 	/**
 	 * Connection to the database
+	 * 
 	 * @var resource
 	 */
 	var $link;
 	
 	/**
 	 * Result of the last query
+	 * 
 	 * @var resource
 	 */
 	var $result;
+	
+	/**
+	 * The character used as a place for substitutions 
+	 *
+	 * @var char
+	 */
+	var $placeholder = '?';
 	
 	/**
 	 * Constructor
@@ -222,6 +231,11 @@ class MysqlDB extends DB {
 	 */
 	function escape_identifier($string) {
 		return '`'.$string.'`';
+	}
+	
+	function bind($statement, $data) {
+		
+		
 	}
 	
 	/**
