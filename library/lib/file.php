@@ -1,4 +1,7 @@
 <?php
+
+require_once('iterator.php');
+
 /**
  * file.php, part of the seed framework
  *
@@ -275,10 +278,13 @@ class File {
 	function & get_iterator() {
 		if ($this->exists()) {
 			$result = new FileLineIterator($this);
-			return $result;
-			
+		} else {
+			$result = false;		
 		}
 	
+		return $result;		
+		
+		
 	}
 	
 	/**
@@ -513,34 +519,40 @@ class File {
 }
 
 class FileLineIterator extends SeedIterator {
-	
-	var $resource;
+
+	/**
+	 * @var resource
+	 */
+	var $data;
 	
 	function FileLineIterator($file) {
 		
-		if (is_resource($data)) {
-			$this->resource = $file;
+		if (is_resource($file)) {
+			$this->data = $file;
 			
-		} elseif (is_a($data, 'File')) {
-			$this->resource = fopen($file->get_path);
+		} elseif (is_a($file, 'File')) {
+			$this->data = fopen($file->get_path(), 'r');
 			
 		} elseif (is_string($file) && is_file($file)) {
-			$this->resource = fopen($file);
+			$this->data = fopen($file, 'r');
 			
 		} else {
 			trigger_error('File parameter in FileLineIterator must be a filename, a file object, or a file resource', E_USER_ERROR);
 			
 		}
 		
+		$this->position = 0;
+		
 	}
 	
 	function has_next() {
-		return feof($this->resource);
+		return !feof($this->data);
 		
 	}
 	
 	function next() {
-		return fgets($this->resource, 4096); // may need adjustment...
+		$this->position ++;
+		return fgets($this->data, 4096); // may need adjustment...
 		
 	}
 	
