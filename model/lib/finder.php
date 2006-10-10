@@ -350,6 +350,29 @@ class Finder {
 		return $query->generate();
 	}	
 	
+	/**
+	 * Creates a like condition for a given value using all string fields
+	 *
+	 * @param string $value
+	 * @return string
+	 */
+	function like_condition($value) {
+		$columns = $this->model->columns;
+		$search = array();
+		
+		foreach($columns as $column) {
+			if ($column->type == 'string') {
+				$search[] = $this->db->escape_identifier($column->name)." LIKE '".$this->db->escape($value)."'";
+			}
+		}
+		
+		if (count($search)) {
+			return '('.implode(' OR ', $search).')';
+		} else {
+			return false;	
+		}
+		
+	}
 }
 
 

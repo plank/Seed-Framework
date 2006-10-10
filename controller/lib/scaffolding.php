@@ -42,9 +42,15 @@ class Scaffolding {
 		$options = array();
 		
 		if (isset($finder->model->deleted_field)) {
-			$options['conditions'] = $finder->model->deleted_field.' = 0';
+			$options['conditions'][] = $finder->model->deleted_field.' = 0';
 		
 		}		
+		
+		if (isset($this->controller->params['like']) && $this->controller->params['like']) {
+			$options['conditions'][] = $finder->like_condition('%'.$this->controller->params['like'].'%');
+		}
+		
+		$options['conditions'] = implode(' AND ', $options['conditions']);
 		
 		if (isset($this->controller->params['sortby']) && isset($this->controller->params['sortdir'])) {
 			$options['order'] = $this->controller->params['sortby']." ".$this->controller->params['sortdir'];	
@@ -56,7 +62,7 @@ class Scaffolding {
 		
 		$current_page = assign($this->controller->params['page'], 1);
 		
-		$this->controller->template->pages = new Paginator($this->controller, $finder->count(), 20, $current_page);
+		$this->controller->template->pages = new Paginator($this->controller, $finder->count($options['conditions']), 20, $current_page);
 		
 		$current_page = $this->controller->template->pages->get_current_page();
 		
