@@ -41,11 +41,20 @@ class BaseTester extends UnitTestCase {
 		// sql test
 		$this->assertEqual(
 			explode_quoted(";", "SELECT * FROM test WHERE data = 'hello; \'goodbye;\'';SELECT * FROM test", "'", null, false),
-			array("SELECT * FROM test WHERE data = 'hello; 'goodbye;''", "SELECT * FROM test")
+			array("SELECT * FROM test WHERE data = 'hello; \'goodbye;\''", "SELECT * FROM test")
 		);
 
-		// postgress/sybase style quoting isn't supported yet, will trigger an error
-		$this->assertError(explode_quoted(";", "SELECT * FROM test WHERE data = 'hello; ''goodbye;''';SELECT * FROM test", "'", "'", false));
+		// multiple quotes
+		$this->assertEqual(
+			explode_quoted(";", "SELECT * FROM test WHERE data = 'hello \'\'\' ; data; \'\'; '", "'", null, false),
+			array("SELECT * FROM test WHERE data = 'hello \'\'\' ; data; \'\'; '")
+		);
+		
+		// postgress/sybase style quoting 
+		$this->assertEqual(
+			explode_quoted(";", "SELECT * FROM test WHERE data = 'hello; ''goodbye;''';SELECT * FROM test", "'", "'", false),
+			array("SELECT * FROM test WHERE data = 'hello; ''goodbye;'''", "SELECT * FROM test")
+		);
 
 		
 	}

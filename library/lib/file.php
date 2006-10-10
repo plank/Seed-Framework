@@ -268,6 +268,20 @@ class File {
 	}
 	
 	/**
+	 * Returns an iterator for reading the file contents
+	 *
+	 * @return FileLineIterator
+	 */
+	function & get_iterator() {
+		if ($this->exists()) {
+			$result = new FileLineIterator($this);
+			return $result;
+			
+		}
+	
+	}
+	
+	/**
 	 * Returns the mime type of the file
 	 *
 	 * @return string
@@ -497,5 +511,40 @@ class File {
 	}
 	
 }
+
+class FileLineIterator extends SeedIterator {
+	
+	var $resource;
+	
+	function FileLineIterator($file) {
+		
+		if (is_resource($data)) {
+			$this->resource = $file;
+			
+		} elseif (is_a($data, 'File')) {
+			$this->resource = fopen($file->get_path);
+			
+		} elseif (is_string($file) && is_file($file)) {
+			$this->resource = fopen($file);
+			
+		} else {
+			trigger_error('File parameter in FileLineIterator must be a filename, a file object, or a file resource', E_USER_ERROR);
+			
+		}
+		
+	}
+	
+	function has_next() {
+		return feof($this->resource);
+		
+	}
+	
+	function next() {
+		return fgets($this->resource, 4096); // may need adjustment...
+		
+	}
+	
+}
+
 
 ?>

@@ -67,9 +67,9 @@ class DateTester extends UnitTestCase {
 		
 		$new_date = new Date('1990/01/01 12:00:00');
 		
-		$this->dump($old_date->get_seconds_between($new_date));
+//		$this->dump($old_date->get_seconds_between($new_date));
 		
-		$this->dump($old_date->get_days_between($new_date));
+//		$this->dump($old_date->get_days_between($new_date));
 	}
 	
 }
