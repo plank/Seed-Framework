@@ -32,7 +32,7 @@ function error_handler($errno, $errstr, $errfile, $errline)
 }
 
 set_error_handler('error_handler');
-
+ini_set('display_errors', 1);
 ini_set('html_errors', 0);
 
 /**
