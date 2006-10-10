@@ -137,6 +137,14 @@ if (!function_exists('array_combine')) {
 }
 
 
+function array_combine_resized($keys, $values) {
+	foreach($keys as $key) {
+		$result[$key] = array_shift($values);
+	}
+	
+	return $result;	
+}
+
 
 
 /**
@@ -294,7 +302,7 @@ function fix_magic_quotes() {
  * @param string $quote_character
  * @param string $escape_character  Quote characters preceded by the escape character are ignored. Default value is a backslash
  * @param bool $unquote			    If set to true, quoted chunks are unquoted, and escaped quotes are unescaped
- * 
+ * @return array
  */
 function explode_quoted($seperator, $str, $quote_character = '"', $escape_character = null, $unquote = true){
 
