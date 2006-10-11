@@ -189,19 +189,22 @@ class Table {
 			$type = 'text';
 		}
 		
-		$column = TableColumn::factory($type);
+		$column = TableColumn::factory($type, $name);
 
 		if (!$column) {
 			trigger_error("No control found for '$type'", E_USER_WARNING);
 			return false;
 		}
 		
-		$column->name = $name;
-		
 		if (isset($label)) {
 			$column->label = $label;
 		} else {
 			$column->label = Inflector::humanize($name);	
+		}
+		
+		if (isset($params['sort_field'])) {
+			$column->sort_field = $params['sort_field'];
+			unset($params['sort_field']);	
 		}
 		
 		$column->params = $params;
@@ -288,13 +291,13 @@ class Table {
 			
 			$return .= "<th id='th_$field'>";
 	
-			$link_options['sortby'] = $field;
+			$link_options['sortby'] = $data->sort_field;
 			
 			$display = $data->label;
 			
 			if ($this->sortable && $display) {
 				// if this is the currently sorted field, assign the class
-				if ($this->sort_field == $field) {
+				if ($this->sort_field == $data->sort_field) {
 					if ($this->sort_dir == 'ASC') {
 						$class = " class='sort_asc'";
 						$link_options['sortdir'] = 'DESC';
@@ -559,6 +562,13 @@ class TableColumn {
 	var $value;
 	
 	/**
+	 * Field to sort by, defaults to field name
+	 *
+	 * @var string
+	 */
+	var $sort_field;
+	
+	/**
 	 * An array of parameters for the control. These are generally mapped directly to 
 	 * form attributes.
 	 *
@@ -577,9 +587,9 @@ class TableColumn {
 		if ($name) {
 			$this->name = $name;
 			$this->label = ucfirst($name);
+			$this->sort_field = $name;
 		}
 	}	
-	
 	
 	/**
 	 * Returns a new TableColumn subclass based on the type paramter given. i.e. input will return
@@ -588,11 +598,11 @@ class TableColumn {
 	 * @param string $type
 	 * @return FormControl
 	 */
-	function factory($type) {
+	function factory($type, $name = '') {
 		$className = ucfirst(strtolower($type)).'TableColumn';
 		
 		if (class_exists($className)) {
-			return new $className;
+			return new $className($name);
 		} else {
 			return false;
 		}
