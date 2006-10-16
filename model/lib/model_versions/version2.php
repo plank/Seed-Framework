@@ -66,7 +66,7 @@ class DataSpace {
 			if (!isset($options['order'])) {
 				$options['order'] = null;	
 			}			
-//			debug($options);
+
 			
 			if (!key_exists($options['foreign_key'], $this->data)) {
 				return null;	
@@ -81,7 +81,7 @@ class DataSpace {
 			$foreign_key = $options['foreign_key'];
 			
 			$finder = Finder::factory($class_name);
-			
+
 			return $finder->find('first', array(
 				'conditions' => $finder->id_field()." = ".$this->data[$foreign_key]." AND ".$options['conditions'],
 				'order' => $options['order']
@@ -1084,7 +1084,7 @@ class ModelIterator extends SeedIterator {
 		if (!$this->iterator->has_next()) {
 			return false;	
 		}
-						
+		$this->position ++;
 		$model = Model::factory($this->model_type);
 		$model->assign($this->iterator->next());
 		return $model;

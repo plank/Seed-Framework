@@ -141,7 +141,8 @@ class ListModel extends Model {
 	 * @return model
 	 */
 	function higher_item() {
-		$item = $this->find('first', array('conditions'=>$this->position_field." = ".($this->data[$this->position_field] - 1)." AND ".$this->scope_condition()));
+		$finder = $this->finder();
+		$item = $finder->find('first', array('conditions'=>$this->position_field." = ".($this->data[$this->position_field] - 1)." AND ".$this->scope_condition()));
 		return $item;
 	}
 	
@@ -151,7 +152,8 @@ class ListModel extends Model {
 	 * @return model
 	 */
 	function lower_item() {
-		$item = $this->find('first', array('conditions'=>$this->position_field." = ".($this->data[$this->position_field] + 1)." AND ".$this->scope_condition()));
+		$finder = $this->finder();
+		$item = $finder->find('first', array('conditions'=>$this->position_field." = ".($this->data[$this->position_field] + 1)." AND ".$this->scope_condition()));
 		return $item;
 	
 	}
@@ -173,7 +175,9 @@ class ListModel extends Model {
 	 */
 	function decrement_position_on_lower_items() {
 		if ($this->in_list()) {
-			return $this->update_all("$this->position_field = $this->position_field - 1", $this->position_field." = ".($this->data[$this->position_field] + 1)." AND ".$this->scope_condition());
+			$finder = $this->finder();
+			
+			return $finder->update_all("$this->position_field = $this->position_field - 1", $this->position_field." = ".($this->data[$this->position_field] + 1)." AND ".$this->scope_condition());
 		} else {
 			return false;
 		}

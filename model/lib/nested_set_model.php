@@ -320,7 +320,8 @@ class NestedSetModel extends Model {
 	 * @return ModelIterator
 	 */
 	function direct_children($conditions = '1') {
-		return $this->find('all', array('conditions' => $conditions." AND ".$this->parent_column." = ".$this->get_id(), 'order'=>'lft ASC'));
+		$finder = $this->finder();
+		return $finder->find('all', array('conditions' => $conditions." AND ".$this->parent_column." = ".$this->get_id(), 'order'=>'lft ASC'));
 	}
 	
 	
