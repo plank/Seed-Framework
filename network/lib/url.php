@@ -43,6 +43,9 @@ class URL {
 	 * @return URL
 	 */
 	function URL($url = '', $relative_to = '') {
+		
+		$this->query_array = array();
+		
 		//debug($url, $relative_to);
 		if (!$url) {
 			return false;	
@@ -88,8 +91,6 @@ class URL {
 			}
 			
 		}
-
-		$this->query_array = array();
 		
 		// assign the values to the object
 		foreach($parts as $key => $value) {
