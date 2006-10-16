@@ -50,7 +50,11 @@ class Scaffolding {
 			$options['conditions'][] = $finder->like_condition('%'.$this->controller->params['like'].'%');
 		}
 		
-		$options['conditions'] = implode(' AND ', $options['conditions']);
+		if (isset($options['conditions'])) {
+			$options['conditions'] = implode(' AND ', $options['conditions']);
+		} else {
+			$options['conditions'] = '1 = 1';	
+		}
 		
 		if (isset($this->controller->params['sortby']) && isset($this->controller->params['sortdir'])) {
 			$options['order'] = $this->controller->params['sortby']." ".$this->controller->params['sortdir'];	
