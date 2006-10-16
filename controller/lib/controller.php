@@ -31,7 +31,7 @@ class Controller {
 	 *
 	 * @var string
 	 */
-	var $model;
+	var $model = '';
 	
 	/**
 	 * DB object
