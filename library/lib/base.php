@@ -370,8 +370,8 @@ function html_substr($text, $minimum_length = 200, $length_offset = 20, $cut_wor
 	$tag_counter = 0;
 	$quotes_on = FALSE;
    
-	$tag_open;
-	$tag_close;
+	$tag_open = "";
+	$tag_close = "";
 	
 	if( substr($text,0,1) == "<" ) {
 		//so we have a tag, lets find the closing >
