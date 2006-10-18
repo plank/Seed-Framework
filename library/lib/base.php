@@ -351,33 +351,56 @@ function explode_quoted($seperator, $str, $quote_character = '"', $escape_charac
 }
 
 /**
- * Truncate text string function. Tag aware. However, the whole of the text to be trunc'ed should NOT be wrapped in a tag. 
- * input good:  The quick <b>brown dog</b> jumped over the lazy frog. 
- * input bad:   <p>The quick <b>brown dog</b> jumped over the lazy frog.</p> 
+ * Truncate text string function. Tag aware.
+ * Compensates for img tag at the beginning of a paragraph.
+ * XHTML only! so solo tags need closing />  ie: good: <br />, <img src="foo" /> bad: <br>, <img src="foo">
  * 
- * @param string $posttext Text to process
+ * @param string $text Text to process
  * @param integer $minimum_length Approx length, in characters, you want text to be
  * @param integer $length_offset The variation in how long the text can be. Defaults will make length will be between 200 and 200-20=180 characters and the character where the last tag ends
  * @param bool $cut_words
- * @param bool $dots Add the final ... to the string or not
+ * @param mixed $dots Add the final text to the string - can be an image tag, or text, or ... - any string basically. default to FALSE.
  * @return string
  * @author http://ca.php.net/manual/en/function.substr.php#59719
+ * @author mitchell amihod - modifications to make it wrapper tag aware.
+ * 
  */
-function html_substr($posttext, $minimum_length = 200, $length_offset = 20, $cut_words = FALSE, $dots = TRUE) {
-
+function html_substr($text, $minimum_length = 200, $length_offset = 20, $cut_words = FALSE, $dots = FALSE) {
    // Reset tag counter & quote checker
-   $tag_counter = 0;
-   $quotes_on = FALSE;
+	$tag_counter = 0;
+	$quotes_on = FALSE;
+   
+	$tag_open;
+	$tag_close;
+	
+	if( substr($text,0,1) == "<" ) {
+		//so we have a tag, lets find the closing >
+		$close_index = strpos($text, '>' );
+		$tag_open = substr($text, 0, $close_index+1);
+		$text = substr($text, $close_index+1);
+		
+		//we have tag_open, so check if its an image tag.
+		if( strstr($tag_open, 'img') ) {
+			$tag_close = "";
+		}
+		else {
+			$closing_tag_index = strrpos($text, '<');
+			$tag_close = substr($text, $closing_tag_index);
+			$text = substr($text, 0, -(strlen($tag_close)) );
+		}
+	}
+   
+   
    // Check if the text is too long
-   if (strlen($posttext) > $minimum_length) {
+   if (strlen($text) > $minimum_length) {
        // Reset the tag_counter and pass through (part of) the entire text
        $c = 0;
-       for ($i = 0; $i < strlen($posttext); $i++) {
+       for ($i = 0; $i < strlen($text); $i++) {
            // Load the current character and the next one
            // if the string has not arrived at the last character
-           $current_char = substr($posttext,$i,1);
-           if ($i < strlen($posttext) - 1) {
-               $next_char = substr($posttext,$i + 1,1);
+           $current_char = substr($text,$i,1);
+           if ($i < strlen($text) - 1) {
+               $next_char = substr($text,$i + 1,1);
            }
            else {
                $next_char = "";
@@ -417,15 +440,15 @@ function html_substr($posttext, $minimum_length = 200, $length_offset = 20, $cut
            // Check if the counter has reached the minimum length yet,
            // then wait for the tag_counter to become 0, and chop the string there
            if ($c > $minimum_length - $length_offset && $tag_counter == 0 && ($next_char == ' ' || $cut_words == TRUE)) {
-               $posttext = substr($posttext,0,$i + 1);             
+               $text = substr($text,0,$i + 1);             
                if($dots){
-                   $posttext .= '...';
+                   $text .= $dots;
                }
-               return $posttext;
+               return $tag_open.$text.$tag_close;
            }
        }
    } 
-   return $posttext;
+   return $tag_open.$text.$tag_close;
 }
 
 ?>
