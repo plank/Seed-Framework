@@ -24,6 +24,10 @@ class Template {
 	 * @var string
 	 */
 	var $layout;
+	
+	/**
+	 * @var array
+	 */
 	var $params;
 	
 	/**
@@ -305,6 +309,14 @@ class Template {
 		$links = new PaginationView($this, $paginator);
 		
 		return $links->generate();
+	}
+	
+	function get_params() {
+		$params = $this->controller->request->get;
+		unset($params['url']);
+
+		return $params;
+		
 	}
 }
 
