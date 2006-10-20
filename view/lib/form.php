@@ -517,12 +517,31 @@ class SelectFormControl extends FormControl {
 		$this->params['id'] = $this->name;		
 		$this->params['name'] = $this->name;
 		
+		if (is_string($this->options)) {
+			$this->options = $this->get_options($this->options);	
+		}
+		
 		$return = "<select ".$this->get_attributes().">";
 		$return .= make_options($this->options, $this->value, '', true);
 		$return .= "</select>";
 		
 		return $return;
 	}
+	
+	function get_options($type) {
+		$finder = Finder::factory($type);
+		
+		$result = array();
+		
+		$options = $finder->find('all');
+		
+		while($option = $options->next()) {
+			$result[$option->get_id()] = $option->get($option->name_field);	
+		}
+		
+		return $result;
+	}
+	
 }
 
 /**
