@@ -107,7 +107,7 @@ class Finder {
 	 * Finds objects of the class type with a given criterea
 	 *
 	 * @static 
-	 * @param mixed $args,...
+	 * @param mixed $args,...  last argument can be an array of options, which can include; select, joins, conditions, group, order, limit, offset
 	 * @return mixed
 	 */
 	function & find($args) {
