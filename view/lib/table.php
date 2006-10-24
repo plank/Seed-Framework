@@ -166,7 +166,6 @@ class Table {
 	 */
 	function setup() {
 		$this->add_column('text', 'title', 'Title');
-		$this->row_actions = array('Edit'=>'edit', 'Delete'=>'delete');
 
 	}
 	
@@ -433,7 +432,7 @@ class Table {
 			
 			$skip = false;
 			
-			if (isset($only)) {
+			if (is_array($only)) {
 				$skip = true;
 				
 				foreach ($only as $field => $value) {
@@ -443,7 +442,7 @@ class Table {
 				}
 			}
 			
-			if (isset($except)) {
+			if (is_array($except)) {
 				foreach ($except as $field => $value) {
 					if ($row->get($field) == $value) {
 						$skip = true;	
