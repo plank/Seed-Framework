@@ -638,7 +638,7 @@ class DateFormControl extends FormControl {
 		$blank = false;
 		$date = new Date($this->value);
 		
-		$return = "<select name='$this->name[year]'>".make_number_options($date->get_year() - 15, $date->get_year() + 15, $date->get_year()) ."</select>\n";
+		$return = "<select name='$this->name[year]'>".make_number_options($date->get_year() - 100, $date->get_year() + 15, $date->get_year()) ."</select>\n";
 		if ($discard == 'months') { $blank = true; }
 		
 		if ($blank) {
@@ -795,7 +795,7 @@ function make_number_options($min, $max, $default_value, $zero_padded = false) {
  *
  * @return string
  */
-function make_options($data, $default_value = '', $not_found = '', $use_numeric_keys = false) {
+function make_options($data, $default_value = '', $not_found = '', $use_numeric_keys = false, $escape = true) {
 
 	$return = '';
 	
@@ -803,7 +803,11 @@ function make_options($data, $default_value = '', $not_found = '', $use_numeric_
 		$return .= "<option";
 		
 		if (is_string($key) || $use_numeric_keys) {
-			$return .= " value='".htmlentities($key, ENT_QUOTES, 'UTF-8')."'";
+			if ($escape) {
+				$return .= " value='".htmlentities($key, ENT_QUOTES, 'UTF-8')."'";
+			} else {
+				$return .= " value='".$key."'";
+			}
 		} else {
 			$key = $value;
 		}
@@ -814,7 +818,11 @@ function make_options($data, $default_value = '', $not_found = '', $use_numeric_
 			
 		}
 		
-		$return .= ">".htmlentities($value, ENT_QUOTES, 'UTF-8')."</option>\n";
+		if ($escape) {
+			$return .= ">".htmlentities($value, ENT_QUOTES, 'UTF-8')."</option>\n";
+		} else {
+			$return .= ">".$value."</option>\n";
+		}
 		
 	}
 
