@@ -8,6 +8,8 @@
  * @package model
  */
 
+seed_include('library/this');
+
 /**
  * Base class for model objects, implements basic get/set
  *
