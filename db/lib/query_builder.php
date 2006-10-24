@@ -79,6 +79,7 @@ class SelectQueryBuilder {
 		$this->reset_fields();
 		$this->reset_conditions();
 		$this->reset_joins();
+		$this->reset_group_by();
 		$this->limit = 0;
 		$this->offset = 0;
 		$this->order = '';
