@@ -46,6 +46,10 @@ class AbstractUploader {
 		return false;
 		
 	}
+
+	function get_upload_file_name($field, $filename) {
+		return $filename;
+	}
 	
 	function update_model($field, $filename) {
 		return true;
@@ -103,7 +107,7 @@ class AbstractUploader {
 		}
 		
 		// get the path for the new file
-		$new_path = $upload_path.$file['name'];
+		$new_path = $upload_path.$this->get_upload_file_name($field, $file['name']);
 		
 		$new_file = new File($new_path);
 		
@@ -123,9 +127,9 @@ class AbstractUploader {
 				$x ++;
 			}
 			
-			$filename = basename($new_path);
-			
 		} 
+
+		$filename = basename($new_path);		
 		
 		// try to move the upload file
 		if ($this->move_file($file['tmp_name'], $new_path)) {
@@ -208,8 +212,12 @@ class Uploader extends AbstractUploader {
 		return $this->model->upload_path($field);
 	}
 	
+	function get_upload_file_name($field, $filename) {
+		return $this->model->upload_file_name($filename, $field);
+	}
+	
 	function update_model($field, $filename) {
-		$this->model->set($field, $this->model->upload_file_name($filename, $field));		
+		$this->model->set($field, $filename);		
 	}
 	
 	function move_file($source, $destination) {
