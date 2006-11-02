@@ -1094,4 +1094,16 @@ class ModelIterator extends SeedIterator {
 		return $this->iterator->reset();
 	
 	}
+	
+	function to_name_array() {
+		$result = array();
+		
+		while($option = $this->next()) {
+			$result[$option->get_id()] = $option->get($option->name_field);	
+		}
+		
+		return $result;		
+		
+	}
+	
 }
