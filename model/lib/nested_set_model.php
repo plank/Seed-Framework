@@ -302,7 +302,8 @@ class NestedSetModel extends Model {
 	 * @return ModelIterator
 	 */
 	function full_set($conditions = '1') {
-		return $this->find('all', array('conditions' => "$conditions AND (".$this->left_column." >= ".$this->get_left().") and (".$this->right_column." <= ".$this->get_right().")", 'order'=>'lft ASC'));
+		$finder = $this->finder();
+		return $finder->find('all', array('conditions' => "$conditions AND (".$this->left_column." >= ".$this->get_left().") and (".$this->right_column." <= ".$this->get_right().")", 'order'=>'lft ASC'));
 	}
 	
 	/**
@@ -311,7 +312,8 @@ class NestedSetModel extends Model {
 	 * @return ModelIterator
 	 */
 	function all_children($conditions = '1') {
-		return $this->find('all', array('conditions' => "$conditions AND (".$this->left_column." > ".$this->get_left().") and (".$this->right_column." < ".$this->get_right().")", 'order'=>'lft ASC'));
+		$finder = $this->finder();
+		return $finder->find('all', array('conditions' => "$conditions AND (".$this->left_column." > ".$this->get_left().") and (".$this->right_column." < ".$this->get_right().")", 'order'=>'lft ASC'));
 	}
 	
 	/**
