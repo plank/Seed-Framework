@@ -395,6 +395,10 @@ class MultilangModel extends Model {
 	 */
 	
 	function change_flag($from, $to) {
+		if (!$this->get_id()) {
+			return false;	
+		}
+		
 		$lang = $this->version->get($this->language_field);
 		$finder = $this->version->finder();
 		
@@ -404,6 +408,16 @@ class MultilangModel extends Model {
 		);
 		
 	}	
+	
+	/**
+	 * Returns a merged data dump of the record and the version record
+	 *
+	 * @return array
+	 */
+	function dump_data() {
+		return array_merge(parent::dump_data(), $this->version->dump_data(), array($this->id_field=>$this->id));	
+		
+	}
 	
 	
 }
