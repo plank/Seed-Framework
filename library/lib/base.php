@@ -451,4 +451,25 @@ function html_substr($text, $minimum_length = 200, $length_offset = 20, $cut_wor
    return $tag_open.$text.$tag_close;
 }
 
+/**
+ * Formats a date
+ *
+ * @param string $format  The format of the date, same as date() function
+ * @param mixed $date	  Can either be a string representation of a date, or a timestamp; null or false values will make the function return false
+ * @return string		  The formated date, or false if the date value was null or false
+ */
+function format_date($format, $date = null) {
+	
+	if (is_null($date) || !$date || $date == '0000-00-00 00:00:00') {
+		return false;	
+	}
+	
+	if (!is_numeric($date)) {
+		$date = strtotime($date);	
+	}
+	
+	return date($format, $date);
+	
+}
+
 ?>
