@@ -12,6 +12,14 @@ class Finder {
 	 */
 	var $model;
 	
+	/**
+	 * @var string
+	 */
+	var $last_query;
+	
+	/**
+	 * Constructor
+	 */
 	function Finder(& $db) {
 		$this->db = & $db;
 		
@@ -122,6 +130,12 @@ class Finder {
 		} else {
 			$options = array();
 			
+		}
+		
+		// if the first argument is null or evaluates to false, return false
+		if (is_null($args[0]) || !$args[0]) {
+			$result = false;
+			return $result;
 		}
 		
 		if ($args[0] == 'first') {
@@ -259,6 +273,8 @@ class Finder {
 	}
 	
 	function & find_by_sql($sql) {
+		$this->last_query = $sql;
+		
 		$result = new ModelIterator($this->db->query_iterator($sql), $this->get_type());
 		
 		return $result;
