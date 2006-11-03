@@ -1089,17 +1089,30 @@ class ModelIterator extends SeedIterator {
 		$model->assign($this->iterator->next());
 		return $model;
 	}
-	
+
+	/**
+	 * Resets the iterator to the beginning
+	 */
 	function reset() {
 		return $this->iterator->reset();
 	
 	}
 	
-	function to_name_array() {
+	/**
+	 * Returns an array of values of a given field
+	 *
+	 * @param string $field  The field to return as values. Defaults to the name field.
+	 * @return array
+	 */
+	function to_name_array($field = null) {
 		$result = array();
 		
+		if (is_null($field)) {
+			$field = $option->name_field;	
+		}
+		
 		while($option = $this->next()) {
-			$result[$option->get_id()] = $option->get($option->name_field);	
+			$result[$option->get_id()] = $option->get($field);	
 		}
 		
 		return $result;		
