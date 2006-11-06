@@ -18,22 +18,27 @@ if (!defined('E_STRICT')) {
 }
 
 /**
- * A custom error handler
+ * Require the appropriate error handler
  */
-function error_handler($errno, $errstr, $errfile, $errline)
-{
-	// ignore e_strict errors
-	if ($errno == E_STRICT) {
-		return;	
+function seed_set_error_handler($handler = null) {
+	if (is_null($handler)) {
+		return restore_error_handler();
 	}
 	
-	message(error_string($errno), $errstr, "occured in $errfile in line $errline\n");
-	die();
+	$filename = dirname(__FILE__).'/error/'.$handler.'.php';	
+	
+	if (!file_exists($filename)) {
+		return false;	
+	}
+	
+	require_once($filename);
+
+	set_error_handler('error_handler');
+	ini_set('display_errors', 1);
+	ini_set('html_errors', 0);
+	
 }
 
-set_error_handler('error_handler');
-ini_set('display_errors', 1);
-ini_set('html_errors', 0);
 
 /**
  * Prints a debug message to screen

@@ -173,6 +173,8 @@ class SeedFramework {
 		// include the app's environment config file
 		$this->include_environment_config();
 
+		$this->set_error_handler();
+		
 		// include application files
 		$this->include_application_files();
 		
@@ -293,6 +295,18 @@ class SeedFramework {
 		} else {
 			trigger_error('No environment defined, please define ENVIRONMENT in the config file', E_USER_WARNING);
 		}		
+	}
+	
+	/**
+	 * Sets the error handler, defaults to dev if one isn't explicitely set
+	 */
+	function set_error_handler() {
+		if (!defined('ERROR_HANDLER')) {
+			define('ERROR_HANDLER', 'dev');
+		} 
+			
+		return seed_set_error_handler(ERROR_HANDLER);	
+		
 	}
 	
 	/**
