@@ -108,35 +108,10 @@ function array_diff_by_key($array1, $array2) {
 	return $result;
 }
 
-if (!function_exists('array_combine')) {
-	
-	/**
-	 * Creates an array by using one array for keys and another for its values
-	 *
-	 * @param array $keys
-	 * @param array $values
-	 * @return array
-	 */
-	function array_combine($keys, $values) {
-		if (count($keys) != count($values) || !count($keys)) {
-			return false;
-		}
-		
-		$keys = array_values($keys);
-		$values = array_values($values);
-			
-		for($x = 0; $x < count($keys); $x++) {
-			$result[$keys[$x]] = $values[$x];	
-			
-		}	
-		
-		return $result;
-		
-	}	
-	
-}
-
-
+/**
+ * Works like array combine, but works when the array are of different sizes. If there are more keys than values,
+ * values will be set to null; if there are more values, they will be discarded 
+ */
 function array_combine_resized($keys, $values) {
 	foreach($keys as $key) {
 		$result[$key] = array_shift($values);
@@ -144,7 +119,6 @@ function array_combine_resized($keys, $values) {
 	
 	return $result;	
 }
-
 
 
 /**
@@ -216,6 +190,19 @@ function is_valid_email_address($email) {
 	$addr_spec = "$local_part\\x40$domain";
 
 	return preg_match("!^$addr_spec$!", $email) ? true : false;
+}
+
+/**
+ * Checks if a given url is valid
+ * This check is not nearly as rigorous as the email one, this should be fixed in the future
+ *
+ * @param string $url  The url to check
+ * @return bool
+ */
+function is_valid_url($url) {
+	$regex = '/(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/';
+	
+	return preg_match($regex, $url) ? true : false;
 }
 
 /**
@@ -471,5 +458,19 @@ function format_date($format, $date = null) {
 	return date($format, $date);
 	
 }
+
+/**
+ * Erases and turns off all output buffers
+ *
+ */
+function ob_end_clean_all() {
+	while(ob_get_level()) {
+		if (!ob_end_clean()) {
+			return;	
+		}	
+	}	
+	
+}
+
 
 ?>
