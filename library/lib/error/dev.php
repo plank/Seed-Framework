@@ -1,12 +1,11 @@
 <?php
 
-
-
 /**
- * Error handler for dev
+ * Error handler for development
  */
 function error_handler($errno, $errstr, $errfile, $errline)
 {
+	// ignore suppressed errors
 	if (error_reporting() == 0) {
 		return;	
 	}
@@ -16,6 +15,7 @@ function error_handler($errno, $errstr, $errfile, $errline)
 		return;	
 	}
 	
+	// clean all buffers
 	ob_end_clean_all();
 	
 	message(error_string($errno), $errstr, "occured in $errfile in line $errline\n");
