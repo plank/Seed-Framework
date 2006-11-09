@@ -19,18 +19,148 @@ require_once('iterator.php');
  *
  */
 class File {
+	/**
+	 * @var string
+	 */
 	var $path;
+	
+	/**
+	 * @var resource
+	 */
+	var $handle;
+	
+	/**
+	 * @var string
+	 */
+	var $mode;
 	
 	/**
 	 * Constructor
 	 *
 	 * @param string $path
+	 * @param string $mode  If a mode is given, the file is opened for IO in that mode
 	 * @return File
 	 */
-	function File($path) {
+	function File($path, $mode = null) {
 		$this->path = $path;
+		
+		if (isset($mode)) {
+			
+			$this->open($mode);	
+		}
+		
 	}
 
+	//// IO methods ////
+	
+	/**
+	 * Opens the current file with the given mode
+	 *
+	 * @param string $mode  r  Read-only, starts at beginning of file (default mode).
+	 *						r+ Read-write, starts at beginning of file.
+	 *						w  Write-only, truncates existing file to zero length or creates a new file for writing.
+	 *						w+ Read-write, truncates existing file to zero length or creates a new file for reading and writing.
+	 *						a  Write-only, starts at end of file if file exists, otherwise creates a new file for writing.
+	 *						a+ Read-write, starts at end of file if file exists, otherwise creates a new file for reading and writing.
+	 *						b  (DOS/Windows only) Binary file mode (may appear with any of the key letters listed above). 
+	 */
+	function open($mode = 'r') {
+		$this->handle = fopen($this->path, $mode);	
+		$this->mode = $mode;
+		
+	}
+	
+	/**
+	 * Returns true if the file is open for reading/writing
+	 *
+	 * @return bool
+	 */
+	function is_open() {
+		return (!is_null($this->handle)) && $this->handle;	
+	}
+	
+	/**
+	 * Reads a line or given number of bytes from a file
+	 *
+	 * @param int $length
+	 * @return string
+	 */
+	function read_line($length = null) {
+		if ($this->is_open()) {
+			return fgets($this->handle, $length);
+		} 
+		
+		return false;
+	}
+	
+	/**
+	 * Writes a string to a file
+	 *
+	 * @param string $string
+	 */
+	function write($string) {
+		if ($this->is_open()) {
+			return fwrite($this->handle, $string);
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Close the file
+	 */
+	function close() {
+		if ($this->is_open()) {
+			fclose($this->handle);	
+			$this->handle = null;
+		}	
+		
+		$this->mode = null;
+		
+	}
+	
+	/**
+	 * Outputs the file to the browser.
+	 *
+	 */
+	function output_contents() {
+		if ($this->exists()) {
+			readfile($this->path);
+		}	
+	}
+	
+	/**
+	 * Returns the contents of the file.
+	 *
+	 * @return string
+	 */
+	function get_contents() {
+		if ($this->exists()) {
+			return file_get_contents($this->path);
+		}
+		
+	}
+	
+	
+	/**
+	 * Returns an iterator for reading the file contents
+	 *
+	 * @return FileLineIterator
+	 */
+	function & get_iterator() {
+		if ($this->exists()) {
+			$result = new FileLineIterator($this);
+		} else {
+			$result = false;		
+		}
+	
+		return $result;		
+		
+		
+	}	
+	
+	//// Filesystem methods ////
+	
 	/**
 	 * Returns the complete path represented by this file
 	 *
@@ -245,45 +375,6 @@ class File {
 		}
 		
 		return true;
-		
-	}
-
-	/**
-	 * Outputs the file to the browser.
-	 *
-	 */
-	function output_contents() {
-		if ($this->exists()) {
-			readfile($this->path);
-		}	
-	}
-	
-	/**
-	 * Returns the contents of the file.
-	 *
-	 * @return string
-	 */
-	function get_contents() {
-		if ($this->exists()) {
-			return file_get_contents($this->path);
-		}
-		
-	}
-	
-	/**
-	 * Returns an iterator for reading the file contents
-	 *
-	 * @return FileLineIterator
-	 */
-	function & get_iterator() {
-		if ($this->exists()) {
-			$result = new FileLineIterator($this);
-		} else {
-			$result = false;		
-		}
-	
-		return $result;		
-		
 		
 	}
 	
