@@ -1,5 +1,5 @@
 <h1>List</h1>
-<p><?php print $this->link_to('Add an item', array('action'=>'add')); ?><p/>
+<p><?php print $this->link_to('Add an item', array('action'=>'add')); ?></p>
 <?php 
 
 if ($this->table) {
