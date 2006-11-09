@@ -133,16 +133,16 @@ class AbstractUploader {
 		
 		// try to move the upload file
 		if ($this->move_file($file['tmp_name'], $new_path)) {
-			// succeeded
-			$this->update_model($field, $filename);
-			
-			chmod($new_path, 0777);
-			
 			if (isset($backup_paths)) {
 				foreach($backup_paths as $backup_path) {
 					copy($new_path, str_replace($upload_path, $backup_path, $new_path));
 				}	
 			}
+			
+			// succeeded
+			$this->update_model($field, $filename);
+			
+			chmod($new_path, 0777);
 			
 		} else {
 			// failed

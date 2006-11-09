@@ -687,9 +687,6 @@ class DateFormControl extends FormControl {
  * @subpackage html
  */
 class ImageFormControl extends FormControl {
-/*	function generate_label() {
-		return "<th>&nbsp;</th>";		
-	}*/
 	
 	function generate_control() {
 
