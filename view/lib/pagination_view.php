@@ -123,7 +123,13 @@ class PaginationView {
 			$text = $page_number;	
 		}
 		
-		return $this->controller->link_to($text, null, array('page'=>$page_number), null);	
+		$params = array();
+		if (isset($_GET['lang'])) {
+			$params['lang'] = $_GET['lang'];	
+		}
+		
+		$params['page'] = $page_number;
+		return $this->controller->link_to($text, null, $params, null);	
 		
 	}
 	
