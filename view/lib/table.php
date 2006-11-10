@@ -165,8 +165,30 @@ class Table {
 	 * default setup
 	 */
 	function setup() {
-		$this->add_column('text', 'title', 'Title');
+		$this->auto_setup();
 
+	}
+	
+	/**
+	 * Automatically sets up columns
+	 */
+	function auto_setup() {
+		$type = $this->result->model_type;
+
+		$model = Model::factory($type);
+		
+		foreach($model->columns as $column) {
+			if ($column->type != 'text') {
+				continue;	
+			}
+			
+			$this->add_column('text', $column->name);	
+			
+		}
+		
+		$this->add_row_action('Edit', array('action'=>'edit'));
+		$this->add_row_action('Delete', array('action'=>'delete'), array('confirm'=>'Delete this '.$type.'?'));
+				
 	}
 	
 	function row_actions($param) {

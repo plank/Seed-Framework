@@ -127,6 +127,41 @@ class Form {
 	 *
 	 */
 	function setup() {
+		$this->auto_setup();	
+	}
+	
+	function auto_setup() {
+		
+		if(!is_a($this->data, 'Model')) {
+			return false;	
+		}
+		
+		foreach($this->data->columns as $columns) {
+			switch (true) {
+				case $columns->name == 'id':
+					$this->hidden_fields = array('id');
+					break;
+			
+				case $columns->type == 'text':
+					$this->add_control('input', $columns->name);
+					break;
+					
+				case $columns->type == 'integer':
+					$key = substr($columns->name, 0, strlen($columns->name) - 3);
+				
+					if (isset($this->data->belongs_to_data[$key])) {
+						$this->add_control('select', $columns->name, ucfirst($key), null, $key);	
+					}
+					
+					break;
+			}
+			
+		}
+		
+		$this->add_button('submit', 'Save');
+		$this->add_button('cancel', 'Cancel');	
+		
+		return true;
 		
 	}
 	

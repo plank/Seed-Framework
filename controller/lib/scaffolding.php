@@ -134,7 +134,10 @@ class Scaffolding {
 	 *
 	 */
 	function add() {
-		$this->controller->template->form = Form::factory($this->get_type());
+		$type = $this->get_type();
+		$model = Model::factory($type);
+		
+		$this->controller->template->form = Form::factory($type, $model);
 		$this->controller->template->form->action = $this->controller->url_for(array('action'=>'insert'));
 		
 		$this->render_scaffold('add');
