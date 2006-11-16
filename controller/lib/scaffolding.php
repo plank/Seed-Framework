@@ -76,7 +76,7 @@ class Scaffolding {
 		
 		$this->controller->template->table = & Table::factory($this->get_type(), $result, $this->controller);
 
-		$this->render_scaffold('index');
+		$this->_render_scaffold('index');
 
 	}
 	
@@ -94,11 +94,17 @@ class Scaffolding {
 			$model = $finder->find($id);
 			
 			$this->controller->template->$type = $model;
+			
+			if (isset($this->controller->has_many)) {
+				$this->controller->template->table = Table::factory($this->controller->has_many, $model->get($this->controller->has_many), $this->controller);	
+				
+			}
+			
 		} else {
 			trigger_error('no id', E_USER_WARNING);
 		}
 		
-		$this->render_scaffold('view');
+		$this->_render_scaffold('view');
 		
 	}
 	
@@ -125,7 +131,7 @@ class Scaffolding {
 			
 		}
 		
-		$this->render_scaffold('edit');
+		$this->_render_scaffold('edit');
 		
 	}
 	
@@ -134,13 +140,21 @@ class Scaffolding {
 	 *
 	 */
 	function add() {
+		
+		$id = assign($this->controller->params['id'], 0);
 		$type = $this->get_type();
 		$model = Model::factory($type);
+		
+		// if we have an id and we've defined a belongs_to, assign that ID to it
+		if ($id && isset($model->belongs_to_data) && count($model->belongs_to_data)) {
+			$data = current($model->belongs_to_data);
+			$model->set($data['foreign_key'], $id);
+		}
 		
 		$this->controller->template->form = Form::factory($type, $model);
 		$this->controller->template->form->action = $this->controller->url_for(array('action'=>'insert'));
 		
-		$this->render_scaffold('add');
+		$this->_render_scaffold('add');
 	}
 	
 	/**
@@ -159,7 +173,7 @@ class Scaffolding {
 			$this->controller->flash->next('flag', 'result: the item was successfully deleted');						
 		}
 		
-		$this->controller->redirect(array('action'=>'index'));
+		$this->_redirect_back($model);
 
 	}
 	
@@ -190,7 +204,7 @@ class Scaffolding {
 			}
 		}
 		
-		$this->controller->redirect(array('action'=>'index'));
+		$this->_redirect_back($model);
 
 	}
 	
@@ -204,13 +218,14 @@ class Scaffolding {
 		if (!isset($this->controller->params['id'])) {
 			trigger_error('No id for update', E_USER_WARNING);
 			
-		} elseif (!isset($this->controller->params['cancel'])) {
-			$id = $this->controller->params['id'];
-			
-			$finder = Finder::factory($this->get_type());
-			$model = $finder->find($id);
-			$model->assign($this->controller->request->post);
-			
+		} 
+		
+		$id = $this->controller->params['id'];
+		$finder = Finder::factory($this->get_type());
+		$model = $finder->find($id);
+		$model->assign($this->controller->request->post);
+		
+		if (!isset($this->controller->params['cancel'])) {
 			if (count($this->controller->request->files)) {
 				$uploader = new Uploader($model);
 				
@@ -230,14 +245,41 @@ class Scaffolding {
 			
 		}
 
-		$this->controller->redirect(array('action'=>'index'));
+		$this->_redirect_back($model);
 		
 	}
 
+	
+	// redirects either to the index, or the parent model's view, as appropriate
+	function _redirect_back($model = null) {
+		// going back to parent
+		if (isset($this->controller->belongs_to) && !is_null($model)) {
+			$belongs_to = $this->controller->belongs_to;
+
+			if (isset($model->belongs_to_data[$belongs_to])) {
+				$id = $model->get($model->belongs_to_data[$belongs_to]['foreign_key']);
+				
+			}
+			
+			// id will need to be redone!
+			$this->controller->redirect(array('controller'=>$belongs_to, 'action'=>'view', 'id'=>$id));	
+			
+		} elseif (isset($this->controller->has_many)) {
+			$this->controller->redirect(array('action'=>'view', 'id'=>$model->id));	
+			
+		} else {
+			$this->controller->redirect(array('action'=>'index'));
+			
+		}		
+		
+		return true;
+		
+	}	
+	
 	/**
 	 * Attempts to render a user template, and if one isn't found, renders a scaffold template
 	 */
-	function render_scaffold($action) {
+	function _render_scaffold($action) {
 		if (file_exists($this->controller->get_template_name($action))) {
 			$this->controller->render();	
 		} else {
