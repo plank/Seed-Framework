@@ -142,9 +142,14 @@ class Form {
 					$this->hidden_fields = array('id');
 					break;
 			
-				case $columns->type == 'text':
+				case $columns->type == 'string':
 					$this->add_control('input', $columns->name);
 					break;
+
+				case $columns->type == 'text':
+					$this->add_control('textarea', $columns->name);
+					break;
+
 					
 				case $columns->type == 'integer':
 					$key = substr($columns->name, 0, strlen($columns->name) - 3);
@@ -825,11 +830,20 @@ function make_number_options($min, $max, $default_value, $zero_padded = false) {
 /**
  * Returns a string of <option>s for a given array
  *
+ * @param array $data			  The array of data to display
+ * @param string $default_value   The option to select
+ * @param string $not_found		  An optional value to display if the default value is not found
+ * @param bool $use_numeric_keys  If true, use the keys as options values; this is always true for string keys
+ * @param bool $escape			  If true, escapes html
  * @return string
  */
 function make_options($data, $default_value = '', $not_found = '', $use_numeric_keys = false, $escape = true) {
 
 	$return = '';
+	
+	if (!is_array($data)) {
+		return false;	
+	}
 	
 	foreach ($data as $key => $value) {
 		$return .= "<option";

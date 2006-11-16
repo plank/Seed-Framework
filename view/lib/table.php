@@ -178,7 +178,7 @@ class Table {
 		$model = Model::factory($type);
 		
 		foreach($model->columns as $column) {
-			if ($column->type != 'text') {
+			if ($column->type != 'string') {
 				continue;	
 			}
 			
@@ -649,8 +649,8 @@ class TableColumn {
 class TextTableColumn extends TableColumn {
 	function generate($value, $id) {
 		if (isset($this->params['max_length'])) {
-			if (strlen($value) > $this->params['max_length']) {
-				$value = substr($value, 0, $this->params['max_length']).'...';	
+			if (strlen(strip_tags($value)) > $this->params['max_length']) {
+				$value = substr(strip_tags($value), 0, $this->params['max_length']).'...';	
 			}
 					
 		}
