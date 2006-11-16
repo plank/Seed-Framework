@@ -472,5 +472,17 @@ function ob_end_clean_all() {
 	
 }
 
+/**
+ * Formats a plaintext string with html paragraphs and breaks
+ *
+ * @param string $string
+ * @return string
+ */
+function nl2p($string) {
+	$regex = array("/(\r{2,}|\n{2,}|(\r\n){2,})+/", "/(\r{1}|\n{1}|(\r\n){1})+/");
+	$replace = array("</p><p>", "<br />");
+	return "<p>".preg_replace($regex, $replace, $string)."</p>";
+	
+}
 
 ?>
