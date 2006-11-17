@@ -10,12 +10,14 @@ class PgsqlDB extends DB {
 
 	/**
 	 * Connection to the database
+	 *
 	 * @var resource
 	 */
 	var $link;
 	
 	/**
 	 * Result of the last query
+	 *
 	 * @var resource
 	 */
 	var $result;
@@ -253,8 +255,8 @@ class PgsqlDB extends DB {
     	}
     	
     	// numeric types
-    	if (preg_match("/^[0-9]+(\.[0-9]*)?/", $value)) {
-    		return $value;	
+    	if (preg_match("/^[0-9]+(\.[0-9]*)?/", $value, $matches)) {
+    		return $matches[0];	
     	}
     	
     	// date / time magic value
