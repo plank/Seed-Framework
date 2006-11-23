@@ -62,15 +62,51 @@ class MysqlDB extends DB {
 			return false;
 		}
 
-		Logger::log('SQL', LOG_LEVEL_DEBUG, $sql);
+		$time = micro_time();
 		
 		$this->result = mysql_query($sql, $this->link);	
+
+		$elapsed = (micro_time() - $time) * 1000;
+		
+		Logger::log('SQL', LOG_LEVEL_DEBUG, $sql."\t".$elapsed.' ms');		
+		
+		// describe queries
+		if (defined('EXPLAIN_QUERIES') && EXPLAIN_QUERIES) {
+			$result = $this->explain($sql);
+		
+			if ($result) {
+				Logger::log('SQL', LOG_LEVEL_DEBUG, print_r($result, true));		
+			}
+			
+		}
 		
 		if ($this->result == false) {
 			trigger_error(mysql_error($this->link)."\n".$sql, E_USER_ERROR);
 		}
 		
 		return $this->result;
+	}
+	
+	function explain($sql) {
+		if (strtoupper(substr(trim($sql), 0, 6)) != 'SELECT') {
+			return false;	
+		}
+		
+		$result = mysql_query("EXPLAIN ".$sql);
+
+		if (!$result) {
+			return false;	
+		}
+		while ($row = mysql_fetch_assoc($result)) {
+			if (isset($primary_key) && key_exists($primary_key, $row)) {
+				$return[$row[$primary_key]] = $row;	
+			} else {
+				$return[] = $row;
+			}
+		}		
+		
+		return $return;
+
 	}
 	
 	function query_iterator($sql) {
@@ -149,7 +185,15 @@ class MysqlDB extends DB {
 	 */
 	function insert_id() {
 		return mysql_insert_id($this->link);	
+	}
 	
+	/**
+	 * Returns the number of rows affected by the last query
+	 *
+	 * @return int
+	 */
+	function affected_rows() {
+		return mysql_affected_rows($this->link);	
 	}
 	
 	/**

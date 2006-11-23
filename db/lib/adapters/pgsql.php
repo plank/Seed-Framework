@@ -153,11 +153,17 @@ class PgsqlDB extends DB {
 	function insert_id($table_name = '', $id_name = '') {
 		return $this->query_value("select currval('{$table_name}_{$id_name}_seq')");
 		
-		// need to : select currval('tablename_idname_seq');
-		return pg_insert_id($this->link);	
 	
 	}
 	
+	/**
+	 * Returns the number of rows affected by the last query
+	 *
+	 * @return int
+	 */	
+	function affected_rows() {
+		return pg_affected_rows($this->link);	
+	}
 
 	
 	/**
