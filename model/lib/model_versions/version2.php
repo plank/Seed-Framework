@@ -37,6 +37,10 @@ class DataSpace {
 			$this->data = array();	
 		}
 	}
+
+	function find_associated() {
+		return null;	
+	}
 	
 	/**
 	 * Generic getter method. First checks for the existance of a method called get_$field
@@ -59,127 +63,16 @@ class DataSpace {
 			return call_user_func_array(array(& $this, 'get_'.$field), $args);
 		} 
 		
-		if (isset($this->belongs_to_data[$field])) {
-			
-			$options = $this->belongs_to_data[$field];
+		$result = $this->find_associated($field);
 
-			if (!isset($options['order'])) {
-				$options['order'] = null;	
-			}			
-
-			
-			if (!key_exists($options['foreign_key'], $this->data)) {
-				return null;	
-			}
-			
-			if ($options['polymorphic']) {
-				$class_name = $this->data[$field.'_type'];
-			} else {
-				$class_name = $options['class_name'];
-			}
-			
-			$foreign_key = $options['foreign_key'];
-			
-			$finder = Finder::factory($class_name);
-
-			return $finder->find('first', array(
-				'conditions' => $finder->id_field()." = ".$this->data[$foreign_key]." AND ".$options['conditions'],
-				'order' => $options['order']
-			));
-			
+		if (!is_null($result)) {
+			return $result;
 		}
-		
-		if (isset($this->has_one_data[$field])) {
-			$options = $this->has_one_data[$field];
-			
-			if (!isset($options['order'])) {
-				$options['order'] = null;	
-			}
-						
-			$finder = Finder::factory($options['class_name']);
-			
-			return $finder->find('first', array(
-				'conditions' => $options['foreign_key']." = ".$this->get_id()." AND ".$options['conditions'],
-				'order' => $options['order']
-			));			
-			
-		}
-
-		
-		if (isset($this->has_many_data[$field])) {
-			
-			$options = $this->has_many_data[$field];
-			
-			if (!isset($options['order'])) {
-				$options['order'] = null;	
-			}
-						
-			$finder = Finder::factory($options['class_name']);
-			
-			// choose the table the conditions will be applied to
-			if ($options['through']) {
-				$join_model = Model::factory($options['through']);
-				
-				$table_name = $join_model->table;
-					
-			} else {
-				$table_name = $finder->table_name();	
-				
-			}
-			
-			$condition = $table_name.'.'.$options['foreign_key']." = ".$this->get_id();
-			
-			if ($options['as']) {
-				$condition .= ' AND '.$table_name.'.'.$options['as']."_type = '".$this->type."'";
-			}
-			
-			if ($options['through']) {
-				$select = $finder->table_name().'.*';
-				
-				$join = $join_model->table.' ON '.$finder->table_name().'.'.$join_model->type.'_id = '.$join_model->table.'.id';
-
-				return $finder->find('all', array(
-					'select' => $select,
-					'joins' => $join,
-					'conditions' => $condition." AND ".$options['conditions'],
-					'order' => $options['order']
-				));
-				
-			} else {
-			
-				return $finder->find('all', array(
-					'conditions' => $condition." AND ".$options['conditions'],
-					'order' => $options['order']
-				));		
-			
-			}	
-			
-		}
-		
-		if (isset($this->has_and_belongs_to_many_data[$field])) {
-			
-			$options = $this->has_and_belongs_to_many_data[$field];
-			
-			if (!isset($options['order'])) {
-				$options['order'] = null;	
-			}
-						
-			$finder = Finder::factory($options['class_name']);
-			
-			return $finder->find('all', array(
-				'conditions' => $options['foreign_key']." = ".$this->get_id()." AND ".$options['conditions'],
-				'joins' => $options['join_table'].' ON '.$options['join_table'].'.'.$options['association_foreign_key'].' = '.$finder->table_name().'.'.$finder->id_field(),
-				'order' => $options['order']
-			));			
-			
-		}		
-		
 		
 		if (isset($this->data[$field])) {
 			return $this->data[$field]; 
-		}
+		}	
 		
-		return null;
 	}
 	
 	/**
@@ -642,6 +535,271 @@ class Model extends DataSpace {
 		$this->has_and_belongs_to_many_data[$field] = $options;		
 	}
 	
+	/**
+	 * Handle retrieving belongs_to associated fields
+	 *
+	 * @param string $field  The association to retrieve
+	 * @param array $params  Additional params to pass, should generally be limited to sort, limit and offset
+	 * @param bool $count	 If this is true, this will simply retrieve a count
+	 * @return mixed
+	 */
+	function _handle_belongs_to($field, $params = null, $count = false) {
+		if (!isset($this->belongs_to_data[$field])) {
+			return null;
+		}
+			
+		if (is_null($params)) {
+			$params = array();	
+		}		
+		
+		$options = $this->belongs_to_data[$field];
+
+		if (!isset($options['order'])) {
+			$options['order'] = null;	
+		}			
+		
+		if (!key_exists($options['foreign_key'], $this->data)) {
+			return null;	
+		}
+		
+		if ($options['polymorphic']) {
+			$class_name = $this->data[$field.'_type'];
+		} else {
+			$class_name = $options['class_name'];
+		}
+		
+		$foreign_key = $options['foreign_key'];
+		
+		$finder = Finder::factory($class_name);
+
+		$association_params = array(
+			'conditions' => $finder->id_field()." = ".$this->data[$foreign_key]." AND ".$options['conditions'],
+			'order' => $options['order']
+		);
+		
+		$association_params = array_merge($association_params, $params);
+		
+		if ($count) {
+			return $finder->count($association_params['conditions']);
+		} else {
+			return $finder->find('first', $association_params);
+		}
+		
+	}
+	
+	/**
+	 * Handle retrieving has_one associated fields
+	 *
+	 * @param string $field  The association to retrieve
+	 * @param array $params  Additional params to pass, should generally be limited to sort, limit and offset
+	 * @param bool $count	 If this is true, this will simply retrieve a count
+	 * @return mixed
+	 */
+	function _handle_has_one($field, $params = null, $count = false) {
+		if (!isset($this->has_one_data[$field])) {
+			return null;
+		}
+		
+		if (is_null($params)) {
+			$params = array();	
+		}		
+		
+		$options = $this->has_one_data[$field];
+		
+		if (!isset($options['order'])) {
+			$options['order'] = null;	
+		}
+					
+		$finder = Finder::factory($options['class_name']);
+		
+		
+		$association_params =array(
+			'conditions' => $options['foreign_key']." = ".$this->get_id()." AND ".$options['conditions'],
+			'order' => $options['order']
+		);
+		
+		$association_params = array_merge($association_params, $params);
+		
+		if ($count) {
+			return $finder->count($association_params['conditions']);
+		} else {
+			return $finder->find('first', $association_params);
+		}			
+		
+
+	}
+	
+	/**
+	 * Handle retrieving has_many associated fields
+	 *
+	 * @param string $field  The association to retrieve
+	 * @param array $params  Additional params to pass, should generally be limited to sort, limit and offset
+	 * @param bool $count	 If this is true, this will simply retrieve a count
+	 * @return mixed
+	 */
+	function _handle_has_many($field, $params = null, $count = false) {
+		if (!isset($this->has_many_data[$field])) {
+			return null;
+		}
+		
+		if (is_null($params)) {
+			$params = array();	
+		}
+		
+		$options = $this->has_many_data[$field];
+		
+		if (!isset($options['order'])) {
+			$options['order'] = null;	
+		}
+					
+		$finder = Finder::factory($options['class_name']);
+		
+		// choose the table the conditions will be applied to
+		if ($options['through']) {
+			$join_model = Model::factory($options['through']);
+			
+			$table_name = $join_model->table;
+				
+		} else {
+			$table_name = $finder->table_name();	
+			
+		}
+		
+		$condition = $table_name.'.'.$options['foreign_key']." = ".$this->get_id();
+		
+		if ($options['as']) {
+			$condition .= ' AND '.$table_name.'.'.$options['as']."_type = '".$this->type."'";
+		}
+		
+		if ($options['through']) {
+			$select = $finder->table_name().'.*';
+			
+			$join = $join_model->table.' ON '.$finder->table_name().'.'.$join_model->type.'_id = '.$join_model->table.'.id';
+
+			$association_params = array(
+				'select' => $select,
+				'joins' => $join,
+				'conditions' => $condition." AND ".$options['conditions'],
+				'order' => $options['order']
+			);
+			
+		} else {
+		
+			$association_params = array(
+				'conditions' => $condition." AND ".$options['conditions'],
+				'order' => $options['order']
+			);		
+			
+		}
+
+		$association_params = array_merge($association_params, $params);
+		
+		if ($count) {
+			return $finder->count($association_params['conditions']);
+		} else {
+			return $finder->find('all', $association_params);	
+		}		
+		
+	}
+	
+	/**
+	 * Handle retrieving has_and_belongs_to associated fields
+	 *
+	 * @param string $field  The association to retrieve
+	 * @param array $params  Additional params to pass, should generally be limited to sort, limit and offset
+	 * @param bool $count	 If this is true, this will simply retrieve a count
+	 * @return mixed
+	 */
+	function _handle_has_and_belongs_to_many($field, $params = null, $count = false) {
+		if (!isset($this->has_and_belongs_to_many_data[$field])) {
+			return null;	
+		}
+		
+		if (is_null($params)) {
+			$params = array();	
+		}		
+		
+		$options = $this->has_and_belongs_to_many_data[$field];
+		
+		if (!isset($options['order'])) {
+			$options['order'] = null;	
+		}
+					
+		$finder = Finder::factory($options['class_name']);
+		
+		$association_params = array(
+			'conditions' => $options['foreign_key']." = ".$this->get_id()." AND ".$options['conditions'],
+			'joins' => $options['join_table'].' ON '.$options['join_table'].'.'.$options['association_foreign_key'].' = '.$finder->table_name().'.'.$finder->id_field(),
+			'order' => $options['order']
+		);	
+
+		$association_params = array_merge($association_params, $params);
+		
+		if ($count) {
+			return $finder->count($association_params['conditions']);
+		} else {
+			return $finder->find('all', $association_params);	
+		}		
+		
+	}	
+	
+	/**
+	 * Allows retrieving associated models with additional params
+	 *
+	 * @param string $field
+	 * @param array $parms
+	 * @return mixed  Returns a single model or a collection, depending on the type of association. Will return false if the
+	 * association exists but no records are being returned, and will return null if the association doesn't exist
+	 */
+	function find_associated($field, $params = null) {
+		if (isset($this->belongs_to_data[$field])) {
+			return $this->_handle_belongs_to($field, $params);
+		}
+		
+		if (isset($this->has_one_data[$field])) {
+			return $this->_handle_has_one($field, $params);
+		}
+
+		if (isset($this->has_many_data[$field])) {
+			return $this->_handle_has_many($field, $params);
+		}
+		
+		if (isset($this->has_and_belongs_to_many_data[$field])) {
+			return $this->_handle_has_and_belongs_to_many($field, $params);
+		}
+
+		return null;
+	}
+	
+	/**
+	 * Allows counting of associated models with additional params
+	 *
+	 * @param string $field
+	 * @param array $parms
+	 * @return mixed  Returns a single model or a collection, depending on the type of association. Will return false if the
+	 * association exists but no records are being returned, and will return null if the association doesn't exist
+	 */
+	function count_associated($field, $params = null) {
+		if (isset($this->belongs_to_data[$field])) {
+			return $this->_handle_belongs_to($field, $params, true);
+		}
+		
+		if (isset($this->has_one_data[$field])) {
+			return $this->_handle_has_one($field, $params, true);
+		}
+
+		if (isset($this->has_many_data[$field])) {
+			return $this->_handle_has_many($field, $params, true);
+		}
+		
+		if (isset($this->has_and_belongs_to_many_data[$field])) {
+			return $this->_handle_has_and_belongs_to_many($field, $params, true);
+		}
+
+		return null;
+	}	
+	
+	
 	/** Static methods **/
 	
 	/**
@@ -669,6 +827,8 @@ class Model extends DataSpace {
 	}
 
 	/**
+	 * Factory for models
+	 *
 	 * @static 
 	 * @param string $type
 	 * @return Model
