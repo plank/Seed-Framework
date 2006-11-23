@@ -161,7 +161,7 @@ class FileLogger extends Logger {
 	 */
 	function log($log_level, $message) {
 		$fp = fopen($this->filename, 'a');
-		chmod($this->filename, 0777);
+//		chmod($this->filename, 0777);
 		fwrite($fp, date($this->date_format)."\t".$this->key."\t".$this->log_level_string($log_level)."\t".$message."\n");
 		fclose($fp);
 		
