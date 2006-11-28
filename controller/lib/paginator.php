@@ -228,6 +228,16 @@ class Page {
 	}	
 	
 	/**
+	 * Returns the number of items on the page
+	 *
+	 * @return int
+	 */
+	function item_count() {
+		return $this->last_item() - $this->first_item() + 1;	
+		
+	}
+	
+	/**
 	 * Returns the number of items per page and the offset
 	 *
 	 * @return array
