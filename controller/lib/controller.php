@@ -9,6 +9,109 @@
  */
 
 /**
+ * Factory for controller objects
+ *
+ */
+class ControllerFactory {
+	
+	/**
+	 * An array of key-value pairs, where the key is a type, and the value is the file for that type
+	 *
+	 * @var array
+	 */
+	var $mappings;
+	
+	/**
+	 * Constructor
+	 *
+	 * @return ControllerFactory
+	 */
+	function ControllerFactory() {
+		$this->mappings = array();	
+	}
+	
+	
+	function register($type, $path) {
+		$this->mappings[$type] = $path;	
+	}
+	
+	/**
+	 * Singleton method
+	 * 
+	 * @static 
+	 * @return ControllerFactory
+	 */
+	function & get_instance() {
+		static $instances;
+		
+		if (!isset($instances[0])) {
+			$instances[0] = new ControllerFactory();	
+		}
+		
+		return $instances[0];
+		
+	}
+	
+	/**
+	 * Requires the file for the given type
+	 *
+	 * @param string $type
+	 * @return bool
+	 */
+	function import($type) {
+		$type = strtolower($type);		
+		
+		if (isset($this->mappings[$type])) {
+			$path = $this->mappings[$type];
+		} else {
+			$path = CONTROLLER_PATH.$type.".php";
+		}
+
+		if (!file_exists($path)) {
+			trigger_error("Controller file '$path' does not exist", E_USER_ERROR);	
+			return false;
+		}
+		
+		require_once($path);
+		
+		return true;
+		
+	}
+	
+	/**
+	 * Factory method, returns a controller for the given type
+	 *
+	 * @param string $type
+	 * @return Controller
+	 */
+	function factory($type, $router = null) {
+		
+		$type = strtolower($type);
+		
+		ControllerFactory::import($type);
+		
+		$class_name = Inflector::camelize(basename($type)).'Controller';
+		
+		if (!class_exists($class_name)) {
+			trigger_error("Controller file for '$type' exists, but doesn't contain controller class '$class_name'", E_USER_ERROR);	
+			return false;
+		}
+		
+		$controller = new $class_name;
+		
+		if (!is_a($controller, 'Controller')) {
+			trigger_error("Class '$class_name' doesn't extend Controller", E_USER_ERROR);
+			return false;
+		}
+		
+		$controller->full_type = $type;
+		$controller->router = $router;
+		return $controller;
+	}	
+	
+}
+
+/**
  * Controller
  *
  * @package controller
@@ -185,18 +288,9 @@ class Controller {
 	 * @return bool
 	 */
 	function import($type) {
-		$type = strtolower($type);		
+		$factory = ControllerFactory::get_instance();
 		
-		$path = CONTROLLER_PATH.$type.".php";
-		
-		if (!file_exists($path)) {
-			trigger_error("Controller file '$path' does not exist", E_USER_ERROR);	
-			return false;
-		}
-		
-		require_once($path);
-		
-		return true;
+		return $factory->import($type);
 		
 	}
 	
@@ -207,28 +301,9 @@ class Controller {
 	 * @return Controller
 	 */
 	function factory($type, $router = null) {
-		
-		$type = strtolower($type);
-		
-		Controller::import($type);
-		
-		$class_name = Inflector::camelize(basename($type)).'Controller';
-		
-		if (!class_exists($class_name)) {
-			trigger_error("Controller file for '$type' exists, but doesn't contain controller class '$class_name'", E_USER_ERROR);	
-			return false;
-		}
-		
-		$controller = new $class_name;
-		
-		if (!is_a($controller, 'Controller')) {
-			trigger_error("Class '$class_name' doesn't extend Controller", E_USER_ERROR);
-			return false;
-		}
-		
-		$controller->full_type = $type;
-		$controller->router = $router;
-		return $controller;
+		$factory = ControllerFactory::get_instance();
+
+		return $factory->factory($type, $router);
 	}
 	
 	/**

@@ -8,6 +8,7 @@
  * @package model
  */
 
+
 /**
  * Base class for model objects, implements basic get/set
  *
@@ -373,7 +374,7 @@ class Model extends DataSpace {
 		} else {
 			// order doesn't work for polymorphic classes, as they belong to several classes
 			if (!isset($options['order'])) {
-				$class = model::factory($options['class_name']);
+				$class = Model::factory($options['class_name']);
 				
 				$options['order'] = $class->id_field.' ASC';	
 			}
@@ -811,18 +812,9 @@ class Model extends DataSpace {
 	 * @return bool
 	 */
 	function import($type, $ignore_errors = false) {
-		$type = strtolower($type);
+		$factory = ModelFactory::get_instance();
 		
-		$path = MODEL_PATH.$type.'.php';
-		
-		if (!file_exists($path) && !$ignore_errors) {
-			trigger_error("File for model type '$type' not found in '$path'", E_USER_ERROR);
-			return false;
-		}
-		
-		require_once($path);
-
-		return true;	
+		return $factory->import($type, $ignore_errors);
 	
 	}
 
@@ -834,27 +826,9 @@ class Model extends DataSpace {
 	 * @return Model
 	 */
 	function & factory($type) {
+		$factory = ModelFactory::get_instance();
 		
-		$class_name = Inflector::camelize($type).'Model';
-		
-		if (!class_exists($class_name)) {
-			Model::import($type);
-		}
-		
-		if (!class_exists($class_name)) {
-			trigger_error("Class '$class_name' not found in '$path'", E_USER_ERROR);
-			return false;
-		}
-		
-		$model = new $class_name(DB::get_db());
-		
-		if (!is_a($model, 'Model')) {
-			trigger_error("Class '$class_name' doesn't extend Model", E_USER_ERROR);
-			return false;
-		}
-		
-		return $model;
-
+		return $factory->model($type);
 	}	
 
 	/**

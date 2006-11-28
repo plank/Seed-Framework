@@ -45,11 +45,21 @@ class Finder {
 
 	}		
 	
+	/**
+	 * Return sthe name of the table
+	 *
+	 * @return string
+	 */
 	function table_name() {
 		
 		return $this->model->table_name();
 	}
 	
+	/**
+	 * Returns the name of the field that contains the id
+	 *
+	 * @return int
+	 */
 	function id_field() {
 		return $this->model->id_field;	
 	}
@@ -63,52 +73,23 @@ class Finder {
 	 * @return bool
 	 */
 	function import($type, $ignore_errors = false) {
-		$type = strtolower($type);
+		$factory = ModelFactory::get_instance();
 		
-		$path = MODEL_PATH.$type.'.php';
-		
-		if (!file_exists($path) && !$ignore_errors) {
-			trigger_error("File for finder type '$type' not found in '$path'", E_USER_ERROR);
-			return false;
-		}
-		
-		require_once($path);
-
-		return true;	
+		return $factory->import($type, $ignore_errors);
 	
 	}
 
 	/**
+	 * Factory for models
+	 *
 	 * @static 
 	 * @param string $type
 	 * @return Model
 	 */
-	function & factory($type, $db = null) {
+	function & factory($type) {
+		$factory = ModelFactory::get_instance();
 		
-		if (is_null($db)) {
-			$db = DB::get_db();	
-		}
-		
-		$class_name = Inflector::camelize($type).'Finder';
-		
-		if (!class_exists($class_name)) {
-			Finder::import($type);
-		}
-		
-		if (!class_exists($class_name)) {
-			trigger_error("Class '$class_name' not found", E_USER_ERROR);
-			return false;
-		}
-		
-		$model = new $class_name($db);
-		
-		if (!is_a($model, 'Finder')) {
-			trigger_error("Class '$class_name' doesn't extend Model", E_USER_ERROR);
-			return false;
-		}
-		
-		return $model;
-
+		return $factory->finder($type);
 	}	
 	
 	/**
