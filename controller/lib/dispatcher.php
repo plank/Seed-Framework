@@ -21,11 +21,10 @@ class Dispatcher {
 	 */
 	
 	function dispatch() {
-		if (!headers_sent($file, $line)) {
-			session_start();
-		} else {
-			trigger_error("Session could not be started because output was started in '$file' on line $line", E_USER_WARNING);
-			return false;
+
+		// try to start the session
+		if (!Dispatcher::start_session()) {
+			return false;	
 		}
 		
 		$request = new Request();
@@ -48,4 +47,34 @@ class Dispatcher {
 			return true;
 		}
 	}
+	
+	/**
+	 * Creates or resumes a session.
+	 *
+	 * @return bool  True if the sessions was succesfully started, false if not
+	 */
+	function start_session() {
+		// bail if output was already started
+		if (headers_sent($file, $line)) {
+			trigger_error("Session could not be started because output was started in '$file' on line $line", E_USER_WARNING);
+			return false;
+		}
+		
+		// make sure session id is valid
+		if (isset($_REQUEST[session_name()])) {
+			$session_id = $_REQUEST[session_name()];
+			
+			if (!preg_match('/^[a-zA-Z0-9]*$/', $session_id)) {
+				trigger_error("Invalid session id, aborting");
+				return false;	
+			}
+			
+		}
+		
+		session_start();
+		
+		return true;
+		
+	}
+	
 }
