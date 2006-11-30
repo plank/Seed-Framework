@@ -177,7 +177,8 @@ class Table {
 
 		$model = Model::factory($type);
 		
-		foreach($model->columns as $column) {
+		foreach($model->columns() as $column) {
+			// doesn't work with multilang models, as most columns are in the child
 			if ($column->type != 'string') {
 				continue;	
 			}

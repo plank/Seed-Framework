@@ -136,7 +136,7 @@ class Form {
 			return false;	
 		}
 		
-		foreach($this->data->columns as $columns) {
+		foreach($this->data->columns() as $columns) {
 			switch (true) {
 				case $columns->name == 'id':
 					$this->hidden_fields = array('id');

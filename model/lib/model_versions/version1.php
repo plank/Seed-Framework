@@ -390,6 +390,10 @@ class Model extends DataSpace {
 		
 	}
 	
+	function columns() {
+		return $this->columns;	
+	}	
+	
 	/**
 	 * @return Finder
 	 */	

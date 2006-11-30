@@ -419,6 +419,15 @@ class MultilangModel extends Model {
 		
 	}
 	
+	/**
+	 * Returns a merged array of the columns for both the record and the version record
+	 *
+	 * @return array
+	 */
+	function columns() {
+		return array_merge($this->columns, $this->version->columns);	
+		
+	}
 	
 }
 

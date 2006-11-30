@@ -307,6 +307,10 @@ class Model extends DataSpace {
 		
 	}
 
+	function columns() {
+		return $this->columns;	
+	}
+	
 	/**
 	 * Returns the associated finder for this model
 	 *
