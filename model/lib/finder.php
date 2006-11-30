@@ -160,7 +160,7 @@ class Finder {
 		
 		if (count($ids) == 1) {
 			// find a single id				
-			$options['conditions'] .= $this->db->escape_identifier($this->table_name()).".".$this->id_field()." = '".$ids[0]."'";
+			$options['conditions'] .= $this->db->escape_identifier($this->table_name()).".".$this->id_field()." = '".$this->db->escape($ids[0])."'";
 			
 			$result = $this->find('all', $options);
 
@@ -227,7 +227,7 @@ class Finder {
 			$options = array_pop($args);
 			
 			if (!is_array($options)) {
-				trigger_error('Final argument to find_by must be an array of options if number of options is odd', E_USER_WARNING);	
+				trigger_error('Final argument to find_by* must be an array of options if number of options is odd', E_USER_WARNING);	
 				return false;
 			}
 			
@@ -243,7 +243,7 @@ class Finder {
 		}		
 		
 		for ($x = 0; $x < count($args); $x += 2) {
-			$conditions[] = $args[$x]." = '".$args[$x + 1]."'";
+			$conditions[] = $args[$x]." = '".$this->db->escape($args[$x + 1])."'";
 			
 		}		
 
