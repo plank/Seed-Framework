@@ -655,7 +655,11 @@ class FckeditorFormControl extends FormControl  {
 	function generate_control() {
 		
 		$FCKeditor = new FCKeditor($this->name);
-		$FCKeditor->BasePath = APP_ROOT.'_fckeditor/';
+		if (defined('FCKEDITOR_PATH')) {
+			$FCKeditor->BasePath = FCKEDITOR_PATH;
+		} else {
+			$FCKeditor->BasePath = '/FCKeditor/';
+		}
 		$FCKeditor->ToolbarSet = 'Default';
 		$FCKeditor->Height = $this->params['height'];
 		$FCKeditor->Value = $this->value;
