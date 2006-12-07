@@ -80,7 +80,7 @@ class DB {
 	 * @return DB
 	 */
 	function register($key = 'default', $type = 'mysql', $host = DB_HOST, $user = DB_USER, $pass = DB_PASS, $database = DB_NAME) {
-		$db = DB::factory($type, $host, $user, $pass, $database);
+		$db = & DB::factory($type, $host, $user, $pass, $database);
 		
 		return DB::_db_storage($key, $db);
 		
