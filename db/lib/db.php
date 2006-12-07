@@ -58,10 +58,12 @@ class DB {
 		
 		if (!class_exists($class_name)) {
 			trigger_error("No driver for DB type $type", E_USER_ERROR);
-			return false;	
+			$db = false;	
+			
+		} else {
+			$db = new $class_name($host, $user, $pass, $database);
+			
 		}
-		
-		$db = new $class_name($host, $user, $pass, $database);
 		
 		return $db;
 	}
