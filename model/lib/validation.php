@@ -189,6 +189,13 @@ class ValidationRule {
 	var $error_messages;
 	
 	/**
+	 * If set to true, empty values simply pass validation
+	 *
+	 * @var bool
+	 */
+	var $allow_empty;
+	
+	/**
 	 * Constructor
 	 *
 	 * @param mixed $attributes
@@ -236,6 +243,8 @@ class ValidationRule {
 			$this->attribute_names = $params['attribute_names'];
 			unset($this->params['attribute_names']);	
 		}
+		
+		$this->allow_empty = assign($this->params['allow_empty'], false);			
 		
 		$this->setup();
 		
@@ -317,7 +326,11 @@ class ValidationRule {
 				$value = $values[$attribute];
 			}
 			
-			if ($this->validate_attribute($values, $attribute, $value) === false) {
+			// skip empty values if that option is set
+			if (!$value && $this->allow_empty) {
+				$this->valid[] = $attribute;
+				
+			} elseif ($this->validate_attribute($values, $attribute, $value) === false) {
 				$valid = false;
 				$this->invalid[] = $attribute;	
 			
@@ -411,21 +424,14 @@ class ConfirmationValidationRule extends ValidationRule {
 
 class InclusionValidationRule extends ValidationRule {
 	var $message = "%s is not included in the list";	
-	var $allow_empty;
 	var $in;
 	
 	function setup() {
-		$this->allow_empty = assign($this->params['allow_empty'], false);		
-		
 		$this->in = assign($this->params['in'], array());
 		
 	}
 	
 	function validate_attribute($values, $attribute, $value) {
-		if (!$value && $this->allow_empty) {
-			return true;
-		}
-		
 		$result = in_array($value, $this->in);
 		
 		if (!$result) {
@@ -444,17 +450,13 @@ class ExclusionValidationRule extends ValidationRule {
 	var $in;
 	
 	function setup() {
-		$this->allow_empty = assign($this->params['allow_empty'], false);		
+	
 		
 		$this->in = assign($this->params['in'], array());
 		
 	}
 	
 	function validate_attribute($values, $attribute, $value) {
-		if (!$value && $this->allow_empty) {
-			return true;
-		}
-		
 		$result = !in_array($value, $this->in);
 		
 		if (!$result) {
