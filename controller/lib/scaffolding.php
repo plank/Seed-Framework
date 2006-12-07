@@ -107,6 +107,8 @@ class Scaffolding {
 			
 			$this->controller->template->$type = $model;
 			
+			$this->controller->template->form = Form::factory($type, $model, $this->controller);
+			
 			if (isset($this->controller->has_many)) {
 				$this->controller->template->table = Table::factory($this->controller->has_many, $model->get($this->controller->has_many), $this->controller);	
 				
