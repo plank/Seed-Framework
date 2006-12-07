@@ -206,7 +206,7 @@ class Form {
 			$control->label = Inflector::humanize($name);	
 		}
 		$control->params = $params;
-		$control->options = $options;
+		$control->set_options($options);
 		
 		$this->append_control($control);
 		
@@ -382,6 +382,10 @@ class FormControl {
 		}
 	}
 	
+	function set_options($options) {
+		$this->options = $options;	
+	}
+	
 	/**
 	 * Returns a new FormControl subclass based on the type paramter given. i.e. input will return
 	 * an InputFormControl.
@@ -553,15 +557,34 @@ class TextareaFormControl extends FormControl  {
  */
 class SelectFormControl extends FormControl {
 	
+	function set_options($options) {
+		if (is_string($options)) {
+			$this->options = $this->get_options($options);	
+		} else {
+			$this->options = $options;	
+		}
+	}
+	
 	function generate_control() {
+		if (isset($this->params['allow_none'])) {
+			$allow_none = $this->params['allow_none'];
+			unset($this->params['allow_none']);
+			
+		} else {
+			$allow_none = false;	
+			
+		}
+		
 		$this->params['id'] = $this->name;		
 		$this->params['name'] = $this->name;
 		
-		if (is_string($this->options)) {
-			$this->options = $this->get_options($this->options);	
+		$return = "<select ".$this->get_attributes().">";
+		
+		if ($allow_none) {
+			$return .= "<option value='0'>(none)</option>\n";	
+			
 		}
 		
-		$return = "<select ".$this->get_attributes().">";
 		$return .= make_options($this->options, $this->value, '', true);
 		$return .= "</select>";
 		
@@ -582,6 +605,28 @@ class SelectFormControl extends FormControl {
 		return $result;
 	}
 	
+}
+
+/**
+ * Displays a combo form controler
+ *
+ * @package view
+ * @subpackage html
+ */
+class ComboboxFormControl extends SelectFormControl {
+
+	function generate_control() {
+		$this->params['onchange'] = "combobox('$this->name')";
+		
+		if (is_string($this->options)) {
+			$this->options = $this->get_options($this->options);	
+		}		
+		
+		$this->options[''] = '(new)';
+		
+		return parent::generate_control()."<input type='hidden' id='".$this->name."_new' name='".$this->name."_new' value='' />";
+	}
+
 }
 
 /**

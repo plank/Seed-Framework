@@ -230,7 +230,7 @@ class Table {
 		}
 		
 		$column->params = $params;
-		$column->options = $options;
+		$column->set_options($options);
 
 		$this->append_column($column);
 		
@@ -379,15 +379,15 @@ class Table {
 	 * @return string
 	 */
 	function generate_row($row, $row_number, $last_row = false) {
+		
+		$classname = $row_number % 2 ? 'odd' : 'even';		
+		
 		if ($this->status_field && $row->is_set($this->status_field)) {
-			$classname = $this->status_field.'_'.Inflector::underscore($row->get($this->status_field));
-			$return = "<tr class='$classname'>";
-			
-		} else {
-			$return = "<tr>";
-			
+			$classname .= ' '.$this->status_field.'_'.Inflector::underscore($row->get($this->status_field));
 		}
 	
+		$return = "<tr class='$classname'>";
+		
 		if (is_array($row)) {
 			$id = $row[$this->id_field];
 		} else {
@@ -613,6 +613,10 @@ class TableColumn {
 		}
 	}	
 	
+	function set_options($options) {
+		$this->options = $options;	
+	}	
+	
 	/**
 	 * Returns a new TableColumn subclass based on the type paramter given. i.e. input will return
 	 * an InputTableColumn.
@@ -701,6 +705,15 @@ class ImageTableColumn extends TableColumn {
  * @subpackage html
  */
 class SelectTableColumn extends TableColumn {
+
+	function set_options($options) {
+		if (is_string($options)) {
+			$this->options = $this->get_options($options);	
+		} else {
+			$this->options = $options;	
+		}
+	}	
+	
 	function generate($value) {
 		if (isset($this->options[$value])) {
 			$value = $this->options[$value];
@@ -710,6 +723,20 @@ class SelectTableColumn extends TableColumn {
 		
 		return $value;
 	}
+	
+	function get_options($type) {
+		$finder = Finder::factory($type);
+		
+		$result = array();
+		
+		$options = $finder->find('all');
+		
+		while($option = $options->next()) {
+			$result[$option->get_id()] = $option->get($option->name_field);	
+		}
+		
+		return $result;
+	}	
 	
 }
 
