@@ -51,21 +51,21 @@ class PaginationView {
 	 * 
 	 * @var string
 	 */
-	var $previous_page_text = "&laquo;";
+	var $previous_page_text = "&laquo; Previous";
 	
 	/**
 	 * String to use for link to next page
 	 * 
 	 * @var string
 	 */
-	var $next_page_text = "&raquo;";
+	var $next_page_text = "Next &raquo;";
 	
 	/**
 	 * Number of pages to always display at begining and end of total pages
 	 * 
 	 * @var int
 	 */
-	var $end_size = 2;
+	var $end_size = 3;
 	
 	/**
 	 * Number of pages to display as padding around current page
