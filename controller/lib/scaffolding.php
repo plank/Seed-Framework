@@ -41,9 +41,21 @@ class Scaffolding {
 		
 		$options = array();
 		
+		// belongs to association
+		if (isset($this->controller->belongs_to)) {
+			// this is likely not be the best default
+			$this->id = assign($this->controller->params['id'], 1);
+			
+			$model = $finder->model;
+			
+			if (isset($model->belongs_to_data[$this->controller->belongs_to])) {
+				$data = $model->belongs_to_data[$this->controller->belongs_to];
+				$options['conditions'][] = $data['foreign_key'].' = '.$this->controller->db->escape($this->id);
+			}
+		}	
+		
 		if (isset($finder->model->deleted_field)) {
 			$options['conditions'][] = $finder->model->deleted_field.' = 0';
-		
 		}		
 		
 		if (isset($this->controller->params['like']) && $this->controller->params['like']) {
@@ -123,7 +135,7 @@ class Scaffolding {
 			
 			$this->controller->template->$type = $model;
 			
-			$this->controller->template->form = Form::factory($type, $model);
+			$this->controller->template->form = Form::factory($type, $model, $this->controller);
 			$this->controller->template->form->action = $this->controller->url_for(array('action'=>'update'));
 			
 		} else {
@@ -146,12 +158,12 @@ class Scaffolding {
 		$model = Model::factory($type);
 		
 		// if we have an id and we've defined a belongs_to, assign that ID to it
-		if ($id && isset($model->belongs_to_data) && count($model->belongs_to_data)) {
-			$data = current($model->belongs_to_data);
+		if ($id && isset($this->controller->belongs_to) && isset($model->belongs_to_data[$this->controller->belongs_to])) {
+			$data = $model->belongs_to_data[$this->controller->belongs_to];
 			$model->set($data['foreign_key'], $id);
 		}
 		
-		$this->controller->template->form = Form::factory($type, $model);
+		$this->controller->template->form = Form::factory($type, $model, $this->controller);
 		$this->controller->template->form->action = $this->controller->url_for(array('action'=>'insert'));
 		
 		$this->_render_scaffold('add');
@@ -252,6 +264,9 @@ class Scaffolding {
 	
 	// redirects either to the index, or the parent model's view, as appropriate
 	function _redirect_back($model = null) {
+		
+		$to_view = assign($this->controller->to_view, false);
+		
 		// going back to parent
 		if (isset($this->controller->belongs_to) && !is_null($model)) {
 			$belongs_to = $this->controller->belongs_to;
@@ -261,18 +276,19 @@ class Scaffolding {
 				
 			}
 			
-			// id will need to be redone!
-			$this->controller->redirect(array('controller'=>$belongs_to, 'action'=>'view', 'id'=>$id));	
+			if ($to_view) {
+				return $this->controller->redirect(array('controller'=>$belongs_to, 'action'=>'view', 'id'=>$id));	
+			} else {
+				return $this->controller->redirect(array('action'=>'index', 'id'=>$id));	
+			}
 			
-		} elseif (isset($this->controller->has_many)) {
-			$this->controller->redirect(array('action'=>'view', 'id'=>$model->id));	
+		} elseif ($to_view && isset($this->controller->has_many)) {
+			return $this->controller->redirect(array('action'=>'view', 'id'=>$model->id));	
 			
 		} else {
-			$this->controller->redirect(array('action'=>'index'));
+			return $this->controller->redirect(array('action'=>'index'));
 			
 		}		
-		
-		return true;
 		
 	}	
 	
