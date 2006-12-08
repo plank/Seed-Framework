@@ -284,16 +284,9 @@ class Table {
 		
 		$return .= "</colgroup>\n";
 		
-		if (count($this->row_actions) > 0) {
-			$return .= "<colgroup id='col_actions'>";
-			
-			foreach($this->row_actions as $action => $display) {
-				$return .= "<col id='col_".Inflector::linkify($action)."' />";
-			}
-			
-			$return .= "</colgroup>";
-			
-		}		
+		if (count($this->row_actions)) {
+			$return .= "<col id='col_actions'>";
+		}
 		
 		return $return;
 	}
@@ -347,10 +340,8 @@ class Table {
 			
 		}
 		
-		if (count($this->row_actions) == 1) {
-			$return .= "<th id='th_actions'>Action</th>";			
-		} else if (count($this->row_actions) > 1) {
-			$return .= "<th id='th_actions' colspan='".count($this->row_actions)."'>Actions</th>";			
+		if (count($this->row_actions)) {
+			$return .= "<th id='th_actions'>&nbsp;</th>";			
 		}
 		
 		$return .= "</tr>\n";
@@ -438,7 +429,7 @@ class Table {
 			
 		}
 	
-		$return = '';
+		$return = "<td class='actions'>";
 		
 		foreach ($this->row_actions as $display => $options) {
 			list($target_options, $link_options, $only, $except) = $options;
@@ -450,8 +441,6 @@ class Table {
 				$javascript = '';
 				
 			}
-			
-			$return .= "<td class='action_".Inflector::linkify($display)."'>";
 			
 			$skip = false;
 			
@@ -473,15 +462,14 @@ class Table {
 				}					
 			}
 			
-			if ($skip) {
-				$return .= "&nbsp;";	
-			} else {
-				$return .= "<a href='".$this->generate_link($target_options, $id)."'$javascript>$display</a>";
+			if (!$skip) {
+				$return .= "<a class='action_".Inflector::linkify($display)."' href='".$this->generate_link($target_options, $id)."'$javascript>$display</a>&nbsp;";
 			}
-			
-			$return .= "</td>";
+
 		}
-	
+
+		$return .= "</td>";		
+		
 		return $return;
 	}
 	
@@ -605,6 +593,11 @@ class TableColumn {
 	 */
 	var $options;
 	
+	/**
+	 * Text to display when value isn't found
+	 */
+	var $empty_value = '-';
+	
 	function TableColumn($name = '') {
 		if ($name) {
 			$this->name = $name;
@@ -652,7 +645,12 @@ class TableColumn {
  * @subpackage html
  */
 class TextTableColumn extends TableColumn {
+	
 	function generate($value, $id) {
+		if (!$value) {
+			return $this->empty_value;	
+		}
+		
 		if (isset($this->params['max_length'])) {
 			if (strlen(strip_tags($value)) > $this->params['max_length']) {
 				$value = substr(strip_tags($value), 0, $this->params['max_length']).'...';	
@@ -661,7 +659,12 @@ class TextTableColumn extends TableColumn {
 		}
 		
 		if (isset($this->params['action_link'])) {
-			$link = sprintf($this->params['action_link'], $id);
+			if (is_array($this->params['action_link'])) {
+				$link = $this->table->controller->url_for(array_merge($this->params['action_link'], array('id'=>$id)));
+			} else {
+				$link = sprintf($this->params['action_link'], $id);
+			}
+			
 			$value = "<a href='$link'>$value</a>";
 				
 		}
@@ -718,7 +721,7 @@ class SelectTableColumn extends TableColumn {
 		if (isset($this->options[$value])) {
 			$value = $this->options[$value];
 		} else {
-			$value = '&nbsp;';
+			$value = $this->empty_value;
 		}
 		
 		return $value;
