@@ -19,6 +19,12 @@ seed_include('library/date');
  * @subpackage html
  */
 class Form {
+	/**
+	 * The html id for the table
+	 *
+	 * @var string
+	 */
+	var $id;
 	
 	/**
 	 * The controller containing the table
@@ -56,11 +62,13 @@ class Form {
 	var $data;
 	
 	/**
-	 * The class name to use for the table
+	 * The class name to use for the table. 
+	 *
+	 * If this is left blank, it will default to edit_table or view_table, depending on which mode it's used in
 	 *
 	 * @var string
 	 */
-	var $class_name = 'edit_table';
+	var $class_name = '';
 	
 	/**
 	 * The page called on submit
@@ -118,6 +126,11 @@ class Form {
 		$this->controls = array();
 		$this->buttons = array();
 		$this->controller = $controller;
+		
+		if (!$this->id) {
+			$this->id = Inflector::underscore(get_class($this));
+		}		
+		
 		$this->setup();
 	}
 	
@@ -267,19 +280,23 @@ class Form {
 	 * @param array $data
 	 * @return string
 	 */
-	function generate($data = null) {
+	function generate($data = null, $read_only = false) {
 
 		if (isset($data)) {
 			$this->data = $data;
 		}
 		
-		$return = "<form action='$this->action' method='post' enctype='multipart/form-data'>\n";
-
-		if ($this->max_file_size) {
-			$return .= "<input type='hidden' name='MAX_FILE_SIZE' value='".$this->max_file_size."' />";			
-			
+		if ($read_only) { 
+			$return = '';	
+		} else {
+			$return = "<form action='$this->action' method='post' enctype='multipart/form-data'>\n";
+	
+			if ($this->max_file_size) {
+				$return .= "<input type='hidden' name='MAX_FILE_SIZE' value='".$this->max_file_size."' />";			
+				
+			}
 		}
-
+		
 		foreach ($this->hidden_fields as $field) {
 			if (!is_null($data = $this->get_value($field))) {
 				$control = new HiddenFormControl($field);
@@ -287,18 +304,35 @@ class Form {
 			}
 		}
 		
-		$return .= "<table class='$this->class_name'>\n";
-			
+		if (!$this->class_name) {
+			if ($read_only) {
+				$class_name = 'view_table';	
+			} else {
+				$class_name = 'edit_table';	
+			}
+		} else {
+			$class_name = $this->class_name;	
+		}
+		
+		$return .= "<table class='$class_name' id='$this->id' >\n";
+		
+		$row_number = 1;
+		
 		foreach ($this->controls as $field => $control) {
 			$data = $this->get_value($field);
-			$return .= $this->generate_row($control, $data);
+			$return .= $this->generate_row($control, $data, $row_number ++, $read_only);
 			
 		}
 		
-		$return .= $this->generate_buttons();
+		if (!$read_only) {
+			$return .= $this->generate_buttons();
+		}
 		
 		$return .= "</table>\n";
-		$return .= "</form>\n";
+		
+		if (!$read_only) {
+			$return .= "</form>\n";
+		}
 		
 		return $return;
 	}
@@ -306,10 +340,13 @@ class Form {
 	/**
 	 * @param FormControl $control
 	 */
-	function generate_row($control, $data) {
-		$return = "<tr>";
+	function generate_row($control, $data, $row_number, $read_only = false) {
+		$classname = $row_number % 2 ? 'odd' : 'even';		
+		
+		$return = "<tr class='$classname'>";		
+		
 		$return .= "<th><label for='$control->name'>$control->label</label></th>";		
-		$return .= "<td>".$control->generate($data)."</td>";
+		$return .= "<td>".$control->generate($data, $read_only)."</td>";
 		$return .= "</tr>\n";
 		
 		return $return;
@@ -375,6 +412,11 @@ class FormControl {
 	 */
 	var $options;
 	
+	/**
+	 * Text to display when value isn't found
+	 */
+	var $empty_value = '-';	
+	
 	function FormControl($name = '') {
 		if ($name) {
 			$this->name = $name;
@@ -411,7 +453,7 @@ class FormControl {
 	 * 'value' parameter if that is set.
 	 * @return string
 	 */
-	function generate($value = null) {
+	function generate($value = null, $read_only = false) {
 		if (isset($this->params['value'])) {
 			$this->value = $this->params['value'];
 		
@@ -420,11 +462,13 @@ class FormControl {
 			
 		}
 		
-		return $this->generate_control();
+		if ($read_only) {
+			return $this->generate_read_only();	
+		} else {
+			return $this->generate_control();
+		}
 
 	}
-
-
 	
 	/**
 	 * Generates the control part of the control
@@ -433,6 +477,19 @@ class FormControl {
 	 */
 	function generate_control() {
 		return $this->value;
+	}
+	
+	/** 
+	 * Generate a read only version of the control
+	 *
+	 * @return string
+	 */
+	function generate_read_only() {
+		if ($this->value) {
+			return $this->value;	
+		} else {
+			return $this->empty_value;
+		}	
 	}
 	
 	/**
@@ -478,10 +535,7 @@ class StaticFormControl extends FormControl {
  * @subpackage html
  */
 class HiddenFormControl extends FormControl {
-	function generate($value = null) {
-		if (isset($value)) {
-			$this->value = $value;
-		}
+	function generate_control() {
 		
 		$this->params['name'] = $this->name;
 		$this->params['value'] = $this->value;
@@ -489,6 +543,7 @@ class HiddenFormControl extends FormControl {
 		
 		return "<input ".$this->get_attributes()." />\n";
 	}	
+	
 }
 
 /**
@@ -589,6 +644,15 @@ class SelectFormControl extends FormControl {
 		$return .= "</select>";
 		
 		return $return;
+	}
+	
+	function generate_read_only() {
+		if (isset($this->options[$this->value])) {
+			return $this->options[$this->value];	
+		} else {
+			return $this->empty_value;	
+		}
+		
 	}
 	
 	function get_options($type) {
@@ -724,49 +788,112 @@ class DateFormControl extends FormControl {
 	
 	function generate_control() {
 		$discard = assign($this->params['discard']);
-		$blank = false;
-		$date = new Date($this->value);
+		$hide = false;
 		
-		$return = "<select name='$this->name[year]'>".make_number_options($date->get_year() - 100, $date->get_year() + 15, $date->get_year()) ."</select>\n";
-		if ($discard == 'months') { $blank = true; }
+		if (!intval($this->value)) {
+			$this->value = 0;	
+		}
 		
-		if ($blank) {
-			$return .= "<input type='hidden' name='$this->name[month]' value='1' />";
+		// if we allow empty, empty dates should show up as blank, if not they should default to the current date
+		if (assign($this->params['allow_empty'], false)) {
+			if ($this->value) {
+				$first_option = "<option value='0'></option>";
+				$date = new Date($this->value);
+			} else {
+				$first_option = "<option selected='selected' values='0'></option>";
+				$date = false;
+			}
+			
 		} else {
-			$return .= "-<select name='$this->name[month]'>".make_options(Date::month_names(), $date->get_month(), '', true) ."</select>\n";
-		} 
+			$first_option = "";	
+			$date = new Date($this->value);
+		}
 		
-		if ($discard == 'days') { $blank = true; }
+		$return = '';
+		
+		$date_parts = array('year' => '', 'month' => '-', 'day' => '-', 'hour' => '&nbsp;&nbsp;', 'minute' => ':', 'second' => ':');
+		
+		foreach($date_parts as $date_part => $prefix) {
+			$method = $date_part.'_options';
+			
+			if ($discard == $date_part.'s') {
+				$hide = true;
+			}
+			
+			if ($hide) {
+				$return .= "<input type='hidden' name='$this->name[$date_part]' value='1' />";
 				
-		if ($blank) {
-			$return .= "<input type='hidden' name='$this->name[day]' value='1' />";
-		} else {
-			$return .= "-<select name='$this->name[day]'>".make_number_options(1, 31, $date->get_date(), true) ."</select>\n";
-		}
-		if ($discard == 'hours') { $blank = true; }
-		
-		if ($blank) {
-			$return .= "<input type='hidden' name='$this->name[hour]' value='1' />";
-		} else {
-			$return .= "&nbsp;&nbsp;&nbsp;<select name='$this->name[hour]'>".make_number_options(0, 23, $date->get_hours(), true) ."</select>\n";
-		}
-		if ($discard == 'minutes') { $blank = true; }
+			} else {
+				if ($prefix) {
+					$return .= "$prefix&nbsp;";
+				}
 				
-		if ($blank) {
-			$return .= "<input type='hidden' name='$this->name[minute]' value='1' />";
-		} else {
-			$return .= ":<select name='$this->name[minute]'>".make_number_options(0, 59, $date->get_minutes(), true) ."</select>\n";
+				$return .= "<select name='$this->name[$date_part]'>$first_option".$this->$method($date)."</select>\n";
+			} 			
 		}
-		if ($discard == 'seconds') { $blank = true; }
 		
-		if ($blank) {
-			$return .= "<input type='hidden' name='$this->name[seconds]' value='1' />";
+		return $return;
+
+	}
+	
+	function year_options($date) {
+		if ($date) {
+			return make_number_options(1900, 2020, $date->get_year());
 		} else {
-			$return .= ":<select name='$this->name[seconds]'>".make_number_options(0, 59, $date->get_seconds(), true) ."</select>\n";
+			return make_number_options(1900, 2020, '');
+		}
+		
+	}
+	
+	function month_options($date) {
+		if ($date) {
+			return make_options(Date::month_names(), $date->get_month(), '', true);
+		} else {
+			return make_options(Date::month_names(), '', '', true);
+		}
+	}
+	
+	function day_options($date) {
+		if ($date) {
+			$day = $date->get_date();
+		} else {
+			$day = 0;
+		}
+		
+		return make_number_options(1, 31, $day, true);
+		
+	}
+	
+	function hour_options($date) {
+		if ($date) {
+			$hour = $date->get_hours();
+		} else {
+			$hour = 0;
 		}
 
-		return $return;	
+		return make_number_options(0, 59, $hour, true);	
 	}
+	
+	function minute_options($date) {
+		if ($date) {
+			$minute = $date->get_minutes();
+		} else {
+			$minute = 0;
+		}
+
+		return make_number_options(0, 59, $minute, true);
+	}
+	
+	function second_options($date) {
+		if ($date) {
+			$second = $date->get_second();
+		} else {
+			$second = 0;
+		}
+		
+		return make_number_options(0, 59, $second, true);
+	}
+	
 }
 
 /**
@@ -800,6 +927,15 @@ class YesnoFormControl extends FormControl {
 		}
 		
 		return "<select name='$this->name'>".make_options($this->options, $this->value, '', true) ."</select>";
+	}
+
+	function generate_read_only() {
+		if (!$this->options) {
+			$this->options = array('no', 'yes');
+		}
+
+		return $this->options[$this->value];
+			
 	}
 	
 }
@@ -844,10 +980,10 @@ class FilepopupFormControl extends FormControl {
 /**
  * Returns a string of <option>s for a range of number values
  *
- * @param int $min the number to start at
- * @param int $max the number to end at
- * @param int $default_value the value to select
- * @param bool $zero_padded set to true to pad the options with zeros
+ * @param int $min 			  The number to start at
+ * @param int $max 			  The number to end at
+ * @param int $default_value  The value to select
+ * @param bool $zero_padded   Set to true to pad the options with zeros
  * @return string
  */
 function make_number_options($min, $max, $default_value, $zero_padded = false) {
