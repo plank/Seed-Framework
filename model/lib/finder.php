@@ -207,6 +207,8 @@ class Finder {
 	 * i.e. find_all_by('name', 'george') or find_all_by('username', 'admin', 'password', 'admin');
 	 * An optional argument array can be added at the end, which works like passing options to the regular
 	 * find method
+	 *
+	 * @return Model
 	 */	
 	function & find_by($field, $value, $options = null) {
 		$args = func_get_args();
@@ -221,6 +223,21 @@ class Finder {
 		
 	}
 
+	/**
+	 * Creates and saves a new model using the given values
+	 *
+	 * @param array $values
+	 * @return Model
+	 */
+	function create($values = array()) {
+		$model = Model::factory($this->get_type());
+		$model->assign($values);	
+		$model->save();
+		
+		return $model;
+		
+	}
+	
 	function _arguments_to_options($args) {
 		// if there's an odd number of arguments, treat the last one as an array of options
 		if (count($args) % 2 == 1) {
