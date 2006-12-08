@@ -220,7 +220,7 @@ class Form {
 		}
 		$control->params = $params;
 		$control->set_options($options);
-		
+
 		$this->append_control($control);
 		
 		return $control;
@@ -320,6 +320,7 @@ class Form {
 		
 		foreach ($this->controls as $field => $control) {
 			$data = $this->get_value($field);
+			
 			$return .= $this->generate_row($control, $data, $row_number ++, $read_only);
 			
 		}
@@ -341,6 +342,11 @@ class Form {
 	 * @param FormControl $control
 	 */
 	function generate_row($control, $data, $row_number, $read_only = false) {
+		
+		if (!$control->show_in_mode($read_only)) {
+			return '';	
+		}
+		
 		$classname = $row_number % 2 ? 'odd' : 'even';		
 		
 		$return = "<tr class='$classname'>";		
@@ -507,6 +513,26 @@ class FormControl {
 	
 	function escape($string) {
 		return utf8_decode($string);
+	}
+
+	/**
+	 * Returns true if the control should be shown in the current mode
+	 *
+	 * @param bool $read_only  Set to true when in read mode, false when in edit mode
+	 * @return bool
+	 */
+	function show_in_mode($read_only = false) {
+		$mode = assign($this->params['only'], false);
+		
+		if ($read_only && $mode == 'edit') {
+			return false;
+		} 
+		
+		if (!$read_only && $mode == 'read') {
+			return false;	
+		}	
+		
+		return true;
 	}
 	
 }
@@ -750,6 +776,21 @@ class FileFormControl extends FormControl {
 		return $return;
 		
 	}
+	
+	
+	function generate_read_only() {
+		$image_root = assign($this->params['image_root']);	
+		
+		if ($image_root) {
+			$return = '<img src="' . $image_root.$this->value . '" alt="preview" />';
+		} else {
+			$return = $this->value;	
+		}
+		
+		return $return;
+		
+	}
+	
 }
 
 /**
@@ -795,7 +836,7 @@ class DateFormControl extends FormControl {
 		}
 		
 		// if we allow empty, empty dates should show up as blank, if not they should default to the current date
-		if (assign($this->params['allow_empty'], false)) {
+		if (assign($this->params['allow_none'], false)) {
 			if ($this->value) {
 				$first_option = "<option value='0'></option>";
 				$date = new Date($this->value);
@@ -816,6 +857,7 @@ class DateFormControl extends FormControl {
 		foreach($date_parts as $date_part => $prefix) {
 			$method = $date_part.'_options';
 			
+			// if we've set the discard option to this part, hide it and all the rest
 			if ($discard == $date_part.'s') {
 				$hide = true;
 			}
@@ -926,7 +968,25 @@ class YesnoFormControl extends FormControl {
 			$this->options = array('no', 'yes');
 		}
 		
-		return "<select name='$this->name'>".make_options($this->options, $this->value, '', true) ."</select>";
+		if (isset($this->params['allow_none'])) {
+			$allow_none = $this->params['allow_none'];
+			unset($this->params['allow_none']);
+			
+		} else {
+			$allow_none = false;	
+			
+		}		
+		
+		$return = "<select name='$this->name'>";
+		
+		if ($allow_none) {
+			$return .= "<option value='0'>(none)</option>\n";	
+			
+		}
+		
+		$return .= make_options($this->options, $this->value, '', true) ."</select>";
+		
+		return $return;
 	}
 
 	function generate_read_only() {
