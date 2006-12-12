@@ -376,6 +376,9 @@ class Route {
 		
 		$return = implode('/', array_reverse($return));
 		
+		return $return.$this->build_query_string($new_values);
+		
+/*		
 		// leftover values are added as querystring
 		$query_string = array();
 		
@@ -391,7 +394,29 @@ class Route {
 		}
 		
 		return $return;
+*/
+	}
+	
+	function build_query_string($array) {
+		foreach($array as $key => $value) {
+			if (is_array($value)) {
+				foreach($value as $sub_key => $sub_value) {
+					$query_string[$key.'['.$sub_key.']'] = urlencode($key.'['.$sub_key.']')."=".urlencode($sub_value);
+				}
+				
+			} else {
+				if ($value) {	
+					$query_string[$key] = urlencode($key)."=".urlencode($value);
+				}
+			}
+		}	
 		
+		if (isset($query_string)) {
+			return "?".implode('&', $query_string);				
+			
+		}		
+		
+		return '';
 	}
 	
 	/**

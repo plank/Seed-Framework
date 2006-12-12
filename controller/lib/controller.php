@@ -341,7 +341,7 @@ class Controller {
 	 * @return bool
 	 */
 	function process($request, $response) {
-
+		
 		$this->request = $request;
 		$this->params = $request->parameters;
 		$this->response = $response;
@@ -385,7 +385,7 @@ class Controller {
 		
 		// make sure the method exists and that it's not protected
 		if (method_exists($this, $this->action_name) && !in_array($this->action_name, $this->_hidden_methods)) {
-			call_user_func(array(&$this, $this->action_name));	
+			call_user_func(array(&$this, $this->action_name));
 			
 		} elseif (isset($this->scaffolding) && method_exists($this->scaffolding, $this->action_name)) {
 			call_user_func(array(&$this->scaffolding, $this->action_name));
@@ -558,9 +558,7 @@ class Controller {
 			return false;
 		}
 		
-		if (is_array($options) || is_null($options)) {
-			$options = APP_ROOT.$this->router->url_for($request->path, $options, $overwrite_options);
-		}
+		$options = $this->url_for($options, $overwrite_options);
 		
 		$this->response->redirect($options);
 		$this->performed_redirect = true;
@@ -570,28 +568,26 @@ class Controller {
 	
 	function url_for($options = null, $overwrite_options = null) {
 		$request = $this->request;
-
+		//debug($request->path);
 		if (is_array($options) || is_null($options)) {
-			return APP_ROOT.$this->router->url_for($request->path, $options, $overwrite_options);
-		} else {
-			$options = APP_ROOT.$options;	
 			
-			foreach($overwrite_options as $key => $value) {
-				if ($value) {
-					$query_string[$key] = "$key=$value";	
-				}
-				
-			}	
-			
-			if (isset($query_string)) {
-				$options .= "?".implode('&amp;', $query_string);				
-				
+			if (is_null($options)) {
+				$current_options = $this->request->get;	
+				unset($current_options['url']);
+
+				$overwrite_options = array_merge($current_options, $overwrite_options);
 			}
+			
+			return APP_ROOT.$this->router->url_for($request->path, $options, $overwrite_options);
+			
+		} else {
+			$options = APP_ROOT.$options.Route::build_query_string($overwrite_options);	
 			
 			return $options;
 			
 		}
 	}
+	
 }
 
 

@@ -353,13 +353,12 @@ class Table {
 	function generate_link($options, $row_id) {
 		if (!is_array($options)) {
 			return sprintf($options, $row_id);
-			
-			// $options = array('action' => $options);
+
 		}
 		
 		$options['id'] = $row_id;
 		
-		return $this->controller->url_for($options);
+		return $this->controller->url_for(null, $options);
 	} 
 	
 	/**
