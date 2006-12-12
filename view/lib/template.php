@@ -115,6 +115,16 @@ class Template {
 	 * @return string
 	 */
 	function render_component($options = null) {
+		
+		static $stack = array();
+
+		if (in_array($options, $stack)) {
+			trigger_error('Recursion in render_component', E_USER_ERROR);	
+			return false;
+		} else {
+			$stack[] = $options;
+		}
+
 		if (!isset($options)) {
 			$options = array();	
 		}
