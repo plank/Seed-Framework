@@ -98,6 +98,7 @@ class Request {
 	 * @return Request
 	 */
 	function Request() {
+		
 		if (isset($_GET['url'])) {
 			$this->url = new URL($_GET['url']); //, APP_ROOT);	
 		} else {
@@ -106,12 +107,18 @@ class Request {
 		
 		$_GET = array_merge($_GET, $this->url->query_array);
 		
-		$this->get = & $_GET;
+/*		$this->get = & $_GET;
 		$this->post = & $_POST;
 		$this->cookies = & $_COOKIE;
 		$this->files = & $_FILES;
+		$this->session = & $_SESSION;*/
+
+		$this->get = $_GET;
+		$this->post = $_POST;
+		$this->cookies = $_COOKIE;
+		$this->files = $_FILES;
 		$this->session = & $_SESSION;
-		
+
 		$this->parameters = array_merge($_GET, $_POST);	
 		
 		$this->method = $_SERVER['REQUEST_METHOD'];
@@ -122,7 +129,7 @@ class Request {
 			
 		}
 		
-		$this->body = file_get_contents('php://input');
+		// $this->body = file_get_contents('php://input');
 		
 	}
 	
