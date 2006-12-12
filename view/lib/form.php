@@ -662,7 +662,7 @@ class SelectFormControl extends FormControl {
 		$return = "<select ".$this->get_attributes().">";
 		
 		if ($allow_none) {
-			$return .= "<option value='0'>(none)</option>\n";	
+			$return .= "<option value=''>(none)</option>\n";	
 			
 		}
 		
@@ -782,7 +782,12 @@ class FileFormControl extends FormControl {
 		$image_root = assign($this->params['image_root']);	
 		
 		if ($image_root) {
-			$return = '<img src="' . $image_root.$this->value . '" alt="preview" />';
+			//Nesting this, so I don't break anything already working...
+			if($this->value != ''){
+				$return = '<img mitch="'.$this->value.'" src="' . $image_root.$this->value . '" alt="preview" />';				
+			} else {
+				$return = "None.";
+			}
 		} else {
 			$return = $this->value;	
 		}
@@ -980,7 +985,7 @@ class YesnoFormControl extends FormControl {
 		$return = "<select name='$this->name'>";
 		
 		if ($allow_none) {
-			$return .= "<option value='0'>(none)</option>\n";	
+			$return .= "<option value=''>(none)</option>\n";	
 			
 		}
 		
