@@ -39,34 +39,7 @@ class Scaffolding {
 		
 		$finder = Finder::factory($type);
 		
-		$options = array();
-		
-		// belongs to association
-		if (isset($this->controller->belongs_to)) {
-			// this is likely not be the best default
-			$this->id = assign($this->controller->params['id'], 1);
-			
-			$model = $finder->model;
-			
-			if (isset($model->belongs_to_data[$this->controller->belongs_to])) {
-				$data = $model->belongs_to_data[$this->controller->belongs_to];
-				$options['conditions'][] = $data['foreign_key'].' = '.$this->controller->db->escape($this->id);
-			}
-		}	
-		
-		if (isset($finder->model->deleted_field)) {
-			$options['conditions'][] = $finder->model->deleted_field.' = 0';
-		}		
-		
-		if (isset($this->controller->params['like']) && $this->controller->params['like']) {
-			$options['conditions'][] = $finder->like_condition('%'.$this->controller->params['like'].'%');
-		}
-		
-		if (isset($options['conditions'])) {
-			$options['conditions'] = implode(' AND ', $options['conditions']);
-		} else {
-			$options['conditions'] = '1 = 1';	
-		}
+		$options = array('conditions' => $this->_list_conditions($finder));
 		
 		if (isset($this->controller->params['sortby']) && isset($this->controller->params['sortdir'])) {
 			$options['order'] = $this->controller->params['sortby']." ".$this->controller->params['sortdir'];	
@@ -90,6 +63,61 @@ class Scaffolding {
 
 		$this->_render_scaffold('index');
 
+	}
+	
+	function _list_conditions($finder) {
+		
+		// belongs to association
+		if (isset($this->controller->belongs_to)) {
+			// this is likely not be the best default
+			$this->id = assign($this->controller->params['id'], 1);
+			
+			$model = $finder->model;
+			
+			if (isset($model->belongs_to_data[$this->controller->belongs_to])) {
+				$data = $model->belongs_to_data[$this->controller->belongs_to];
+				$conditions[] = $data['foreign_key'].' = '.$this->controller->db->escape($this->id);
+			}
+		}	
+		
+		// add deleted field
+		if (isset($finder->model->deleted_field)) {
+			$conditions[] = $finder->model->deleted_field.' = 0';
+		}		
+		
+		// add like condition
+		if (isset($this->controller->params['like']) && $this->controller->params['like']) {
+			$conditions[] = $finder->like_condition('%'.$this->controller->params['like'].'%');
+		}
+		
+		if (isset($this->controller->params['search'])) {
+			$search = $this->controller->params['search'];
+			
+			if (is_string($search)) {
+				$search = unserialize($search);	
+			}
+			
+			foreach ($search as $field => $value) {
+				$column = assign($finder->model->columns[$field], false);
+				
+				if (!$column) {
+					continue;	
+				}
+				
+				$conditions[] = $column->search_condition($value);
+	
+			}
+		}
+		
+		// compile conditions
+		if (isset($conditions)) {
+			$conditions = '('.implode(') AND (', $conditions).')';
+		} else {
+			$conditions = '1 = 1';	
+		}		
+		
+		return $conditions;
+		
 	}
 	
 	/**
