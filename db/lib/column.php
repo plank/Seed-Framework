@@ -5,7 +5,7 @@
  * @author mateo murphy
  * @copyright mateo murphy
  * @license The MIT License
- * @package model
+ * @package db
  */
 
 /**
@@ -62,8 +62,7 @@ define('BOOLEAN', 'boolean');
 /**
  * Class for representing database columns
  *
- * @package model
- * @subpackage db
+ * @package db
  */
 
 class Column {
@@ -121,12 +120,21 @@ class Column {
 	
 	/**
 	 * Cast the value to an appropriate type
+	 *
+	 * @param mixed $value
+	 * @return mixed
 	 */
 	function type_cast($value) {
 		switch ($this->type) {
 			case DATE:	
 				return date(SQL_DATE_TIME_FORMAT, strtotime($value));
 			
+			case INTEGER:
+				return intval($value);
+				
+			case FLOAT:
+				return floatval($value);
+				
 			default:
 				return $value;
 		}
@@ -171,6 +179,48 @@ class Column {
 				return implode('', $value);
 			
 		}	
+		
+	}
+	
+	/**
+	 * Returns a search condition appropriate for the type
+	 *
+	 * @param mixed $value
+	 * @return string
+	 */
+	function search_condition($value) {
+
+		if (is_array($value)) {
+			$value = $this->array_to_type($value);	
+		}
+		
+		switch ($this->type) {
+
+			case TIMESTAMP:					
+			case INTEGER:
+				$result = $this->name." = ".intval($value);
+				break;
+				
+			case FLOAT:
+				$result = $this->name." = ".floatval($value);
+				break;
+				
+			case DATETIME:
+			case TIME:
+			case DATE:
+				$result = $this->name." = '".$value."'";
+				break;
+				
+			case BINARY:
+			case TEXT:
+			case STRING:
+			default:
+				$result = $this->name." LIKE '".$value."'";
+				break;
+			
+		}		
+		
+		return $result;
 		
 	}
 	
