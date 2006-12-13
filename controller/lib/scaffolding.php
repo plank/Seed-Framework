@@ -242,7 +242,7 @@ class Scaffolding {
 				}
 			}
 			
-			$model->insert();
+			$model->save();
 			
 			if ($errors) {
 				$this->controller->flash->next('flag', 'result: the item was created but errors occured');	
@@ -281,7 +281,7 @@ class Scaffolding {
 				}
 			}
 			
-			$model->update();
+			$model->save();
 			
 			if ($errors) {
 				$this->controller->flash->next('flag', 'result: the item was updated but errors occured');	

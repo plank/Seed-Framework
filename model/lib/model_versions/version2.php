@@ -1017,15 +1017,18 @@ class Model extends DataSpace {
 	 */
 	
 	function save() {
+		
 		$this->before_save();
 		
-		if (!is_null($this->id) && $this->id != '') {
-			return $this->update();
+		if ($this->is_new_record()) {
+			$result = $this->insert();
 		} else {
-			return $this->insert();
+			$result = $this->update();
 		}
-		
+
 		$this->after_save();
+		
+		return $result;
 		
 	}
 	
