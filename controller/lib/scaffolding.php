@@ -65,14 +65,19 @@ class Scaffolding {
 
 	}
 	
+	/**
+	 * Returns an SQL conditions string for the current request
+	 *
+	 * @param Finder $finder  Used to get field data
+	 */
 	function _list_conditions($finder) {
+		
+		$model = $finder->model;
 		
 		// belongs to association
 		if (isset($this->controller->belongs_to)) {
 			// this is likely not be the best default
 			$this->id = assign($this->controller->params['id'], 1);
-			
-			$model = $finder->model;
 			
 			if (isset($model->belongs_to_data[$this->controller->belongs_to])) {
 				$data = $model->belongs_to_data[$this->controller->belongs_to];
@@ -81,7 +86,7 @@ class Scaffolding {
 		}	
 		
 		// add deleted field
-		if (isset($finder->model->deleted_field)) {
+		if (isset($model->deleted_field)) {
 			$conditions[] = $finder->model->deleted_field.' = 0';
 		}		
 		
@@ -98,7 +103,7 @@ class Scaffolding {
 			}
 			
 			foreach ($search as $field => $value) {
-				$column = assign($finder->model->columns[$field], false);
+				$column = assign($model->columns[$field], false);
 				
 				if (!$column) {
 					continue;	
