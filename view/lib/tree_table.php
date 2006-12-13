@@ -131,9 +131,8 @@ class TreeTable extends Table {
 		
 		$return .= "</td>";
 		
-		foreach ($this->row_actions as $row_action) {
-			$return .= "<td>&nbsp;</td>";
-		}
+		// spacer for row actions
+		$return .= "<td>&nbsp;</td>";
 		
 		$return .= "</tr>\n";
 		
