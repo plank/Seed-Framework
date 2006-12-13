@@ -566,9 +566,16 @@ class Controller {
 		return true;
 	}	
 	
+	/**
+	 * Returns a URL for a given set of options
+	 *
+	 * @param mixed $options
+	 * @param array $overwrite_options
+	 * @return string
+	 */
 	function url_for($options = null, $overwrite_options = null) {
 		$request = $this->request;
-		//debug($request->path);
+
 		if (is_array($options) || is_null($options)) {
 			
 			if (is_null($options)) {
@@ -581,7 +588,7 @@ class Controller {
 			return APP_ROOT.$this->router->url_for($request->path, $options, $overwrite_options);
 			
 		} else {
-			$options = APP_ROOT.$options.Route::build_query_string($overwrite_options);	
+			$options = $options.Route::build_query_string($overwrite_options);	
 			
 			return $options;
 			

@@ -397,7 +397,12 @@ class Route {
 */
 	}
 	
-	function build_query_string($array) {
+	function build_query_string($array = null) {
+		
+		if (!is_array($array)) {
+			return '';	
+		}
+		
 		foreach($array as $key => $value) {
 			if (is_array($value)) {
 				foreach($value as $sub_key => $sub_value) {
