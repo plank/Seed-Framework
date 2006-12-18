@@ -1248,11 +1248,11 @@ class ModelIterator extends SeedIterator {
 	function to_name_array($field = null) {
 		$result = array();
 		
-		if (is_null($field)) {
-			$field = $option->name_field;	
-		}
-		
 		while($option = $this->next()) {
+			if (is_null($field)) {
+				$field = $option->name_field;	
+			}
+			
 			$result[$option->get_id()] = $option->get($field);	
 		}
 		
