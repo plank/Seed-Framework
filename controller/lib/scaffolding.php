@@ -171,7 +171,7 @@ class Scaffolding {
 			$this->controller->template->$type = $model;
 			
 			$this->controller->template->form = Form::factory($type, $model, $this->controller);
-			$this->controller->template->form->action = $this->controller->url_for(array('action'=>'update'));
+			$this->controller->template->form->action = $this->controller->url_for(null, array('action'=>'update'));
 			
 		} else {
 			trigger_error('no id', E_USER_WARNING);
@@ -199,7 +199,7 @@ class Scaffolding {
 		}
 		
 		$this->controller->template->form = Form::factory($type, $model, $this->controller);
-		$this->controller->template->form->action = $this->controller->url_for(array('action'=>'insert'));
+		$this->controller->template->form->action = $this->controller->url_for(null, array('action'=>'insert'));
 		
 		$this->_render_scaffold('add');
 	}
@@ -321,7 +321,7 @@ class Scaffolding {
 			return $this->controller->redirect(array('action'=>'view', 'id'=>$model->id));	
 			
 		} else {
-			return $this->controller->redirect(array('action'=>'index'));
+			return $this->controller->redirect(null, array('action'=>'index'));
 			
 		}		
 		
