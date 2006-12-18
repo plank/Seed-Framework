@@ -391,8 +391,8 @@ class Controller {
 			call_user_func(array(&$this->scaffolding, $this->action_name));
 			
 		} else {
-			Logger::log('dispatch', LOG_LEVEL_WARNING, "Action '$this->action_name' not found in ".get_class($this));
-			$this->response->status(404);
+			trigger_error("Action '$this->action_name' not found in ".get_class($this), E_USER_ERROR);
+			return false;
 			
 		}
 
