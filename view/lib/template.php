@@ -143,7 +143,7 @@ class Template {
 		
 		$controller->layout = '';
 		
-		$request = $this->request;
+		$request = clone($this->request);
 		
 		if (isset($options)) {
 			$request->parameters = array_merge($request->parameters, $options);
