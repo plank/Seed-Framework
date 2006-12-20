@@ -1,16 +1,39 @@
+# New and improved seed .htaccess
+
+# Symlinks are needed for mod rewrite
+Options +FollowSymLinks +ExecCGI -Indexes
+
 <IfModule mod_rewrite.c>
 	RewriteEngine On
-	
-	RewriteCond %{REQUEST_URI} /staging/
-	RewriteCond %{REQUEST_URI} (\.)	
-	RewriteRule ^staging/(.*)$ $1 [QSA,L]
-	
-	RewriteCond %{REQUEST_URI} /preview/
-	RewriteCond %{REQUEST_URI} (\.)	
-	RewriteRule ^preview/(.*)$ $1 [QSA,L]	
-	
-	# Rewrite requests for documents that don't exist
+
+	# If you don't want your app to look in certain directories,
+	# use the following rewrite rules so that Apache won't rewrite certain requests
+	# 
+	#RewriteCond %{REQUEST_URI} ^/ignoreme.*
+	#RewriteRule .* - [L]
+
+
+	# If your application is accessed via an Alias directive,
+	# then you MUST also set the RewriteBase in this htaccess file.
+	#
+	# Example:
+	#Alias /myapp /path/to/myapp/public
+	#RewriteBase /myapp
+
+	# Blank request goes to index, if it exists
+	RewriteCond %{REQUEST_FILENAME}/index.html -f
+	RewriteRule ^$ index.html [QSA,L]
+
+	# Directory request goes to that directory's index, if it exists
+	RewriteCond %{REQUEST_FILENAME} -d
+	RewriteCond %{REQUEST_FILENAME}/index.html -f
+	RewriteRule ^(.*)$ $1/index.html [QSA,L]
+
+	# Serve .html versions of files 
+	RewriteCond %{REQUEST_FILENAME}.html -f
+	RewriteRule ^(.*)$ $1.html [QSA,L]
+
+	# If we didn't find what we were looking for, dispatch the request
 	RewriteCond %{REQUEST_FILENAME} !-f
-#	RewriteCond %{REQUEST_FILENAME} !-d
-	RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+	RewriteRule ^(.*)$ _dispatch.php?url=$1 [QSA,L]
 </IfModule>
