@@ -335,7 +335,6 @@ class SeedFramework {
 		// Ignore extensions, if configured
 		if (!$this->ignore_extensions) {
 			return false;
-				
 		}
 			
 		$ignore = str_replace(',', '|', $this->ignore_extensions);
@@ -385,9 +384,16 @@ class SeedFramework {
 		// Require the global application controller, if it exists
 		if (file_exists(CONTROLLER_PATH.'application.php')) {
 			require_once(CONTROLLER_PATH.'application.php');
+		} else {
+			trigger_error('Required ApplicationTemplate not found', E_USER_ERROR);	
 		}	
-				
 		
+		// Require the global application view, if it exists
+		if (file_exists(TEMPLATE_PATH.'application.php')) {
+			require_once(TEMPLATE_PATH.'application.php');			
+		} else {
+			trigger_error('Required ApplicationTemplate not found', E_USER_ERROR);	
+		}
 	}
 
 }

@@ -11,6 +11,111 @@
  */
 
 /**
+ * Factory for controller objects
+ *
+ */
+class TemplateFactory {
+	
+	/**
+	 * An array of key-value pairs, where the key is a type, and the value is the file for that type
+	 *
+	 * @var array
+	 */
+	var $mappings;
+	
+	/**
+	 * Constructor
+	 *
+	 * @return TemplateFactory
+	 */
+	function TemplateFactory() {
+		$this->mappings = array();	
+	}
+	
+	
+	function register($type, $path) {
+		$this->mappings[$type] = $path;	
+	}
+	
+	/**
+	 * Singleton method
+	 * 
+	 * @static 
+	 * @return TemplateFactory
+	 */
+	function & get_instance() {
+		static $instances;
+		
+		if (!isset($instances[0])) {
+			$instances[0] = new TemplateFactory();	
+		}
+		
+		return $instances[0];
+		
+	}
+	
+	/**
+	 * Requires the file for the given type
+	 *
+	 * @param string $type
+	 * @return bool
+	 */
+	function import($type) {
+		$type = strtolower($type);		
+		
+		if (isset($this->mappings[$type])) {
+			$path = $this->mappings[$type];
+		} else {
+			$path = TEMPLATE_PATH.$type.".php";
+		}
+
+		if (!file_exists($path)) {
+			// trigger_error("Template file '$path' does not exist", E_USER_ERROR);	
+			return false;
+		}
+		
+		require_once($path);
+		
+		return true;
+		
+	}
+	
+	/**
+	 * Factory method, returns a Template for the given type
+	 *
+	 * @param string $type
+	 * @return Template
+	 */
+	function factory($type, $router = null) {
+		
+		$type = strtolower($type);
+		
+		if (!TemplateFactory::import($type)) {
+			return false;	
+		}
+		
+		$class_name = Inflector::camelize(basename($type)).'Template';
+		
+		if (!class_exists($class_name)) {
+			trigger_error("Template file for '$type' exists, but doesn't contain Template class '$class_name'", E_USER_ERROR);	
+			return false;
+		}
+		
+		$template = new $class_name;
+		
+		if (!is_a($template, 'Template')) {
+			trigger_error("Class '$class_name' doesn't extend Template", E_USER_ERROR);
+			return false;
+		}
+		
+		$template->full_type = $type;
+		$template->router = $router;
+		return $template;
+	}	
+	
+}
+
+/**
  * Template class
  *
  * @package view
@@ -55,7 +160,36 @@ class Template {
 	 * @return Template
 	 */
 	function Template() {
+		$this->setup();
+	}
+	
+	function setup() {
+		
+	}
+	
+	/**
+	 * Requires the file for the given type
+	 *
+	 * @param string $type
+	 * @return bool
+	 */
+	function import($type) {
+		$factory = TemplateFactory::get_instance();
+		
+		return $factory->import($type);
+		
+	}
+	
+	/**
+	 * Factory method, returns a Template for the given type
+	 *
+	 * @param string $type
+	 * @return Template
+	 */
+	function factory($type, $router = null) {
+		$factory = TemplateFactory::get_instance();
 
+		return $factory->factory($type, $router);
 	}
 	
 	/**

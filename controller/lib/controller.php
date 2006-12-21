@@ -267,8 +267,6 @@ class Controller {
 			$this->model = $this->get_type();	
 		}
 		
-		$this->template = new Template();
-		
 		if (class_exists($this->scaffolding_class)) {
 			$this->scaffolding = & new $this->scaffolding_class($this);
 		}
@@ -334,6 +332,24 @@ class Controller {
 		
 	}
 	
+	function _assign_shortcuts($request, $response) {
+		$this->request = $request;
+		$this->params = $request->parameters;
+		$this->response = $response;
+
+		$this->template = Template::factory($this->get_type());		
+		
+		if (!$this->template) {
+			$this->template = new ApplicationTemplate();
+		}
+		
+		$this->template->controller = & $this;
+		$this->template->params = $this->params;
+		$this->template->request = $request;
+		$this->template->flash = $this->flash;		
+		
+	}
+	
 	/**
 	 * Processes the request and calls the appropriate method on the sub controller
 	 *
@@ -342,25 +358,16 @@ class Controller {
 	 */
 	function process($request, $response) {
 		
-		$this->request = $request;
-		$this->params = $request->parameters;
-		$this->response = $response;
+		$this->_assign_shortcuts($request, $response);
 
 		if (isset($this->scaffolding)) {
 			$this->scaffolding->controller = & $this;	
 		}
+		
 		$this->filter_chain->controller = & $this;	
-		$this->template->controller = & $this;
-		$this->template->params = $this->params;
-		$this->template->request = $request;
-		$this->template->flash = $this->flash;
 		
 		// choose the action to perform
-		if (isset($this->params['action'])) {
-			$this->action_name = $this->params['action'];
-		} else {
-			$this->action_name = 'index';
-		}
+		$this->action_name = isset($this->params['action']) ? $this->params['action'] : 'index';
 
 		Logger::log('dispatch', LOG_LEVEL_DEBUG, 'controller: '.$this->get_type().', action: '.$this->action_name);
 		
@@ -370,6 +377,7 @@ class Controller {
 			return $this->response;
 		}
 		
+		// run before filters
 		$filter_result = $this->filter_chain->call_before($this->action_name);
 		
 		if (!$filter_result || $this->has_performed()) {
@@ -383,33 +391,50 @@ class Controller {
 			Model::import($this->model);
 		}
 		
-		// make sure the method exists and that it's not protected
-		if (method_exists($this, $this->action_name) && !in_array($this->action_name, $this->_hidden_methods)) {
+		if (in_array($this->action_name, $this->_hidden_methods) || substr($this->action_name, 0, 1) == '_') {
+			// protected action, raise error
+			trigger_error("Call to protected method", E_USER_ERROR);
+			
+		} else if (method_exists($this, $this->action_name)) {
+			// normal action
 			call_user_func(array(&$this, $this->action_name));
 			
 		} elseif (isset($this->scaffolding) && method_exists($this->scaffolding, $this->action_name)) {
+			// scaffold action
 			call_user_func(array(&$this->scaffolding, $this->action_name));
 			
 		} else {
-			trigger_error("Action '$this->action_name' not found in ".get_class($this), E_USER_ERROR);
-			return false;
+			// action not found
+			$this->action_not_found();
 			
 		}
 
+		// render if it wasn't a manual render or redirect hasn't already happened
 		if (!$this->has_performed()) {
 			$this->render();
 		}
 		
+		// call the after filter chain
 		$this->filter_chain->call_after($this->action_name);
 		
 		return $this->response;
+	}
+
+	/**
+	 * This action is called when no other action matches the request
+	 *
+	 */
+	function action_not_found() {
+		trigger_error("Action '$this->action_name' not found in ".get_class($this), E_USER_ERROR);		
+		
 	}
 	
 	/**
 	 * Includes a helper object into the template. It first looks for a helper containing the name
 	 * of the class, and if that isn't found, it looks for the ApplicationHelper
 	 *
-	 * @return bool Returns true if a helper was found and loaded, false if not
+	 * @deprecated   Helpers will be removed completely in the near future
+	 * @return bool  Returns true if a helper was found and loaded, false if not
 	 */
 	function include_helper() {
 
@@ -420,7 +445,6 @@ class Controller {
 		if (!file_exists($helper_file_name)) {
 			$type = 'application';
 			$helper_file_name = HELPER_PATH.$type.'_helper.php';
-
 		}
 
 		if (!file_exists($helper_file_name)) {
