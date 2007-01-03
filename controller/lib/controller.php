@@ -144,7 +144,7 @@ class Controller {
 	var $db;
 	
 	/**
-	 * A scaffolding object
+	 * The scaffolding object
 	 *
 	 * @var Scaffolding
 	 */
@@ -532,8 +532,34 @@ class Controller {
 		$this->render_text();	
 	}
 	
-	function render_component($controller, $options = null) {
-		$controller = Controller::factory($controller);
+	/**
+	 * Renders a component
+	 *
+	 * @param array $options
+	 * @return string
+	 */
+	function render_component_as_string($options = null) {
+		
+		static $stack = array();
+
+		if (in_array($options, $stack)) {
+			trigger_error('Recursion in render_component', E_USER_ERROR);	
+			return false;
+		} else {
+			$stack[] = $options;
+		}
+
+		if (!isset($options)) {
+			$options = array();	
+		}
+		
+		if (isset($options['controller'])) {
+			$controller = $options['controller'];
+		} else {
+			$controller = $this->controller->get_type();	
+		}
+		
+		$controller = Controller::factory($controller, $this->controller->router);
 		
 		if (!$controller) {
 			return false;
@@ -541,15 +567,24 @@ class Controller {
 		
 //		$controller->layout = '';
 		
-		$request = $this->request;
+		$request = clone($this->request);
 		
 		if (isset($options)) {
 			$request->parameters = array_merge($request->parameters, $options);
 			$request->get = array_merge($request->get, $options);
 		}
 
-		$this->response = $controller->process($request, $this->response);
-		$this->performed_render = true;
+		return $controller->process($request, $this->response);
+
+	}
+	
+	/**
+	 * Renders a component
+	 *
+	 * @param array $options
+	 */	
+	function render_component($options = null) {
+		$this->render_text($this->render_component_as_string($options));
 	}
 	
 	/**
