@@ -37,11 +37,12 @@ function error_handler($errno, $errstr, $errfile, $errline, $errcontext)
 		$error_message .= "-- backtrace --\n\n".backtrace(2)."\n";
 		$error_message .= "-- get --\n\n".print_r($_GET, true)."\n\n";
 		$error_message .= "-- post --\n\n".print_r($_POST, true)."\n\n";
+		$error_message .= "-- files --\n\n".print_r($_FILES, true)."\n\n";
 		$error_message .= "-- cookies --\n\n".print_r($_COOKIE, true)."\n\n";
 		$error_message .= "-- server --\n\n".print_r($_SERVER, true)."\n\n";
 		//$error_message .= "-- context --\n\n".print_r($errcontext, true);
 		//print($error_message);
-		mail(ADMIN_EMAIL, 'PHP Error', $error_message);
+		mail(ADMIN_EMAIL, 'PHP '.ucfirst(error_string($errno)).': '.$errstr, $error_message);
 	}
 	
 	die();
