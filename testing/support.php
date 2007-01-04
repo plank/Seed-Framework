@@ -5,7 +5,8 @@
  *
  */
 define('SEEDTEST_SEED_PATH', dirname(dirname(__FILE__)).'/');
-define('SEEDTEST_SIMPLETEST_PATH', dirname(dirname(dirname(__FILE__))).'/simpletest/');
+// better to define this in config file
+//define('SEEDTEST_SIMPLETEST_PATH', dirname(dirname(dirname(__FILE__))).'/simpletest/');
 define('SEEDTEST_CONFIG_PATH', dirname(dirname(dirname(__FILE__))).'/seed_config/tests.php');
 
 /**
@@ -14,6 +15,17 @@ define('SEEDTEST_CONFIG_PATH', dirname(dirname(dirname(__FILE__))).'/seed_config
  * Simple test framework is expected to be in same directory as framework
  */
 require_once(SEEDTEST_SEED_PATH.'seed.php');
+
+if (!file_exists(SEEDTEST_CONFIG_PATH)) {
+	die("Config file for tests not found in '".SEEDTEST_CONFIG_PATH."', please create it");
+}
+	
+require_once(SEEDTEST_CONFIG_PATH);	
+
+if (!file_exists(SEEDTEST_SIMPLETEST_PATH)) {
+	die("Simpletst not found in '".SEEDTEST_SIMPLETEST_PATH."', please install it");
+}
+
 require_once(SEEDTEST_SIMPLETEST_PATH.'unit_tester.php');
 require_once(SEEDTEST_SIMPLETEST_PATH.'reporter.php');
 require_once(SEEDTEST_SIMPLETEST_PATH.'mock_objects.php');
@@ -23,20 +35,6 @@ class SeedGroupTest extends GroupTest {
 
 	function SeedGroupTest($label = false) {
 		parent::GroupTest($label);
-		$this->load_config();	
-		
-	}
-	
-	/**
-	 * Attempt to load config file
-	 */	
-	function load_config() {
-		if (!file_exists(SEEDTEST_CONFIG_PATH)) {
-			die("Config file for tests not found in '".SEEDTEST_CONFIG_PATH."', please create it");
-		}
-		
-		require_once(SEEDTEST_CONFIG_PATH);		
-		
 	}
 	
 	
