@@ -124,7 +124,7 @@ class CLIArgs {
 		preg_match_all('/([A-Za-z0-9])(:{0,2})/', $string, $matches);
 		
 		for($i = 0; $i < count($matches[1]); $i ++) {
-			$result[$matches[1][$i]] = $matches[2][$i];	
+			$result[$matches[1][$i]] = strlen($matches[2][$i]);	
 		}
 		
 		return $result;
@@ -140,7 +140,7 @@ class CLIArgs {
 		
 		foreach($array as $element) {
 			preg_match('/([A-Za-z0-9]*)(={0,2})/', $element, $matches);
-			$result[$matches[1]] = $matches[2];
+			$result[$matches[1]] = strlen($matches[2]);
 		}
 		
 		return $result;
@@ -161,17 +161,17 @@ class CLIArgs {
 			
 			$specifier = $this->short_options[$option];
 			
-			if ($specifier == ':' || $specifier == '::') {
+			if ($specifier) {
 				if ($i < strlen($arg) - 1) {
 					// if there are characters left in the argument grab those, if not grab the next param
 					$this->options[$option] = substr($arg, $i + 1);	
 				
-				} elseif (count($this->params) && $specifier == ':') {
+				} elseif (count($this->params) && $specifier == 1) {
 					// if there's a next option grab that, but only if the value is required 
 					// need to confirm that this is this correct behavior
 					$this->options[$option] = array_shift($this->params);	
 					
-				} elseif ($specifier == ':') {
+				} elseif ($specifier == 1) {
 					// if the specificer is not optional, we've got an error
 					return false;	
 					

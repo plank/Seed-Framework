@@ -4,13 +4,13 @@
 class CLIArgsTester extends UnitTestCase {
 
 	function test_short_options_parser() {
-		$this->assertEqual(CLIArgs::parse_short_options('abc'), array('a'=>'', 'b'=>'', 'c'=>''));
-		$this->assertEqual(CLIArgs::parse_short_options('ab:c::'), array('a'=>'', 'b'=>':', 'c'=>'::'));
+		$this->assertEqual(CLIArgs::parse_short_options('abc'), array('a'=>0, 'b'=>0, 'c'=>0));
+		$this->assertEqual(CLIArgs::parse_short_options('ab:c::'), array('a'=>0, 'b'=>1, 'c'=>2));
 		
 	}
 	
 	function test_long_options_parser() {
-		$this->assertEqual(CLIArgs::parse_long_options(array('stringa', 'stringb=', 'stringc==')), array('stringa'=>'', 'stringb'=>'=', 'stringc'=>'=='));
+		$this->assertEqual(CLIArgs::parse_long_options(array('stringa', 'stringb=', 'stringc==')), array('stringa'=>0, 'stringb'=>1, 'stringc'=>2));
 		
 	}
 
