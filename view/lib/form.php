@@ -149,29 +149,35 @@ class Form {
 			return false;	
 		}
 		
-		foreach($this->data->columns() as $columns) {
+		foreach($this->data->columns() as $column) {
 			switch (true) {
-				case $columns->name == 'id':
+				case $column->name == 'id':
 					$this->hidden_fields = array('id');
 					break;
 			
-				case $columns->type == 'string':
-					$this->add_control('input', $columns->name);
+				case $column->type == 'string':
+					$this->add_control('input', $column->name);
 					break;
 
-				case $columns->type == 'text':
-					$this->add_control('textarea', $columns->name);
+				case $column->type == 'binary':
+				case $column->type == 'text':
+					$this->add_control('textarea', $column->name);
 					break;
 
 					
-				case $columns->type == 'integer':
-					$key = substr($columns->name, 0, strlen($columns->name) - 3);
+				case $column->type == 'integer':
+					$key = substr($column->name, 0, strlen($column->name) - 3);
 				
 					if (isset($this->data->belongs_to_data[$key])) {
-						$this->add_control('select', $columns->name, ucfirst($key), null, $key);	
+						$this->add_control('select', $column->name, ucfirst($key), null, $key);	
 					}
-					
 					break;
+					
+				case $column->type == 'date':
+				case $column->type == 'datetime':
+					$this->add_control('date', $column->name);
+					break;
+				
 			}
 			
 		}
@@ -933,7 +939,7 @@ class DateFormControl extends FormControl {
 	
 	function second_options($date) {
 		if ($date) {
-			$second = $date->get_second();
+			$second = $date->get_seconds();
 		} else {
 			$second = 0;
 		}
