@@ -227,7 +227,7 @@ class Route {
 		$this->route = $route;
 		
 		if (isset($defaults)) {
-			$this->defaults = $defaults;
+			$this->defaults = array_merge($defaults, $this->default_route);
 		} else {
 			$this->defaults = $this->default_route;	
 		}
