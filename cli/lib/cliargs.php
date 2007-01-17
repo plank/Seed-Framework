@@ -127,6 +127,8 @@ class CLIArgs {
 			$result[$matches[1][$i]] = strlen($matches[2][$i]);	
 		}
 		
+		ksort($result);
+		
 		return $result;
 		
 	}
@@ -142,6 +144,8 @@ class CLIArgs {
 			preg_match('/([A-Za-z0-9]*)(={0,2})/', $element, $matches);
 			$result[$matches[1]] = strlen($matches[2]);
 		}
+		
+		ksort($result);
 		
 		return $result;
 	}

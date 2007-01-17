@@ -5,7 +5,7 @@ class CLI {
 	/**
 	 * @var CLIArgs
 	 */
-	var $args;
+	var $request;
 	
 	/**
 	 * Constructor
@@ -14,9 +14,9 @@ class CLI {
 	 * @return CLI
 	 */
 	function CLI($args) {
-		$this->args = $args;
+		$this->request = $args;
 		
-		set_error_handler(array('CLI', '_error_handler'));
+		//set_error_handler(array('CLI', '_error_handler'));
 	}
 	
 
@@ -26,8 +26,6 @@ class CLI {
 	 * @return int
 	 */
 	function run() {
-		$args = $this->parse_args($args);
-		
 		$this->out('cli test');
 		$this->out(print_r($this->args, true));
 		
