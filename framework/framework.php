@@ -302,7 +302,7 @@ class SeedFramework {
 	 */
 	function set_error_handler() {
 		if (!defined('ERROR_HANDLER')) {
-			define('ERROR_HANDLER', 'simple');
+			define('ERROR_HANDLER', 'dev');
 		} 
 			
 		return seed_set_error_handler(ERROR_HANDLER);	
