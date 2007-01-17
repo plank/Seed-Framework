@@ -1245,15 +1245,19 @@ class ModelIterator extends SeedIterator {
 	 * @param string $field  The field to return as values. Defaults to the name field.
 	 * @return array
 	 */
-	function to_name_array($field = null) {
+	function to_name_array($value_field = null, $key_field = null) {
 		$result = array();
 		
 		while($option = $this->next()) {
-			if (is_null($field)) {
-				$field = $option->name_field;	
+			if (is_null($value_field)) {
+				$value_field = $option->name_field;	
 			}
 			
-			$result[$option->get_id()] = $option->get($field);	
+			if (is_null($key_field)) {
+				$key_field = 'id';
+			}
+			
+			$result[$option->get($key_field)] = $option->get($value_field);	
 		}
 		
 		return $result;		

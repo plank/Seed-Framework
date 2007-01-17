@@ -320,6 +320,7 @@ class ValidationRule {
 		$this->error_messages = array();
 	
 		foreach($this->attributes as $attribute) {
+
 			if (!key_exists($attribute, $values)) {
 				$value = null;
 			} else {
