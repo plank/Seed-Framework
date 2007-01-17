@@ -1,6 +1,6 @@
 <?php
 
-
+define('ENVIRONMENT', 'dev');
 
 
 ?>
