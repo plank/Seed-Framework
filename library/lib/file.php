@@ -378,6 +378,13 @@ class File {
 		
 	}
 	
+	function copy($target) {
+		if ($this->is_file()) {
+			copy($this->path, $target);	
+		}
+		
+	}
+	
 	/**
 	 * Returns the mime type of the file
 	 *

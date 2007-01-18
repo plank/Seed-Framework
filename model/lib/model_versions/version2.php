@@ -214,7 +214,7 @@ class Model extends DataSpace {
 	var $sequence_field = 'id';
 	
 	/**
-	 * Title
+	 * The field to use as the name/title of the model
 	 *
 	 * @var string
 	 */

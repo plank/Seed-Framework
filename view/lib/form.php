@@ -167,9 +167,10 @@ class Form {
 					
 				case $column->type == 'integer':
 					$key = substr($column->name, 0, strlen($column->name) - 3);
-				
+					
 					if (isset($this->data->belongs_to_data[$key])) {
-						$this->add_control('select', $column->name, ucfirst($key), null, $key);	
+						//debug($this->data->belongs_to_data[$key]);
+						$this->add_control('select', $column->name, ucfirst($key), null, $this->data->belongs_to_data[$key]['class_name']);	
 					}
 					break;
 					
@@ -697,7 +698,7 @@ class SelectFormControl extends FormControl {
 		while($option = $options->next()) {
 			$result[$option->get_id()] = $option->get($option->name_field);	
 		}
-		
+
 		return $result;
 	}
 	
