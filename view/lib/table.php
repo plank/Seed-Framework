@@ -673,6 +673,33 @@ class TextTableColumn extends TableColumn {
 	
 }
 
+/**
+ * Base class for table columns
+ * Format email address columns
+ * @package view
+ * @subpackage html
+ */
+class EmailTableColumn extends TableColumn {
+	
+	function generate($value, $id) {
+		if (!$value) {
+			return $this->empty_value;	
+		}
+		
+		if (isset($this->params['max_length'])) {
+			if (strlen(strip_tags($value)) > $this->params['max_length']) {
+				$value = substr(strip_tags($value), 0, $this->params['max_length']).'...';	
+			}
+					
+		}
+		
+		$value = "<a href='mailto:$value'>$value</a>";
+
+		return $value;
+	}	
+	
+}
+
 
 class CheckboxTableColumn extends TableColumn {
 	function generate($value, $id) {
