@@ -23,6 +23,13 @@ class PgsqlDB extends DB {
 	var $result;
 	
 	/**
+	 * The sequence suffix to use for determining sequence names; defaults to 'seq';
+	 * 
+	 * @var string
+	 */	
+	var $sequence_suffix = 'seq';
+	
+	/**
 	 * Constructor
 	 */
 	function PgsqlDB($host, $user, $pass, $database) {
@@ -44,6 +51,10 @@ class PgsqlDB extends DB {
 		}
 						
 		$this->link = pg_connect(implode(" ", $connection)) or trigger_error("Couldn't connect to database $database", E_USER_ERROR);
+		
+		if (defined('DB_SEQUENCE_SUFFIX')) {
+			$this->sequence_suffix = DB_SEQUENCE_SUFFIX;	
+		} 
 		
 	}
 
@@ -151,7 +162,7 @@ class PgsqlDB extends DB {
 	 * @return int
 	 */
 	function insert_id($table_name = '', $id_name = '') {
-		return $this->query_value("select currval('{$table_name}_{$id_name}_seq')");
+		return $this->query_value("select currval('{$table_name}_{$id_name}_".$this->sequence_suffix."')");
 		
 	
 	}
