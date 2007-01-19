@@ -231,9 +231,11 @@ class Scaffolding {
 	function insert() {
 		$errors = false;
 				
+		$model = Model::factory($this->get_type());
+		$model->assign($this->controller->request->post);		
+		
 		if (!isset($this->controller->params['cancel'])) {		
-			$model = Model::factory($this->get_type());
-			$model->assign($this->controller->request->post);
+
 			if (count($this->controller->request->files)) {
 				$uploader = new Uploader($model);
 				
