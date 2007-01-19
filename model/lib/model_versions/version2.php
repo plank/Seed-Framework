@@ -1,4 +1,5 @@
 <?php
+
 /**
  * part of the seed framework
  *
@@ -376,13 +377,6 @@ class Model extends DataSpace {
 			$options['foreign_key'] = $field.'_id';
 			
 		} else {
-			// order doesn't work for polymorphic classes, as they belong to several classes
-			if (!isset($options['order'])) {
-				$class = Model::factory($options['class_name']);
-				
-				$options['order'] = $class->id_field.' ASC';	
-			}
-			
 			if (!isset($options['foreign_key'])) {
 				$options['foreign_key'] = Inflector::underscore($options['class_name']).'_id';
 			}	
@@ -571,6 +565,14 @@ class Model extends DataSpace {
 			$class_name = $this->data[$field.'_type'];
 		} else {
 			$class_name = $options['class_name'];
+			
+			// order doesn't work for polymorphic classes, as they belong to several classes
+			if (!isset($options['order'])) {
+				$class = Model::factory($class_name);
+				
+				$options['order'] = $class->id_field.' ASC';	
+			}			
+			
 		}
 		
 		$foreign_key = $options['foreign_key'];
