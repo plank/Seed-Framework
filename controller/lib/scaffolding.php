@@ -311,6 +311,8 @@ class Scaffolding {
 			if (isset($model->belongs_to_data[$belongs_to])) {
 				$id = $model->get($model->belongs_to_data[$belongs_to]['foreign_key']);
 				
+			} else {
+				$id = null;	
 			}
 			
 			if ($to_view) {
@@ -322,10 +324,11 @@ class Scaffolding {
 		} elseif ($to_view && isset($this->controller->has_many)) {
 			return $this->controller->redirect(array('action'=>'view', 'id'=>$model->id));	
 			
-		} else {
-			return $this->controller->redirect(null, array('action'=>'index'));
+		} 
+		
+		return $this->controller->redirect(null, array('action'=>'index'));
 			
-		}		
+				
 		
 	}	
 	
