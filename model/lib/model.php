@@ -294,6 +294,8 @@ class DataSpace {
 					if (is_array($value)) {
 						$value = $this->columns[$field]->array_to_type(array_values($value));			
 					}
+					
+					$value = $this->columns[$field]->type_cast($value);
 
 					if (method_exists($this, 'set_'.$field)) {
 						call_user_func(array(& $this, 'set_'.$field), $value);
