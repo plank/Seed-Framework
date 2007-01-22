@@ -134,7 +134,10 @@ class Column {
 				
 			case FLOAT:
 				return floatval($value);
-				
+			
+			case BOOLEAN:
+				return boolval($value);
+					
 			default:
 				return $value;
 		}

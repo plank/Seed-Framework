@@ -485,4 +485,21 @@ function nl2p($string) {
 	
 }
 
+/**
+ * Returns the boolean value of a variable. Any value that evaluates to false,
+ * as well as the strings 'false' or 'f', will return as false. Everything
+ * else will return as true.
+ *
+ * @param mixed $var
+ * @return bool
+ */
+function boolval($var) {
+	if (!$var || strtolower($var) == 'false' || strtolower($var) == 'f') {
+		return false;	
+	}
+	
+	return true;
+	
+}
+
 ?>
