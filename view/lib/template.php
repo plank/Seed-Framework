@@ -406,8 +406,19 @@ class Template {
 		
 	}
 	
+	/**
+	* Creates links to stylesheets.
+	*
+	* @param	string	Comma seperated list of style sheets to load.
+	*/
 	function link_to_stylesheet($style_sheet) {
-		return "<link rel='stylesheet' type='text/css' href='".APP_ROOT."_styles/$style_sheet' />";
+		$style_sheets = explode(',', $style_sheet);
+		$css = '';
+		foreach ($style_sheets as $style) {
+			$style = trim($style);
+			$css .= "<link rel='stylesheet' type='text/css' href='".APP_ROOT."_styles/$style' />\n";
+		}
+		return $css;
 	}
 	
 	function show_flash($name, $class_name = null) {
