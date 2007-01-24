@@ -27,6 +27,13 @@ class Router {
 	var $routes;
 	
 	/**
+	 * An array of logging messages from the last parse call
+	 *
+	 * @var array
+	 */
+	var $log;
+	
+	/**
 	 * Maps a request to a specific controller and takes care of loading it
 	 * 
 	 * @param Request $request The object representing the incoming request
@@ -108,14 +115,17 @@ class Router {
 	 * @return string
 	 */
 	function url_for($request_values = null, $new_values = null, $overwrite_values = null) {
-		
+		$this->log = array();
 		$this->_fix_params($request_values, $new_values, $overwrite_values);	
 		
 		foreach($this->routes as $route) {
 			if($result = $route->generate_url($request_values, $new_values, $overwrite_values)) {
+				$this->log[$route->route] = $route->log;
 				return $result;	
 				
 			}
+			$this->log[$route->route] = $route->log;
+			
 			
 		}
 		
@@ -146,12 +156,16 @@ class Router {
 	 * @return array
 	 */
 	function parse($url) {
+		$this->log = array();
 		
 		foreach($this->routes as $route) {
 			if($result = $route->parse_url($url)) {
+				$this->log[$route->route] = $route->log;
 				return $result;	
 				
 			}
+			
+			$this->log[$route->route] = $route->log;
 			
 		}
 		
@@ -227,7 +241,7 @@ class Route {
 		$this->route = $route;
 		
 		if (isset($defaults)) {
-			$this->defaults = array_merge($defaults, $this->default_route);
+			$this->defaults = $defaults; // array_merge($this->default_route, $defaults); this causes problems, put on hold for now
 		} else {
 			$this->defaults = $this->default_route;	
 		}
@@ -368,7 +382,7 @@ class Route {
 			if (key_exists($key, $values) && $default == $values[$key]) {
 				unset($new_values[$key]);
 			} else {
-				$this->log[] = "default key '$key' not found in values or not equal";
+				$this->log[] = "Default key '$key' not found in values or not equal";
 				return false;
 			}	
 			
@@ -435,20 +449,23 @@ class Route {
 	
 	function parse_url($url) {
 		
-		$this->log = array();
-		
 		// explode the route and the url, getting rid of extraneous slashes
 		$route_parts = array_values(array_diff(explode('/', $this->route), array('')));
 		$url_parts = array_values(array_diff(explode('/', $url), array('')));
+
+		$this->log = array('Matching route: '.$this->route.' with url: '.$url);
+		//$this->log[] = $route_parts;
+		//$this->log[] = $url_parts;
 		
 		$return = $this->defaults;
-	
+		$this->log[] = $this->defaults;
 		$catch_all = false;
 		
 		// use foreach because we need to ignore the keys
 		foreach($route_parts as $route_part) {
 
 			if ($catch_all) {
+				$this->log[] = "Invalid route, tokens found after catch_all";
 				trigger_error("The route '".$this->route."' is invalid", E_USER_WARNING);	
 				return false;
 			}
@@ -466,6 +483,7 @@ class Route {
 				
 				$url_parts = array();
 				$catch_all = true;
+				$this->log[] = "Collected remaining values";
 				continue;
 			}
 			
@@ -477,17 +495,17 @@ class Route {
 					if (isset($this->requirements[$token])) {
 						// if it doesn't, the route doesn't match
 						if (preg_match($this->requirements[$token], $url_part) == 0) {
-							$this->log[] = "requirement not met for $token";
+							$this->log[] = "Requirement not met for $token";
 							return false;
 						}
 						
 					}
-				
+					$this->log[] = "Match: $token = $url_part";
 					$return[$token] = $url_part;
 					
 				} else {
 					if (!key_exists($token, $this->defaults)) {
-						$this->log[] = "no default for $token";
+						$this->log[] = "No default for $token";
 						return false;
 					}
 				}
@@ -497,17 +515,21 @@ class Route {
 					$this->log[] = "$route_part doesn't match $url_part";
 					return false;
 					
+				} else {
+					$this->log[] = "Match: $url_part";	
 				}
 			}
 		}
 		
 		if (count($url_parts)) {
-			$this->log[] = "URL had too many parameters";
+			$this->log[] = "URL had more parameters than route";
 			return false;	
 		}
 		
 		// return the resulting params, removing null values
 		$return = array_diff($return, array(null));
+		
+		$this->log[] = $return;
 		
 		return $return;
 		
