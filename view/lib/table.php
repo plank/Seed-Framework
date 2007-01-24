@@ -110,6 +110,8 @@ class Table {
 	 */
 	var $status_field;
 	
+	var $link_options;
+	
 	/**
 	 * Constructor
 	 *
@@ -117,7 +119,7 @@ class Table {
 	 * @param Controller $controller
 	 * @return Table
 	 */
-	function Table($iterator, $controller = null) {
+	function Table($iterator, $controller = null, $link_options = null) {
 		if (!is_a($iterator, 'SeedIterator')) {
 			trigger_error("Parameter 1 is not an Iterator", E_USER_WARNING);
 			return false;
@@ -130,7 +132,11 @@ class Table {
 		
 		
 		$this->result = $iterator;
-	
+		if (is_null($link_options)) {
+			$this->link_options = array();
+		} else {
+			$this->link_options = $link_options;	
+		}
 		$this->columns = array();
 		$this->row_actions = array();
 		$this->buttons = array();
@@ -149,12 +155,12 @@ class Table {
 		
 	}
 	
-	function & factory($type, $iterator, $controller = null) {
+	function & factory($type, $iterator, $controller = null, $link_options = null) {
 		$class_name = Inflector::camelize($type).'Table';
 		$object = false;		
 		
 		if (class_exists($class_name)) {
-			$object = & new $class_name($iterator, $controller);
+			$object = & new $class_name($iterator, $controller, $link_options);
 		}	
 		
 		return $object;
@@ -300,7 +306,7 @@ class Table {
 		$return = "<tr>";
 		
 		// $link_array = $this->link_array;
-		$link_options = array();
+		$link_options = $this->link_options;
 		
 		foreach($this->columns as $field => $data) {
 			
@@ -384,7 +390,7 @@ class Table {
 			$id = $row->get_id();
 		}
 		
-		$link_options['id'] = $id;
+		//$link_options['id'] = $id;
 		
 		foreach($this->columns as $field => $column) {
 			//$column->link_array = $link_array;
