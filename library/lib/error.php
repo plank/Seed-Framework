@@ -17,6 +17,10 @@ if (!defined('E_STRICT')) {
 	define('E_STRICT', 2048);	
 }
 
+if (!defined('E_RECOVERABLE_ERROR')) {
+	define('E_RECOVERABLE_ERROR', 4096);	
+}
+
 /**
  * Require the appropriate error handler
  */
@@ -202,10 +206,15 @@ function error_string($error_value) {
 		E_USER_ERROR => "error",
 		E_USER_WARNING => "warning",
 		E_USER_NOTICE => "notice",
-		E_STRICT => "notice"
+		E_STRICT => "notice",
+		E_RECOVERABLE_ERROR => "recoverable error"
 	);
 	
-	return $error_strings[$error_value];
+	if (isset($error_strings[$error_value])) {
+		return $error_strings[$error_value];
+	} else {
+		return "unknown error";	
+	}
 }
 
 ?>
