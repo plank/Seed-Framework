@@ -202,6 +202,7 @@ class Scaffolding {
 		$this->controller->template->form->action = $this->controller->url_for(null, array('action'=>'insert'));
 		
 		$this->_render_scaffold('add');
+
 	}
 	
 	/**
@@ -337,7 +338,7 @@ class Scaffolding {
 	 */
 	function _render_scaffold($action) {
 		if (file_exists($this->controller->get_template_name($action))) {
-			$this->controller->render();	
+			$this->controller->render($this->controller->get_template_name($action));	
 		} else {
 			$scaffold_template = FRAMEWORK_TEMPLATE_PATH."scaffolding/$action.php";
 			
