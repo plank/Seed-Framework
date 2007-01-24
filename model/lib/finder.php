@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * part of the seed framework
+ *
+ * @author mateo murphy
+ * @copyright mateo murphy
+ * @license The MIT License
+ * @package model
+ */
+
+/**
+ * Finder object for retrieving models
+ *
+ */
 class Finder {
 
 	/**
@@ -282,17 +295,14 @@ class Finder {
 		
 		$sql = "UPDATE ".$this->db->escape_identifier($this->table_name())." SET $updates";
 		
-		if ($conditions) {
-			$sql .= " WHERE ".$conditions;	
-		}
-		
+		$sql .= " WHERE ".$this->add_conditions(conditions);	
 		
 		$this->db->query($sql);
 	}
 	
 	function delete_all($conditions) {
 		
-		$sql = "DELETE FROM ".$this->db->escape_identifier($this->table_name())." WHERE ".$conditions;
+		$sql = "DELETE FROM ".$this->db->escape_identifier($this->table_name())." WHERE ".$this->add_conditions(conditions);
 		
 		$this->db->query($sql);
 		
@@ -303,9 +313,9 @@ class Finder {
 	 *
 	 * @return int
 	 */
-	function count($conditions = '1 = 1') {
+	function count($conditions = null) {
 		
-		$sql = "SELECT COUNT(*) FROM ".$this->db->escape_identifier($this->table_name())." WHERE ".$conditions;
+		$sql = "SELECT COUNT(*) FROM ".$this->db->escape_identifier($this->table_name())." WHERE ".$this->add_conditions($conditions);
 		
 		return $this->count_by_sql($sql);
 	}
@@ -326,7 +336,6 @@ class Finder {
 	/**
 	 * Returns a SQL query for the given options array
 	 *
-	 * @static 
 	 * @param array $options
 	 */
 	function construct_finder_sql($options) {
@@ -342,7 +351,9 @@ class Finder {
 		}
 		
 		if (isset($options['conditions'])) {
-			$query->add_conditions($options['conditions']);	
+			$query->add_conditions($this->add_conditions($options['conditions']));	
+		} else {
+			$query->add_conditions($this->add_conditions());	
 		}
 		
 		if (isset($options['group'])) {
@@ -387,6 +398,27 @@ class Finder {
 		}
 		
 	}
+	
+	/**
+	 * Returns a string of conditions to add for a query
+	 *
+	 * @param string $conditions
+	 * @return string
+	 */
+	function add_conditions($conditions = null) {
+		
+		if (is_null($conditions)) {
+			$conditions = "1 = 1";	
+		}
+		
+		if ($this->model->inheritance_field()) {
+			$conditions = " AND ".$this->db->escape_identifier($this->model->inheritance_field())." = ".$this->db->escape($this->model->type);
+		}
+		
+		return $conditions;
+		
+	}
+	
 }
 
 
