@@ -169,5 +169,13 @@ class DB {
 		
 	}	
 	
+	function escape($string) {
+		return "'".$string."'";
+	}
+	
+	function escape_identifier($string) {
+		return '"'.$string.'"';
+	}
+	
 }
 
