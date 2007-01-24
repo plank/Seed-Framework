@@ -274,6 +274,18 @@ class DataSpace {
 		
 		return false;
 	}
+
+	/**
+	 * Returns an array of attributes that should be read only
+	 */
+	function protected_attributes() {
+		return array();
+			
+	}
+	
+	function cast($field, $value) {
+		return $value;	
+	}
 	
 	/**
 	 * Assign an array of fields and values to the object
@@ -287,23 +299,20 @@ class DataSpace {
 		unset($this->valid);
 		
 		foreach ($data as $field => $value) {
+			
 			if ($field == $this->id_field) {
-				$this->id = $value;	
-			} else {
-				if ($this->field_exists($field)) {
-					if (is_array($value)) {
-						$value = $this->columns[$field]->array_to_type(array_values($value));			
-					}
-					
-					$value = $this->columns[$field]->type_cast($value);
-
-					if (method_exists($this, 'set_'.$field)) {
-						call_user_func(array(& $this, 'set_'.$field), $value);
-					} else {
-						$this->data[$field] = $value;
-					}
-					
-				} 
+				$this->id = $value;
+				continue;
+			}
+			
+			if (!in_array($field, $this->protected_attributes()) && $this->field_exists($field) ) {
+				$value = $this->cast($field, $value);
+				
+				if (method_exists($this, 'set_'.$field)) {
+					call_user_func(array(& $this, 'set_'.$field), $value);
+				} else {
+					$this->data[$field] = $value;
+				}
 			}
 		}
 		
@@ -360,6 +369,13 @@ class Model extends DataSpace {
 	 * @var string
 	 */
 	var $name_field = 'name';
+	
+	/**
+	 * The field used for single table inheritance
+	 *
+	 * @var string
+	 */
+	var $inheritance_field = '';
 	
 	/**
 	 * The unique identifier for the object
@@ -436,12 +452,19 @@ class Model extends DataSpace {
 			$this->table = $this->type;
 		}
 		
+		// grab columns and asign default values
 		$this->columns = $this->db->columns($this->table);
 		
 		foreach($this->columns as $column) {
 			$this->data[$column->name] = $column->default;
 		}		
 		
+		// set the inheritance field value
+		if ($this->inheritance_field && isset($this->columns[$this->inheritance_field])) {
+			$this->data[$this->inheritance_field] = $this->type;
+		}
+		
+		// setup validator
 		$this->validate = & new Validation($this->type);
 		$this->validate->model = & $this;
 		$this->setup();
@@ -452,6 +475,12 @@ class Model extends DataSpace {
 		return $this->columns;	
 	}
 	
+	/* not ready to implement yet
+	function protected_attributes() {
+		return array($this->sequence_field, $this->inheritance_field());
+			
+	}	
+	*/
 	/**
 	 * Returns the associated finder for this model
 	 *
@@ -474,6 +503,25 @@ class Model extends DataSpace {
 	
 	function setup() {
 	
+	}
+	
+	/**
+	 * Casts a value to the right type for a given field
+	 *
+	 * @param string $field  The name of the field
+	 * @param mixed $value	 The value to cast
+	 * @return mixed		 The cast value
+	 */
+	function cast($field, $value) {
+
+		if (is_array($value)) {
+			$value = $this->columns[$field]->array_to_type(array_values($value));			
+		}
+		
+		$value = $this->columns[$field]->type_cast($value);
+	
+		return $value;	
+		
 	}
 	
 	/**
@@ -991,6 +1039,14 @@ class Model extends DataSpace {
 		
 	}
 	
+	/**
+	 * Returns the name of the inheritance field
+	 *
+	 * @return string
+	 */
+	function inheritance_field() {
+		return $this->inheritance_field;	
+	}
 	
 	/**
 	 * Returns the type of the class. i.e. if the class is PageModel, returns page
