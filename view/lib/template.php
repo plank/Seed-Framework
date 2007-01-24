@@ -409,16 +409,43 @@ class Template {
 	/**
 	* Creates links to stylesheets.
 	*
-	* @param	string	Comma seperated list of style sheets to load.
+	* @param string $stylesheets  Comma seperated list of style sheets to load.
+	* @return string
 	*/
-	function link_to_stylesheet($style_sheet) {
-		$style_sheets = explode(',', $style_sheet);
-		$css = '';
-		foreach ($style_sheets as $style) {
-			$style = trim($style);
-			$css .= "<link rel='stylesheet' type='text/css' href='".APP_ROOT."_styles/$style' />\n";
+	function link_to_stylesheet($stylesheets) {
+		if (!is_array($stylesheets)) {
+			$stylesheets = explode(',', $stylesheets);
 		}
-		return $css;
+		
+		$result = '';
+		
+		foreach ($stylesheets as $style) {
+			$style = trim($style);
+			$result .= "<link rel='stylesheet' type='text/css' href='".APP_ROOT."_styles/$style' />\n";
+		}
+		
+		return $result;
+	}
+	
+	/**
+	 * Creates links to javascripts.
+	 *
+	 * @param string $javascripts  Comma seperated list of javascript files to load.
+	 * @return string
+	 */
+	function link_to_javascript($javascripts) {
+		if (!is_array($javascripts)) {
+			$javascripts = explode(',', $javascripts);
+		}
+		
+		$result = '';
+		
+		foreach ($javascripts as $script) {
+			$script = trim($script);
+			$result .= "<script type='text/javascript' src='".APP_ROOT."_javascript/$script'></script>\n";
+		}
+		
+		return $result;
 	}
 	
 	function show_flash($name, $class_name = null) {
