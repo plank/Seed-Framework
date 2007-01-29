@@ -528,8 +528,8 @@ class Controller {
 		
 	}
 	
-	function render_nothing() {
-		$this->render_text();	
+	function render_nothing($status = null) {
+		$this->render_text(' ', $status);	
 	}
 	
 	/**
@@ -585,6 +585,18 @@ class Controller {
 	 */	
 	function render_component($options = null) {
 		$this->render_text($this->render_component_as_string($options));
+	}
+	
+	function render_partial($partial_name) {
+		$layout = $this->layout;
+		$this->layout = '';
+		
+		$result = $this->render($this->get_template_name($partial_name));
+		
+		$this->layout = $layout;
+		
+		return $result;
+			
 	}
 	
 	/**
