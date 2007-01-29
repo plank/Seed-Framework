@@ -295,14 +295,14 @@ class Finder {
 		
 		$sql = "UPDATE ".$this->db->escape_identifier($this->table_name())." SET $updates";
 		
-		$sql .= " WHERE ".$this->add_conditions(conditions);	
+		$sql .= " WHERE ".$this->add_conditions($conditions);	
 		
 		$this->db->query($sql);
 	}
 	
 	function delete_all($conditions) {
 		
-		$sql = "DELETE FROM ".$this->db->escape_identifier($this->table_name())." WHERE ".$this->add_conditions(conditions);
+		$sql = "DELETE FROM ".$this->db->escape_identifier($this->table_name())." WHERE ".$this->add_conditions($conditions);
 		
 		$this->db->query($sql);
 		
