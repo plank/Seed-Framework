@@ -285,6 +285,7 @@ class Template {
 		}
 
 		$response = $controller->process($request, new Response());
+		array_pop($stack);
 		return $response->body;
 		
 	}
