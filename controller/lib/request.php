@@ -154,6 +154,28 @@ class Request {
 	}
 	
 	/**
+	 * Returns true if the request was made via ajax
+	 *
+	 * @return bool
+	 */
+	function is_xml_http_request() {
+		if (isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+			return $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest';
+		} else {
+			return false;	
+		}
+	}
+	
+	/**
+	 * Alias for is_xml_http_request
+	 *
+	 * @return bool
+	 */
+	function is_ajax() {
+		return $this->is_xml_http_request();	
+	}
+	
+	/**
 	 * Set the path parameters to the given array
 	 *
 	 * @param array $path
