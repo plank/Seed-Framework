@@ -718,15 +718,29 @@ class CheckboxTableColumn extends TableColumn {
 
 class ImageTableColumn extends TableColumn {
 	function generate($value, $id) {
-		if ($value) {
-			$return = "<img src='$value' alt='image $id' />";	
-		} else {
+		if (!$value) {
 			if ($this->params['missing_text']) {
-				$return = $this->params['missing_text'];
+				return $this->params['missing_text'];
 			} else {
-				$return = "&nbsp;";
+				return "&nbsp;";
 			}
 		}
+
+		if ($this->params['path']) {
+			$value = $this->params['path'].$value;	
+		}
+			
+		$return = "<img src='$value' ";
+		
+		if ($this->params['width']) {
+			$return .= "width='".$this->params['width']."' ";	
+		}
+
+		if ($this->params['height']) {
+			$return .= "height='".$this->params['height']."' ";	
+		}
+		
+		$return .= "alt='image $id' />";	
 		
 		return $return;
 	}	
