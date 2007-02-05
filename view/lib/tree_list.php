@@ -89,8 +89,14 @@ class TreeList {
 		
 		$return = "";
 		
+		$id = 0;
+		
 		$this->root_level = false;
 		$level = 0;
+		
+		if (!$this->result || $this->result->size() == 0) {
+			return "No result to display";	
+		}
 		
 		while($node = $this->result->next()) {
 			if (!$this->include_node($node)) {
@@ -99,19 +105,20 @@ class TreeList {
 			
 			$node_level = $node->get($this->level_field);
 			
+			if ($node_level == 0) {
+				continue;
+			}			
+			
 			if ($this->root_level === false) {
 				$this->root_level = $level = $node_level - 1;	
 				
 			}
 			
-			if ($node_level == 0) {
-				continue;
-			}
-			
 			if ($node_level > $level) {
 				while($node_level > $level) {
 					if ($level) {
-						$return .= "<ul>\n";	
+						$return .= "<ul id='{$this->id}_child_{$id}'>\n";
+						$id ++;	
 					} else {
 						$return .= "<ul id='$this->id' class='$this->class_name'>\n";							
 					}
