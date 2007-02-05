@@ -318,7 +318,10 @@ class DataSpace {
 		
 		return true;
 	}
-	
+
+	function to_array() {
+		return $this->data;	
+	}
 }
 
 /**
@@ -869,7 +872,7 @@ class Model extends DataSpace {
 		if ($options['through']) {
 			$select = $finder->table_name().'.*';
 			
-			$join = $join_model->table.' ON '.$finder->table_name().'.'.$join_model->type.'_id = '.$join_model->table.'.id';
+			$join = $join_model->table.' ON '.$finder->table_name().'.id = '.$join_model->table.'.'.$finder->table_name().'_id';
 
 			$association_params = array(
 				'select' => $select,
@@ -1216,7 +1219,9 @@ class Model extends DataSpace {
 	
 	function save() {
 		
-		$this->before_save();
+		if (!$this->before_save()) {
+			return false;	
+		}
 		
 		if ($this->is_new_record()) {
 			$result = $this->insert();
@@ -1240,40 +1245,16 @@ class Model extends DataSpace {
 	}
 	
 	/**
-	 * Called before saves
-	 *
-	 * @return bool
-	 */
-	function before_save() {
-		return true;	
-	}
-	
-	/**
-	 * Called after saves
-	 *
-	 * @return bool
-	 */
-	function after_save() {
-		return true;	
-	}
-	
-	/**
-	 * Deprecated, use destro instead
-	 *
-	 */
-	function delete() {
-		$this->destroy();
-		
-	}
-	
-	/**
 	 * Deletes the item, either by removing it from the database, or
 	 * setting its deleted flag to true
 	 *
 	 * @return bool
 	 */
 	function destroy() {
-
+		if (!$this->before_destroy()) {
+			return false;	
+		}
+		
 		$this->remove_dependents();
 		
 		if (isset($this->deleted_field)) {
@@ -1284,9 +1265,16 @@ class Model extends DataSpace {
 			
 		}
 				
-		return $this->db->query($query);
+		$result = $this->db->query($query);
+		
+		$this->after_destroy();
+		
+		return $result;
+		
 	}
 
+
+	
 	/**
 	 * Removes an item's dependents, either by destroying each in turn, deleting them directly, or nulling their foreign keys
 	 *
@@ -1333,20 +1321,21 @@ class Model extends DataSpace {
 
 	
 	/**
-	 * Generates debug dump of the data contained
+	 * Converts the model to an array
 	 *
 	 * @return array
 	 */
-	function dump_data() {
-		
+	function to_array() {
 		if ($this->id_field) {
 			$return = array_merge($this->data, array($this->id_field=>$this->id));
 		} else {
 			$return = $this->data;
 		}
 		
-		return $return;
+		return $return;		
 	}
+	
+
 	
 	/**
 	 * @return bool
@@ -1367,6 +1356,70 @@ class Model extends DataSpace {
 	 */
 	function validate_on_update() {
 		return $this->validate->run($this->dump_data(), false);
+	}
+	
+	// Callbacks
+	
+	/**
+	 * Called before saves
+	 *
+	 * @return bool
+	 */
+	function before_save() {
+		return true;	
+	}
+	
+	/**
+	 * Called after saves
+	 *
+	 * @return bool
+	 */
+	function after_save() {
+		return true;	
+	}
+	
+	/**
+	 * Called before destroy
+	 *
+	 * @return bool
+	 */
+	function before_destroy() {
+		return true;
+	}
+
+	/**
+	 * Called after destroy
+	 *
+	 * @return bool
+	 */
+	function after_destroy() {
+		return true;
+	}			
+	
+	// Deprecated methods; these have been replaced, but are kept for backwards compatibility
+	
+	/**
+	 * Deprecated, use to_array() instead
+	 *
+	 * @return array
+	 */
+	function dump_data() {
+		return $this->to_array();
+
+	}	
+	
+	/**
+	 * Deprecated, use destro instead
+	 *
+	 */
+	function delete() {
+		$this->destroy();
+		
+	}	
+	
+	// PHP5 magic methods
+	function __toString() {
+		return $this->to_string();	
 	}
 	
 }
