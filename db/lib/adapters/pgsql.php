@@ -76,6 +76,8 @@ class PgsqlDB extends DB {
 			return false;
 		}
 
+		$this->last_query = $sql;
+		
 		Logger::log('SQL', LOG_LEVEL_DEBUG, $sql);
 		//debug($sql);
 		$this->result = pg_query($this->link, $sql);	

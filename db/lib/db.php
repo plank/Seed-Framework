@@ -22,6 +22,9 @@ define('SQL_TIME_FORMAT', 'H:i:s');
  * Serves as a factory for creating db objects as well as a registry of created db objects
  */
 class DB {
+	
+	var $last_query;
+	
 	/**
 	 * Singleton function
 	 *

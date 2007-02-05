@@ -62,6 +62,8 @@ class MysqlDB extends DB {
 			return false;
 		}
 
+		$this->last_query = $sql;		
+		
 		$time = micro_time();
 		
 		$this->result = mysql_query($sql, $this->link);	
