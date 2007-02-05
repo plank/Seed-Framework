@@ -469,7 +469,6 @@ function ob_end_clean_all() {
 			return;	
 		}	
 	}	
-	
 }
 
 /**
@@ -501,5 +500,6 @@ function boolval($var) {
 	return true;
 	
 }
+
 
 ?>

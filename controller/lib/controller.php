@@ -338,7 +338,7 @@ class Controller {
 		$this->response = $response;
 
 		$this->template = Template::factory($this->get_type());		
-		
+
 		if (!$this->template) {
 			$this->template = new ApplicationTemplate();
 		}

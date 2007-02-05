@@ -307,8 +307,9 @@ class Scaffolding {
 		
 		// going back to parent
 		if (isset($this->controller->belongs_to) && !is_null($model)) {
+			
 			$belongs_to = $this->controller->belongs_to;
-
+			
 			if (isset($model->belongs_to_data[$belongs_to])) {
 				$id = $model->get($model->belongs_to_data[$belongs_to]['foreign_key']);
 				

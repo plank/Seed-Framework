@@ -748,8 +748,6 @@ class ImageTableColumn extends TableColumn {
 }
 
 /**
- * Base class for table columns
- *
  * @package view
  * @subpackage html
  */
