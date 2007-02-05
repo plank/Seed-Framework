@@ -59,6 +59,13 @@ class TreeList {
 	var $id = 'tree_list';
 	
 	/**
+	 * The value to return when there are no results to display
+	 *
+	 * @var string
+	 */
+	var $empty_return_value = '';
+	
+	/**
 	 * Constuctor
 	 *
 	 * @param SeedIterator $iterator
@@ -85,18 +92,22 @@ class TreeList {
 		
 	}
 	
+	/**
+	 * Generates the view
+	 *
+	 * @return string
+	 */
 	function generate() {
-		
+		if (!$this->result || $this->result->size() == 0) {
+			return $this->empty_return_value;	
+		}
+				
 		$return = "";
 		
 		$id = 0;
 		
 		$this->root_level = false;
 		$level = 0;
-		
-		if (!$this->result || $this->result->size() == 0) {
-			return "No result to display";	
-		}
 		
 		while($node = $this->result->next()) {
 			if (!$this->include_node($node)) {
@@ -159,6 +170,12 @@ class TreeList {
 		
 	}
 	
+	/**
+	 * Generates the html for a given node
+	 *
+	 * @param Model $node
+	 * @return string
+	 */
 	function generate_node($node) {
 		$options = $this->link_options;
 		$options['id'] = $node->get_id();
@@ -173,7 +190,5 @@ class TreeList {
 		
 	}
 }
-
-
 
 ?>
