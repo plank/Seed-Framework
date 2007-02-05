@@ -25,6 +25,21 @@ class NestedSetModel extends Model {
 	var $right_column = "rgt";
 	var $level_column = "level";
 	
+	var $scope_column = '';
+	
+	/**
+	 * Returns a condition for determining what is considered part of the set
+	 *
+	 * @return string
+	 */
+	function scope_condition() {
+		if ($this->scope_column) {
+			return "$scope_column = ".$this->get('scope_column');	
+		}
+		
+		return '1 = 1';		
+	}
+	
 	/**
 	 * @return bool True if this node is the root of the tree, false if it isn't
 	 */
@@ -108,6 +123,21 @@ class NestedSetModel extends Model {
 	}
 	
 	/**
+	 * Returns the parent node
+	 *
+	 * @return NestedSetModel  Returns false if the current node is the root
+	 */
+	function get_parent() {
+		if ($this->is_root()) {
+			return false;	
+		}
+		
+		$finder = $this->finder();
+		return $finder->find($this->parent_id());	
+		
+	}
+	
+	/**
 	 * Returns the node directly to the left of the current item
 	 *
 	 * @return NestedSetModel
@@ -115,7 +145,7 @@ class NestedSetModel extends Model {
 	function get_left_sibling() {
 		$condition = $this->right_column.' = '.($this->get_left() - 1);
 		$finder = $this->finder();
-		$sibling = $finder->find('first', array('conditions'=>$condition));
+		$sibling = $finder->find('first', array('conditions'=>$this->scope_condition().' AND '.$condition));
 		
 //		debug($condition, 'this', $this->dump_data(), 'left sibling', $sibling->dump_data());
 		
@@ -135,7 +165,7 @@ class NestedSetModel extends Model {
 	function get_right_sibling() {
 		$condition = $this->left_column.' = '.($this->get_right() + 1);
 		$finder = $this->finder();
-		$sibling = $finder->find('first', array('conditions'=>$condition));
+		$sibling = $finder->find('first', array('conditions'=>$this->scope_condition().' AND '.$condition));
 		
 //		debug($condition, 'this', $this->dump_data(), 'right sibling', $sibling->dump_data());		
 		
@@ -217,19 +247,19 @@ class NestedSetModel extends Model {
 		// make the space after the higher item
 		$finder->update_all(
 			"$this->left_column = ($this->left_column + $dif), $this->right_column = ($this->right_column + $dif)",
-			"$this->left_column >= $upper_bound"
+			$this->scope_condition()." AND  $this->left_column >= $upper_bound"
 		);
 		
 		// move the lower item and all its children after the higher item
 		$finder->update_all(
 			"$this->left_column = ($this->left_column + $move_amount), $this->right_column = ($this->right_column + $move_amount)", 
-			"$this->left_column >= ".$lower_item->get_left()." AND $this->right_column <= ".$lower_item->get_right()
+			$this->scope_condition()." AND  $this->left_column >= ".$lower_item->get_left()." AND $this->right_column <= ".$lower_item->get_right()
 		);
 
 		// remove the space left 
 		$finder->update_all(
 			"$this->left_column = ($this->left_column - $dif), $this->right_column = ($this->right_column - $dif)",
-			"$this->left_column >= $lower_bound"
+			$this->scope_condition()." AND  $this->left_column >= $lower_bound"
 		);
 ///die();
 		return true;	
@@ -258,11 +288,11 @@ class NestedSetModel extends Model {
 		
 		// move stuff to the right in the database
 		$finder->update_all(
-			"$this->left_column = ($this->left_column + 2)", "$this->left_column >= $right_bound"
+			"$this->left_column = ($this->left_column + 2)", $this->scope_condition()." AND  $this->left_column >= $right_bound"
 		);
 		
 		$finder->update_all(
-			"$this->right_column = ($this->right_column + 2)", "$this->right_column >= $right_bound"
+			"$this->right_column = ($this->right_column + 2)", $this->scope_condition()." AND  $this->right_column >= $right_bound"
 		);
 		
 		$this->save();
@@ -279,21 +309,21 @@ class NestedSetModel extends Model {
 		$finder = $this->finder();
 		
 		if ($this->deleted_field) {
-			$finder->update_all('deleted = 1', $this->left_column." > ".$this->get_left()." AND ".$this->right_column." < ".$this->get_right());
+			$finder->update_all('deleted = 1', $this->scope_condition()." AND  ".$this->left_column." > ".$this->get_left()." AND ".$this->right_column." < ".$this->get_right());
 			
 		} else {
 			$dif = $this->get_right() - $this->get_left() + 1;
 	
 			// delete the children
-			$finder->delete_all($this->left_column." > ".$this->get_left()." AND ".$this->right_column." < ".$this->get_right());
+			$finder->delete_all($this->scope_condition()." AND  ".$this->left_column." > ".$this->get_left()." AND ".$this->right_column." < ".$this->get_right());
 			
 			// fill in the gap
-			$finder->update_all("$this->left_column = ($this->left_column - $dif)", $this->left_column." >= ".$this->get_right());
-			$finder->update_all("$this->right_column = ($this->right_column - $dif)", $this->right_column." >= ".$this->get_right());		
+			$finder->update_all("$this->left_column = ($this->left_column - $dif)", $this->scope_condition()." AND  ".$this->left_column." >= ".$this->get_right());
+			$finder->update_all("$this->right_column = ($this->right_column - $dif)", $this->scope_condition()." AND  ".$this->right_column." >= ".$this->get_right());		
 
 		}
 			
-		parent::delete();
+		return parent::delete();
 	}
 	
 	/**
@@ -301,9 +331,9 @@ class NestedSetModel extends Model {
 	 *
 	 * @return ModelIterator
 	 */
-	function full_set($conditions = '1') {
+	function full_set($conditions = '1 = 1') {
 		$finder = $this->finder();
-		return $finder->find('all', array('conditions' => "$conditions AND (".$this->left_column." >= ".$this->get_left().") and (".$this->right_column." <= ".$this->get_right().")", 'order'=>'lft ASC'));
+		return $finder->find('all', array('conditions' => $this->scope_condition()." AND  $conditions AND (".$this->left_column." >= ".$this->get_left().") and (".$this->right_column." <= ".$this->get_right().")", 'order'=>'lft ASC'));
 	}
 	
 	/**
@@ -311,9 +341,9 @@ class NestedSetModel extends Model {
 	 *
 	 * @return ModelIterator
 	 */
-	function all_children($conditions = '1') {
+	function all_children($conditions = '1 = 1') {
 		$finder = $this->finder();
-		return $finder->find('all', array('conditions' => "$conditions AND (".$this->left_column." > ".$this->get_left().") and (".$this->right_column." < ".$this->get_right().")", 'order'=>'lft ASC'));
+		return $finder->find('all', array('conditions' => $this->scope_condition()." AND  $conditions AND (".$this->left_column." > ".$this->get_left().") and (".$this->right_column." < ".$this->get_right().")", 'order'=>'lft ASC'));
 	}
 	
 	/**
@@ -321,9 +351,9 @@ class NestedSetModel extends Model {
 	 *
 	 * @return ModelIterator
 	 */
-	function direct_children($conditions = '1') {
+	function direct_children($conditions = '1 = 1') {
 		$finder = $this->finder();
-		return $finder->find('all', array('conditions' => $conditions." AND ".$this->parent_column." = ".$this->get_id(), 'order'=>'lft ASC'));
+		return $finder->find('all', array('conditions' => $this->scope_condition()." AND  ".$conditions." AND ".$this->parent_column." = ".$this->get_id(), 'order'=>'lft ASC'));
 	}
 	
 	
