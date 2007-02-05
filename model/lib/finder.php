@@ -243,11 +243,24 @@ class Finder {
 	 * @return Model
 	 */
 	function create($values = array()) {
-		$model = Model::factory($this->get_type());
-		$model->assign($values);	
+		$model = $this->build($values);
 		$model->save();
 		
 		return $model;
+		
+	}
+	
+	/**
+	 * Creates a new model using the given values, but does not save it
+	 *
+	 * @param array $values
+	 * @return Model
+	 */
+	function build($values = array()) {
+		$model = Model::factory($this->get_type());
+		$model->assign($values);	
+		
+		return $model;	
 		
 	}
 	
