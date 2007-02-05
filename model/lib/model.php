@@ -1153,6 +1153,10 @@ class Model extends DataSpace {
 			return false;
 		}
 		
+		if (!$this->before_update()) {
+			return false;	
+		}
+		
 		foreach ($this->columns as $column) {
 			if (isset($this->data[$column->name])) {
 				$fields[] = $this->db->escape_identifier($column->name)." = '".$this->db->escape($this->data[$column->name])."'";
@@ -1163,7 +1167,11 @@ class Model extends DataSpace {
 		
 		$this->sql = "UPDATE ".$this->db->escape_identifier($this->table)." SET ".implode(", ", $fields).$this->where_this();
 
-		return $this->db->query($this->sql);
+		$result = $this->db->query($this->sql);
+		
+		$this->after_update();
+		
+		return $result;
 	}
 	
 	/**
@@ -1177,6 +1185,10 @@ class Model extends DataSpace {
 		}
 		if (!$this->validate_on_update()) {
 			return false;
+		}
+		
+		if (!$this->before_create()) {
+			return false;	
 		}
 		
 		// sequence field needs to be empty
@@ -1200,6 +1212,9 @@ class Model extends DataSpace {
 			} else {
 				$this->set_id($this->db->insert_id($this->table, $this->id_field));
 			}
+			
+			$this->after_create();
+			
 			return true;
 			
 		} else {
@@ -1379,6 +1394,42 @@ class Model extends DataSpace {
 	}
 	
 	/**
+	 * Called before create
+	 *
+	 * @return bool
+	 */
+	function before_create() {
+		return true;	
+	}
+	
+	/**
+	 * Called after create
+	 *
+	 * @return bool
+	 */
+	function after_create() {
+		return true;
+	}
+	
+	/**
+	 * Called before update
+	 *
+	 * @return bool
+	 */
+	function before_update() {
+		return true;
+	}
+	
+	/**
+	 * Called after update
+	 *
+	 * @return bool
+	 */
+	function after_update() {
+		return true;
+	}
+	
+	/**
 	 * Called before destroy
 	 *
 	 * @return bool
@@ -1409,11 +1460,12 @@ class Model extends DataSpace {
 	}	
 	
 	/**
-	 * Deprecated, use destro instead
+	 * Deprecated, use destroy instead
 	 *
+	 * @return bool
 	 */
 	function delete() {
-		$this->destroy();
+		return $this->destroy();
 		
 	}	
 	
