@@ -15,6 +15,9 @@
  */
 define('RFC3339_DATE_FORMAT', 'Y-m-d\TH:i:s\Z'); // e.g. 2003-12-13T18:30:02Z
 
+/**
+ * Format date as per RFC 2822
+ */
 define('RFC2822_DATE_FORMAT', 'D, j M Y H:i:s T'); // e.g. Wed, 6 Jul 2005 13:00:00 PDT
 
 /**
@@ -26,12 +29,14 @@ define('RFC2822_DATE_FORMAT', 'D, j M Y H:i:s T'); // e.g. Wed, 6 Jul 2005 13:00
 class Feed {
 	/**
 	 * The title of the feed
+	 *
 	 * @var string
 	 */
 	var $title;
 	
 	/**
 	 * The subtitle of the feed
+	 *
 	 * @var string
 	 */
 	var $subtitle;
@@ -98,7 +103,7 @@ class Feed {
 	 * @return Feed
 	 */
 	function Feed() {
-	
+		$this->entries = array();
 	}
 	
 

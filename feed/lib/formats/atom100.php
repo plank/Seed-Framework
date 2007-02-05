@@ -84,7 +84,7 @@ class Atom100Format extends FeedFormat {
 		$result = "<?xml version='1.0' encoding='utf-8'?>\n";
 		$result .= "<feed xmlns='http://www.w3.org/2005/Atom'>\n";
 		
-		$result .= "  <title>".$this->escape($feed->title)."</title>\n";
+		$result .= "  ".$this->xhtml_element('title', $feed->title)."\n";
 		$result .= "  <link rel='self' href='".$feed->link."'/>\n";
 		$result .= "  <updated>".$this->date($feed->updated)."</updated>\n";
 		$result .= "  <author>\n";
@@ -95,13 +95,13 @@ class Atom100Format extends FeedFormat {
 		foreach ($feed->entries as $entry) {
 		
 			$result .= "  <entry>\n";
-			$result .= "    <title>".$this->escape($entry->title)."</title>\n";
+			$result .= "    ".$this->xhtml_element('title', $entry->title)."\n";
 			$result .= "    <link rel='alternate' href='".$entry->link."'/>\n";
 			$result .= "    <id>".$entry->id."</id>\n";
 			$result .= "    <updated>".$this->date($entry->updated)."</updated>\n";
 			
 			if ($entry->summary) {
-				$result .= "    <summary type='xhtml'><div xmlns='http://www.w3.org/1999/xhtml'>".$entry->summary."</div></summary>\n";
+				$result .= "    ".$this->xhtml_element('summary', $entry->summary)."\n";
 			}
 			
 			$result .= "  </entry>\n";
@@ -112,9 +112,12 @@ class Atom100Format extends FeedFormat {
 		
 		return $result;
 	}
-	
+	function xhtml_element($type, $string) {
+		return 	"<$type type='xhtml'><div xmlns='http://www.w3.org/1999/xhtml'>".$string."</div></$type>";
+		
+	}
 	function escape($value) {
-		return utf8_encode(htmlentities($value, ENT_QUOTES, 'UTF-8'));				
+		return htmlentities(utf8_encode($value), ENT_QUOTES, 'UTF-8');
 		
 	}
 	

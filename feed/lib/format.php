@@ -155,9 +155,15 @@ class FeedFormat {
 	 * Sends the appropriate header for the feed
 	 */
 	function sendHeader() {
-		header('Content-type:'.$this->content_type);		
+		header('Content-type:'.$this->contentTypeString());		
 	}
 	
+	/**
+	 * returns a string for the content type
+	 */
+	function contentTypeString() {
+		return $this->content_type;	
+	}
 
 }
 
