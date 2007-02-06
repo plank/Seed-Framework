@@ -872,7 +872,11 @@ class Model extends DataSpace {
 		if ($options['through']) {
 			$select = $finder->table_name().'.*';
 			
-			$join = $join_model->table.' ON '.$finder->table_name().'.id = '.$join_model->table.'.'.$finder->table_name().'_id';
+			if (isset($join_model->has_many_data[$field])) {
+				$join = $join_model->table.' ON '.$finder->table_name().'.'.$join_model->type.'_id = '.$join_model->table.'.id';
+			} else if (isset($join_model->belongs_to_data[$field])) {
+				$join = $join_model->table.' ON '.$finder->table_name().'.id = '.$join_model->table.'.'.$finder->table_name().'_id';
+			}
 
 			$association_params = array(
 				'select' => $select,
@@ -893,10 +897,12 @@ class Model extends DataSpace {
 		$association_params = array_merge($association_params, $params);
 		
 		if ($count) {
-			return $finder->count($association_params['conditions']);
+			$result = $finder->count($association_params['conditions']);
 		} else {
-			return $finder->find('all', $association_params);	
+			$result = $finder->find('all', $association_params);	
 		}		
+		
+		return $result;
 		
 	}
 	

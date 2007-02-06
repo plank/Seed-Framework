@@ -116,8 +116,6 @@ class ModelTester extends UnitTestCase {
 	function test_creation() {
 		if (SKIP_DB_TESTS) return;
 		
-		$this->dump('Model version: '.Model::version());
-		
 		$model = new TestModel($this->db);
 		$this->assertNoErrors();
 		
@@ -424,7 +422,7 @@ class ModelTester extends UnitTestCase {
 		
 		$invoices = $firm->get('invoice');
 		
-		$invoice = $invoices->next();
+		$invoice = $invoices->next(); 
 		$this->assertEqual($invoice->get('amount'), '10.00');
 		
 		$invoice = $invoices->next();
@@ -455,7 +453,7 @@ class ModelTester extends UnitTestCase {
 		$this->assertEqual($invoice->get('amount'), '80.00');		
 		
 		$this->assertFalse($invoices->next());		
-		
+
 	}
 	
 }
