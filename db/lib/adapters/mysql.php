@@ -33,7 +33,7 @@ class MysqlDB extends DB {
 	 * Constructor
 	 */
 	function MysqlDB($host = DB_HOST, $user = DB_USER, $pass = DB_PASS, $database = DB_NAME) {
-		$this->link = mysql_connect($host, $user, $pass) or trigger_error("Couldn't connect to database", E_USER_ERROR);
+		$this->link = mysql_connect($host, $user, $pass, true) or trigger_error("Couldn't connect to database", E_USER_ERROR);
 		mysql_query("SET NAMES 'utf8'", $this->link);
 		$this->select_db($database);
 		
@@ -47,11 +47,23 @@ class MysqlDB extends DB {
 	
 	/**
 	 * Executes a given query, then returns the result resource
+	 * This will eventually get deprecated in favor of execute
 	 *
 	 * @param string $sql
 	 * @return resource
 	 */
 	function query($sql) {
+		return $this->execute($sql);
+		
+	}
+	
+	/**
+	 * Executes a given query, then returns the result resource
+	 *
+	 * @param string $sql
+	 * @return resource
+	 */	
+	function execute($sql) {
 		if (!is_string($sql)) {
 			trigger_error("Invalid parameter passed to db::query, expecting string", E_USER_WARNING);
 			return false;
