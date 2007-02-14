@@ -180,5 +180,59 @@ class DB {
 		return '"'.$string.'"';
 	}
 	
+	// Abstract methods
+
+	/**
+	 * Executes a given query, then returns the result resource
+	 *
+	 * @param string $sql
+	 * @return resource
+	 */
+	function query($sql) {
+		trigger_error('Abstract method', E_USER_ERROR);		
+	}
+	
+	function explain($sql) {
+		trigger_error('Abstract method', E_USER_ERROR);		
+	}
+	
+	function query_iterator($sql) {
+		trigger_error('Abstract method', E_USER_ERROR);		
+	}
+	
+	/**
+	 * Executes a query and returns a single value
+	 *
+	 * @param string $sql
+	 * @return string
+	 */
+	function query_value($sql) {
+		trigger_error('Abstract method', E_USER_ERROR);		
+	}
+	
+	/**
+	 * Executes a query and returns the result as an array.
+	 *
+	 * @param string $sql
+	 * @return array
+	 */
+	function query_array($sql, $primary_key = null) {
+		trigger_error('Abstract method', E_USER_ERROR);		
+	}
+	
+	
+	function query_single($sql) {
+		trigger_error('Abstract method', E_USER_ERROR);		
+	}
+	
+	/**
+	 * Returns the last insert id
+	 *
+	 * @return int
+	 */
+	function insert_id() {
+		trigger_error('Abstract method', E_USER_ERROR);
+	}	
+	
 }
 
