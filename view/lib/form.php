@@ -637,6 +637,38 @@ class TextareaFormControl extends FormControl  {
 	}
 }
 
+class SelectmultipleFormControl extends SelectFormControl {
+	function generate_control() {
+		if (isset($this->params['allow_none'])) {
+			$allow_none = $this->params['allow_none'];
+			unset($this->params['allow_none']);
+			
+		} else {
+			$allow_none = false;	
+			
+		}
+		//  debug($this->value->to_name_array('id', 'id'));
+		$this->params['size'] = 5;
+		$this->params['id'] = $this->name;		
+		$this->params['name'] = $this->name.'[]';
+		$this->params['multiple'] = 'multiple';
+		
+		$return = "<em>Note: this data is not versioned - changes made will go live immediately even if you save as draft</em><br />";
+		$return .= "<select ".$this->get_attributes().">";
+/*		
+		if ($allow_none) {
+			$return .= "<option value=''>(none)</option>\n";	
+			
+		}
+	*/	
+		$return .= make_options($this->options, $this->value->to_name_array('id', 'id'), '', true);
+		$return .= "</select>";
+		
+		return $return;
+	}
+	
+}
+
 /**
  * Base class for form controls
  *
@@ -1088,18 +1120,22 @@ function make_number_options($min, $max, $default_value, $zero_padded = false) {
  * Returns a string of <option>s for a given array
  *
  * @param array $data			  The array of data to display
- * @param string $default_value   The option to select
+ * @param mixed $default_value    Can be a string or an array of strings indicating the option(s) to select
  * @param string $not_found		  An optional value to display if the default value is not found
  * @param bool $use_numeric_keys  If true, use the keys as options values; this is always true for string keys
  * @param bool $escape			  If true, escapes html
  * @return string
  */
 function make_options($data, $default_value = '', $not_found = '', $use_numeric_keys = false, $escape = true) {
-
 	$return = '';
 	
 	if (!is_array($data)) {
 		return false;	
+	}
+	
+	if (!is_array($default_value)) {
+		$default_value = array($default_value);	
+		
 	}
 	
 	foreach ($data as $key => $value) {
@@ -1115,10 +1151,8 @@ function make_options($data, $default_value = '', $not_found = '', $use_numeric_
 			$key = $value;
 		}
 		
-		if ($default_value && $key == $default_value) {
+		if (in_array($key, $default_value)) {
 			$return .= " selected ";
-			$default_value = '';
-			
 		}
 		
 		if ($escape) {
