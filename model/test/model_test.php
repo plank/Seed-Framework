@@ -231,7 +231,7 @@ class ModelTester extends UnitTestCase {
 		
 		$model = $news_finder->find(1);
 		$this->assertEqual($model->get('title'), 'Article 1');
-		
+
 		$user = $model->get('user');
 		$this->assertEqual($user->get('username'), 'admin');
 		

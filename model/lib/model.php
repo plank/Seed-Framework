@@ -12,6 +12,7 @@
 
 seed_include('library/iterator');
 seed_include('library/inflector');
+seed_include('model/associations');
 seed_include('db');
 
 
@@ -182,6 +183,10 @@ class DataSpace {
 		return null;	
 	}
 	
+	function set_associated() {
+		return false;	
+	}
+	
 	/**
 	 * Generic getter method. First checks for the existance of a method called get_$field
 	 * (i.e. if field = 'title', looks for get_title) and calls it if found, if not
@@ -310,7 +315,7 @@ class DataSpace {
 				
 				if (method_exists($this, 'set_'.$field)) {
 					call_user_func(array(& $this, 'set_'.$field), $value);
-				} else {
+				} else if (!$this->set_associated($field, $value)) {
 					$this->data[$field] = $value;
 				}
 			}
@@ -407,6 +412,27 @@ class Model extends DataSpace {
 	 * @var string
 	 */
 	var $deleted_field; // = 'deleted';
+	
+	/**
+	 * If this field is present, it will be set to the current timestamp when a record is created
+	 *
+	 * @var string
+	 */
+	var $created_at_field = 'created_at';
+	
+	/**
+	 * If this field is present, it will be set to the current timestamp when a record is updated
+	 *
+	 * @var string
+	 */
+	var $updated_at_field = 'updated_at';
+	
+	/**
+	 * An array containing all association data
+	 *
+	 * @var array
+	 */
+	var $associations = array();
 	
 	/**
 	 * @var Array
@@ -516,11 +542,17 @@ class Model extends DataSpace {
 	 * @return mixed		 The cast value
 	 */
 	function cast($field, $value) {
-
+		// if the column doesn't exist, don't cast the value
+		if (!isset($this->columns[$field])) {
+			return $value;	
+		}
+		
+		// precast arrays
 		if (is_array($value)) {
 			$value = $this->columns[$field]->array_to_type(array_values($value));			
 		}
 		
+		// cast value
 		$value = $this->columns[$field]->type_cast($value);
 	
 		return $value;	
@@ -542,6 +574,8 @@ class Model extends DataSpace {
 	 * @return Model
 	 */	
 	function belongs_to($field, $options = null) {
+		
+		$this->associations[$field] = &new BelongsToAssociation($this, $field, $options);
 		
 		if (is_null($options)) {
 			$options = array();	
@@ -592,6 +626,8 @@ class Model extends DataSpace {
 	 * @return Model
 	 */
 	function has_one($field, $options = null) {
+		$this->associations[$field] = &new HasOneAssociation($this, $field, $options);		
+		
 		if (is_null($options)) {
 			$options = array();
 		}
@@ -635,6 +671,8 @@ class Model extends DataSpace {
 	 * @return ModelIterator
 	 */
 	function has_many($field, $options = null) {
+		$this->associations[$field] = &new HasManyAssociation($this, $field, $options);
+		
 		if (is_null($options)) {
 			$options = array();
 		}
@@ -690,6 +728,8 @@ class Model extends DataSpace {
 	 * @return ModelIterator
 	 */
 	function has_and_belongs_to_many($field, $options = null) {
+		$this->associations[$field] = &new HasAndBelongsToManyAssociation($this, $field, $options);
+		
 		if (is_null($options)) {
 			$options = array();
 		}
@@ -947,6 +987,13 @@ class Model extends DataSpace {
 		
 	}	
 	
+	function set_associated($field, $value) {
+		if (isset($this->associations[$field])) {
+			return $this->associations[$field]->set($this, $field, $value);
+		}		
+		
+	}
+	
 	/**
 	 * Allows retrieving associated models with additional params
 	 *
@@ -956,6 +1003,10 @@ class Model extends DataSpace {
 	 * association exists but no records are being returned, and will return null if the association doesn't exist
 	 */
 	function find_associated($field, $params = null) {
+		if (isset($this->associations[$field])) {
+			return $this->associations[$field]->get($this, $params);	
+		}
+/*		
 		if (isset($this->belongs_to_data[$field])) {
 			return $this->_handle_belongs_to($field, $params);
 		}
@@ -971,7 +1022,7 @@ class Model extends DataSpace {
 		if (isset($this->has_and_belongs_to_many_data[$field])) {
 			return $this->_handle_has_and_belongs_to_many($field, $params);
 		}
-
+*/
 		return null;
 	}
 	
@@ -984,6 +1035,10 @@ class Model extends DataSpace {
 	 * association exists but no records are being returned, and will return null if the association doesn't exist
 	 */
 	function count_associated($field, $params = null) {
+		if (isset($this->associations[$field])) {
+			return $this->associations[$field]->get($this, $params, true);	
+		}
+/*		
 		if (isset($this->belongs_to_data[$field])) {
 			return $this->_handle_belongs_to($field, $params, true);
 		}
@@ -999,7 +1054,7 @@ class Model extends DataSpace {
 		if (isset($this->has_and_belongs_to_many_data[$field])) {
 			return $this->_handle_has_and_belongs_to_many($field, $params, true);
 		}
-
+*/
 		return null;
 	}	
 	
@@ -1163,6 +1218,11 @@ class Model extends DataSpace {
 			return false;	
 		}
 		
+		// set the updated time if the field is present
+		if ($this->updated_at_field && isset($this->columns[$this->updated_at_field])) {
+			$this->data[$this->updated_at_field] = now();
+		}			
+		
 		foreach ($this->columns as $column) {
 			if (isset($this->data[$column->name])) {
 				$fields[] = $this->db->escape_identifier($column->name)." = '".$this->db->escape($this->data[$column->name])."'";
@@ -1200,18 +1260,22 @@ class Model extends DataSpace {
 		// sequence field needs to be empty
 		unset($this->data[$this->sequence_field]);
 		
+		// set the updated time if the field is present
+		if ($this->created_at_field && isset($this->columns[$this->created_at_field])) {
+			$this->data[$this->created_at_field] = now();
+		}		
+		
 		foreach ($this->columns as $column) {
 			if (isset($this->data[$column->name])) {
 				$fields[] = $this->db->escape_identifier($column->name);
 				$values[] = "'".$this->db->escape($this->data[$column->name])."'";
 			}
 		}
-
+		
 		assert(isset($fields));
 		
 		$this->sql = "INSERT INTO ".$this->db->escape_identifier($this->table)." (".implode(", ", $fields).") VALUES (".implode(", ", $values).")";
 	
-
 		if ($this->db->query($this->sql)) {
 			if ($this->sequence_field != $this->id_field) {
 				$this->data[$this->sequence_field] = $this->db->insert_id($this->table, $this->sequence_field);
@@ -1569,11 +1633,12 @@ class ModelIterator extends SeedIterator {
 			$result[$option->get($key_field)] = $option->get($value_field);	
 		}
 		
+		$this->reset();
+		
 		return $result;		
 		
 	}
 	
 }
-
 
 ?>

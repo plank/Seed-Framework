@@ -249,24 +249,24 @@ class MultilangModel extends Model {
 				$this->id = $value;	
 			} else {
 				if ($this->field_exists($field)) {
-					if (is_array($value)) {
+					if (is_array($value) && isset($this->columns[$field])) {
 						$value = $this->columns[$field]->array_to_type(array_values($value));
 					}
 
 					if (method_exists($this, 'set_'.$field)) {
 						call_user_func(array(& $this, 'set_'.$field), $value);
-					} else {
+					} else if (!$this->set_associated($field, $value)) {
 						$this->data[$field] = $value;
 					}
 					
 				} elseif ($this->version->field_exists($field)) {
-					if (is_array($value)) {
+					if (is_array($value) && isset($this->version->columns[$field])) {
 						$value = $this->version->columns[$field]->array_to_type(array_values($value));
 					}
 
 					if (method_exists($this->version, 'set_'.$field)) {
 						call_user_func(array(& $this->version, 'set_'.$field), $value);
-					} else {
+					} else if (!$this->version->set_associated($field, $value)) {
 						$this->version->data[$field] = $value;
 					}					
 				}
