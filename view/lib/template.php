@@ -143,7 +143,7 @@ class Template {
 	var $controller;
 	
 	/**
-	 * 
+	 * @var string
 	 */
 	var $_path;
 	
@@ -377,7 +377,7 @@ class Template {
 	 *
 	 * @return string
 	 */
-	function button_to($text = '', $options = null, $overwrite_options = null) {
+	function button_to($text = '', $options = null, $overwrite_options = null, $html_options = null) {
 		// if $options is false, simply return the text
 		if (!$options && !$overwrite_options) {
 			return $text;
@@ -394,7 +394,15 @@ class Template {
 			
 		}
 		
-		$result = "<form method='post' action='$link' class='button-to'>";
+		if (is_null($html_options)) {
+			$html_options = array();
+		}
+		
+		if (!isset($html_options['method'])) {
+			$html_options['method'] ='post';	
+		}
+		
+		$result = "<form method='".$html_options['method']."' action='$link' class='button-to'>";
 		$result .= "<div><input type='submit' value='$text' /></div>";
 		$result .= "</form>";
 		
