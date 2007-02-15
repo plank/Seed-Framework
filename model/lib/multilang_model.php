@@ -435,6 +435,10 @@ class MultilangModel extends Model {
 	
 }
 
+class MultilangVersionFinder extends Finder {
+	
+}
+
 class MultilangVersionModel extends Model {
 	var $sequence_field = 'revision';
 	var $parent_field = '';
