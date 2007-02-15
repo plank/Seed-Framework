@@ -321,7 +321,8 @@ class HasManyAssociation extends ModelAssociation {
 		}
 		
 		if ($this->through) {
-			$select = $this->finder->table_name().'.*';
+			// @TODO check if we really needed this...
+			//$select = $this->finder->table_name().'.*';
 			
 			if (!isset($join_model->associations[$this->field])) {
 				trigger_error("No association data for request field ".$this->field);	
@@ -331,10 +332,11 @@ class HasManyAssociation extends ModelAssociation {
 			if ($join_model->associations[$this->field]->type == 'has_many') {
 				$join = $join_model->table.' ON '.$this->finder->table_name().'.'.$join_model->type.'_id = '.$join_model->table.'.id';
 			} else {
-				$join = $join_model->table.' ON '.$this->finder->table_name().'.id = '.$join_model->table.'.'.$this->finder->table_name().'_id';			}
+				$join = $join_model->table.' ON '.$this->finder->table_name().'.id = '.$join_model->table.'.'.$this->finder->table_name().'_id';
+			}
 
 			$association_params = array(
-				'select' => $select,
+				//'select' => $select,
 				'joins' => $join,
 				'conditions' => $condition." AND ".$this->conditions,
 				'order' => $this->order

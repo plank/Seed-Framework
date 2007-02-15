@@ -27,8 +27,14 @@ class MultilangFinder extends Finder {
 			
 		}
 		
+		if (isset($options['joins']) && $options['joins']) {
+			$options['joins'] = $options['joins'].' LEFT JOIN ';
+		} else {
+			$options['joins'] = '';	
+		}
+		
 		// add the join to the version table
-		$options['joins'] = "$version_table_name ON $table_name.$id_field = $version_table_name.$foreign_key";
+		$options['joins'] .= "$version_table_name ON $table_name.$id_field = $version_table_name.$foreign_key";
 		
 		if (!isset($options['select'])) {
 			$options['select'] = "$table_name.*, $version_table_name.*";	
@@ -81,8 +87,6 @@ class MultilangFinder extends Finder {
 			$query->offset = $options['offset'];	
 		}
 
-//		die(debug($query->generate()));
-		
 		return $query->generate();
 		
 	}	
