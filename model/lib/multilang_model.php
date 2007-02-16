@@ -90,6 +90,28 @@ class MultilangFinder extends Finder {
 		return $query->generate();
 		
 	}	
+	
+	/**
+	 * Returns the number of rows in that meet the given condition 
+	 *
+	 * @return int
+	 */
+	function count($conditions = null) {
+		$table_name = $this->model->table_name();
+		$version_table_name = $this->model->version_table_name();
+		$id_field = $this->model->id_field;
+		$foreign_key = $this->model->foreign_key();
+		
+		/*$version_field = $this->model->version_field;
+		$language_field = $this->model->language_field;
+		$default_language = $this->model->default_language;*/
+		
+		
+		$sql = "SELECT COUNT(*) FROM ".$this->db->escape_identifier($this->table_name())." LEFT JOIN $version_table_name ON $table_name.$id_field = $version_table_name.$foreign_key WHERE ".$this->add_conditions($conditions);
+		
+		return $this->count_by_sql($sql);
+	}	
+	
 }
 
 /**
