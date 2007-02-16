@@ -585,7 +585,7 @@ class HiddenFormControl extends FormControl {
  * @package view
  * @subpackage html
  */
-class InputFormControl extends FormControl  {
+class TextFormControl extends FormControl  {
 	function generate_control() {
 		if (isset($this->params['prefix'])) {
 			$prefix = $this->params['prefix'];
@@ -603,6 +603,9 @@ class InputFormControl extends FormControl  {
 		return "$prefix<input ".$this->get_attributes()." />";
 	}
 }
+
+// for backwards compatibility
+class InputFormControl extends TextFormControl { }
 
 /**
  * Base class for form controls
@@ -855,7 +858,9 @@ class FckeditorFormControl extends FormControl  {
 			$FCKeditor->BasePath = '/FCKeditor/';
 		}
 		$FCKeditor->ToolbarSet = 'Default';
-		$FCKeditor->Height = $this->params['height'];
+		if (isset($this->params['height'])) {
+			$FCKeditor->Height = $this->params['height'];
+		}
 		$FCKeditor->Value = $this->value;
 		return $FCKeditor->CreateHtml();
 
