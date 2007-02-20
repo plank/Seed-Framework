@@ -522,6 +522,14 @@ class PgsqlIterator extends SeedIterator  {
 		
 	}
 	
+	function reset() {
+		if ($this->position) {
+			$this->position = 0;
+			return pg_result_seek($this->data, 0);
+		}		
+		
+	}
+	
 }
 
 /**
