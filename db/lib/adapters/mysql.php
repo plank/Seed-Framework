@@ -434,8 +434,10 @@ class MysqlDB extends DB {
 		
 	}
 	
-	
+	// this is generally causing more trouble than it's worth, at the least we need to check if it's supported
 	function lock_table($table_name, $alias = null) {
+		return;
+		
 		$sql = "LOCK TABLES $table_name";
 		
 		if (isset($alias)) {
@@ -448,7 +450,10 @@ class MysqlDB extends DB {
 		
 	}
 
+	// see lock_table
 	function unlock_tables() {
+		return;
+		
 		return $this->query('UNLOCK TABLES');	
 		
 	}
