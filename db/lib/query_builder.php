@@ -56,6 +56,11 @@ class SelectQueryBuilder {
 	var $joins;
 	
 	/**
+	 * @var array
+	 */
+	var $having;
+	
+	/**
 	 * Constructor
 	 *
 	 * @param string $table
@@ -80,6 +85,7 @@ class SelectQueryBuilder {
 		$this->reset_conditions();
 		$this->reset_joins();
 		$this->reset_group_by();
+		$this->reset_having();
 		$this->limit = 0;
 		$this->offset = 0;
 		$this->order = '';
@@ -170,6 +176,22 @@ class SelectQueryBuilder {
 	 */
 	function reset_conditions() {
 		$this->conditions = array();
+	}
+	
+	/**
+	 * Returns the having clauses
+	 * 
+	 * @return array
+	 */
+	function get_having() {
+		return $this->having;	
+	}
+	
+	/**
+	 * Resets the having clauses
+	 */
+	function reset_having() {
+		$this->having = array();	
 	}
 	
 	/**
@@ -285,6 +307,10 @@ class SelectQueryBuilder {
 			
 		}
 
+		if (count($this->having)) {
+			$sql .= " HAVING ".implode(', ', $this->having);	
+		}
+		
 		if ($this->order) {
 			$sql .= " ORDER BY ".$this->order;
 		}

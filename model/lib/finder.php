@@ -385,6 +385,10 @@ class Finder {
 			$query->offset = $options['offset'];	
 		}
 
+		if (isset($options['having'])) {
+			$query->having = array($options['having']);	
+		}
+		
 		return $query->generate();
 	}	
 	
