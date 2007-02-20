@@ -651,7 +651,9 @@ class SelectmultipleFormControl extends SelectFormControl {
 			
 		}
 		//  debug($this->value->to_name_array('id', 'id'));
-		$this->params['size'] = 5;
+		if (!isset($this->params['size'])) {
+			$this->params['size'] = 5;
+		}
 		$this->params['id'] = $this->name;		
 		$this->params['name'] = $this->name.'[]';
 		$this->params['multiple'] = 'multiple';
@@ -664,7 +666,13 @@ class SelectmultipleFormControl extends SelectFormControl {
 			
 		}
 	*/	
-		$return .= make_options($this->options, $this->value->to_name_array('id', 'id'), '', true);
+		if ($this->value) {
+			$defaults = $this->value->to_name_array('id', 'id');
+		} else {
+			$defaults = '';	
+		}
+
+		$return .= make_options($this->options, $defaults, '', true);
 		$return .= "</select>";
 		
 		return $return;
