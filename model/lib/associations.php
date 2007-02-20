@@ -296,7 +296,10 @@ class HasManyAssociation extends ModelAssociation {
 	 * @return array
 	 */
 	function get_params() {
-					
+		if (!$this->model->get_id()) {
+			return false;
+		}	
+		
 		$this->finder = Finder::factory($this->class_name);
 		
 		// choose the table the conditions will be applied to
@@ -408,7 +411,10 @@ class HasOneAssociation extends ModelAssociation {
 	 * @return array
 	 */
 	function get_params() {
-
+		if (!$this->model->get_id()) {
+			return false;	
+		}
+		
 		$this->finder = Finder::factory($this->class_name);
 		
 		$association_params = array(
@@ -488,7 +494,10 @@ class HasAndBelongsToManyAssociation extends ModelAssociation {
 	 * @return array
 	 */
 	function get_params() {
-
+		if (!$this->model->get_id()) {
+			return false;	
+		}
+		
 		$this->finder = Finder::factory($this->class_name);
 		
 		$association_params = array(
