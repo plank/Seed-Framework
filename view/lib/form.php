@@ -865,6 +865,11 @@ class FckeditorFormControl extends FormControl  {
 		} else {
 			$FCKeditor->BasePath = '/FCKeditor/';
 		}
+		
+		if (defined('FCKEDITOR_CUSTOM_CONFIG_PATH')) {
+			$FCKeditor->Config['CustomConfigurationsPath']	= FCKEDITOR_CUSTOM_CONFIG_PATH ;
+		}
+		
 		$FCKeditor->ToolbarSet = 'Default';
 		if (isset($this->params['height'])) {
 			$FCKeditor->Height = $this->params['height'];
