@@ -501,5 +501,20 @@ function boolval($var) {
 	
 }
 
+/**
+ * Escapes any html entity found that isn't a valid xml entity. 
+ *
+ * Particularily useful for embedding escaped html into xml, as required by rss feeds
+ *
+ * @param string
+ * @return string
+ */
+function escape_non_xml_entities($string) {
+	$string = preg_replace('/&(?!(quot|amp|apos|lt|gt))([A-Za-z]*);/', '&amp;\\2;', $string);
+	return $string;	
+	
+}
+
+
 
 ?>
