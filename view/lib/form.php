@@ -183,10 +183,18 @@ class Form {
 			
 		}
 		
-		$this->add_button('submit', 'Save');
-		$this->add_button('cancel', 'Cancel');	
+		$this->add_default_buttons();
 		
 		return true;
+		
+	}
+	
+	/**
+	 * Adds the default save and cancel buttons to the form
+	 */
+	function add_default_buttons() {
+		$this->add_button('submit', 'Save');
+		$this->add_button('cancel', 'Cancel');	
 		
 	}
 	
