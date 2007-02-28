@@ -193,9 +193,13 @@ class Table {
 			
 		}
 		
+		$this->add_default_row_actions();				
+	}
+	
+	function add_default_row_actions() {
 		$this->add_row_action('Edit', array('action'=>'edit'));
-		$this->add_row_action('Delete', array('action'=>'delete'), array('confirm'=>'Delete this '.$type.'?'));
-				
+		$this->add_row_action('Delete', array('action'=>'delete'), array('confirm'=>'Delete this '.$this->result->model_type.'?'));
+		
 	}
 	
 	function row_actions($param) {
