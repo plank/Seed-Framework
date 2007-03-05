@@ -233,6 +233,16 @@ class File {
 	}
 	
 	/**
+	 * Returns the modification time of a file, as a timestimp
+	 *
+	 * @return int
+	 */
+	function get_modification_time() {
+		return filemtime($this->path);	
+		
+	}
+	
+	/**
 	 * Returns true if this file object represents a directory
 	 *
 	 * @return bool
