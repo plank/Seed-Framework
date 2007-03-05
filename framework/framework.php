@@ -88,11 +88,13 @@ if (APP_URL == '/') {
 	
 }
 
+/**
+ * Url of thr root of the public folder
+ */
 define('PUBLIC_ROOT', APP_ROOT.'public/');
 
 
 // Framework path constants
-
 if (defined('SESSION_LIFETIME')) {
 	ini_set('session.gc_maxlifetime', SESSION_LIFETIME);
 }
