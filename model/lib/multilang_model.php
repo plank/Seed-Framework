@@ -100,20 +100,44 @@ class MultilangFinder extends Finder {
 	 *
 	 * @return int
 	 */
-	function count($conditions = null) {
+	function count($conditions = null, $version_conditions = null, $lang = 'en') {
 		$table_name = $this->model->table_name();
 		$version_table_name = $this->model->version_table_name();
 		$id_field = $this->model->id_field;
 		$foreign_key = $this->model->foreign_key();
-		
+	
 		/*$version_field = $this->model->version_field;
 		$language_field = $this->model->language_field;
 		$default_language = $this->model->default_language;*/
 		
 		
-		$sql = "SELECT COUNT(*) FROM ".$this->db->escape_identifier($this->table_name())." LEFT JOIN $version_table_name ON $table_name.$id_field = $version_table_name.$foreign_key WHERE ".$this->add_conditions($conditions);
-		
+		$sql = "SELECT COUNT(*) FROM ".$this->db->escape_identifier($this->table_name())." LEFT JOIN $version_table_name ON $table_name.$id_field = $version_table_name.$foreign_key WHERE ".$this->add_conditions($conditions, $version_conditions, $lang);
+
 		return $this->count_by_sql($sql);
+	}
+	
+	/**
+	 * Returns a string of conditions to add for a query
+	 *
+	 * @param string $conditions
+	 * @return string
+	 */
+	function add_conditions($conditions = null, $version_conditions = null, $lang = 'en') {
+		$version_table_name = $this->model->version_table_name();
+		$latest_field = $this->model->latest_field;
+		
+		if (is_null($conditions)) {
+			$conditions = "1 = 1";	
+		}
+		
+		if (!isset($version_conditions)) {
+			$version_conditions = "$version_table_name.$latest_field = 1";
+		}			
+
+		$conditions .= " AND lang = '$lang' AND ".$version_conditions;
+		
+		return $conditions;
+		
 	}	
 	
 }
