@@ -515,6 +515,21 @@ function escape_non_xml_entities($string) {
 	
 }
 
+/**
+ * Returns a time stamp for a RFC3339 formated date string
+ *
+ * @param string $string   The date string
+ * @return int
+ */
+function parse_RFC3339_date($string) {
+
+	if (preg_match('/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.(\d{3})-(\d{2}:\d{2})/', $string, $matches)) {
+		return mktime($matches[4], $matches[5], $matches[6], $matches[2], $matches[3], $matches[1]);
+	} else {
+		return false;	
+	}
+	
+}
 
 
 ?>
