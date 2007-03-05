@@ -9,8 +9,17 @@
  */
 
 /**
- * Factory for controller objects
+ * Factory for controller objects.
  *
+ * Implemented as a singleton, the controller factory is reponsible for creating Controller objects, as well as including
+ * the files containing. By default, the factory looks in app/controller, but it's possible to register other locations 
+ * (for plug-ins, etc)
+ *
+ *
+ * @author mateo murphy
+ * @copyright mateo murphy
+ * @license The MIT License
+ * @package controller 
  */
 class ControllerFactory {
 	
@@ -30,7 +39,12 @@ class ControllerFactory {
 		$this->mappings = array();	
 	}
 	
-	
+	/**
+	 * Register a controller type to path mapping
+	 *
+	 * @param string $type
+	 * @param string $path
+	 */
 	function register($type, $path) {
 		$this->mappings[$type] = $path;	
 	}
@@ -53,9 +67,10 @@ class ControllerFactory {
 	}
 	
 	/**
-	 * Requires the file for the given type
+	 * Requires the file for the given type. This will first look for a mapping with that key, and failing that
+	 * will look in app/controllers. Triggers an error if the file isn't found.
 	 *
-	 * @param string $type
+	 * @param string $type  The type of the controller i.e. news for NewsController
 	 * @return bool
 	 */
 	function import($type) {
@@ -114,7 +129,19 @@ class ControllerFactory {
 /**
  * Controller
  *
- * @package controller
+ * Controllers are the heart of seed requests. They are made up of one or more actions that are executed on requests, and then either
+ * render a template or redirect to another action. Actions are defined as methods on the controller, and will be made accessible to the
+ * web server via the routes.
+ *
+ * Action, by default, render a template in the app/views directory corresponding to the name of the controller and the action after
+ * executing the code of the action.
+ *
+ * Actions can also redirect after performing their code, by returning a 302 Moved HTTP Response.
+ *
+ * @author mateo murphy
+ * @copyright mateo murphy
+ * @license The MIT License
+ * @package controller 
  */
 
 class Controller {
@@ -515,6 +542,12 @@ class Controller {
 		}
 	}
 	
+	/**
+	 * Renders a given string, with the given status code
+	 *
+	 * @param string $text
+	 * @param int $status
+	 */
 	function render_text($text = '', $status = null) {
 		$this->performed_render = true;
 		
@@ -528,12 +561,17 @@ class Controller {
 		
 	}
 	
+	/**
+	 * Renders an empty string, with the given status code
+	 *
+	 * @param int $status
+	 */
 	function render_nothing($status = null) {
 		$this->render_text(' ', $status);	
 	}
 	
 	/**
-	 * Renders a component
+	 * Renders a component as a string
 	 *
 	 * @param array $options
 	 * @return string
@@ -587,6 +625,11 @@ class Controller {
 		$this->render_text($this->render_component_as_string($options));
 	}
 	
+	/**
+	 * Renders a partial. Useful when making ajax requests
+	 *
+	 * @param string $partial_name
+	 */
 	function render_partial($partial_name) {
 		$layout = $this->layout;
 		$this->layout = '';
