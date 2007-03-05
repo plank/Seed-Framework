@@ -14,6 +14,13 @@
  * @package library
  */
 class Inflector {
+	
+	/**
+	 * Converts an underscored string into camel case
+	 *
+	 * @param string $string
+	 * @return string
+	 */
 	function camelize($string) {
 		$strings = explode('_', str_replace('-', '_', $string));
 		$result = '';
@@ -44,8 +51,8 @@ class Inflector {
 	/**
 	 * Returns a human friendly version of a string
 	 *
-	 * @param string $string The string to humanize
-	 * @return string The humanized string
+	 * @param string $string  The string to humanize
+	 * @return string         The humanized string
 	 */
 	function humanize($string) {
 		return ucfirst(str_replace('_', ' ', $string));
@@ -56,9 +63,13 @@ class Inflector {
 	 * Returns a lower case and underscored version of a string,
 	 * removing any non word character.
 	 * suitable for urls etc.	
+	 *
+	 * @param string $string
+	 * @return string
 	 */
 	function linkify($string) {
-		$string = preg_replace('/\./', '', $string);
+		// remove certain punctuations charactes
+		$string = preg_replace('/\.|\\\'/', '', $string);
 		$string = preg_replace('/\W+/', '_', $string);
 		$string = strtolower(trim($string, '_'));	
 		 
