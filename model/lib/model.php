@@ -849,8 +849,7 @@ class Model extends DataSpace {
 		}
 					
 		$finder = Finder::factory($options['class_name']);
-		
-		
+	
 		$association_params =array(
 			'conditions' => $options['foreign_key']." = ".$this->get_id()." AND ".$options['conditions'],
 			'order' => $options['order']
@@ -1006,23 +1005,7 @@ class Model extends DataSpace {
 		if (isset($this->associations[$field])) {
 			return $this->associations[$field]->get($this, $params);	
 		}
-/*		
-		if (isset($this->belongs_to_data[$field])) {
-			return $this->_handle_belongs_to($field, $params);
-		}
-		
-		if (isset($this->has_one_data[$field])) {
-			return $this->_handle_has_one($field, $params);
-		}
 
-		if (isset($this->has_many_data[$field])) {
-			return $this->_handle_has_many($field, $params);
-		}
-		
-		if (isset($this->has_and_belongs_to_many_data[$field])) {
-			return $this->_handle_has_and_belongs_to_many($field, $params);
-		}
-*/
 		return null;
 	}
 	
@@ -1038,23 +1021,7 @@ class Model extends DataSpace {
 		if (isset($this->associations[$field])) {
 			return $this->associations[$field]->get($this, $params, true);	
 		}
-/*		
-		if (isset($this->belongs_to_data[$field])) {
-			return $this->_handle_belongs_to($field, $params, true);
-		}
-		
-		if (isset($this->has_one_data[$field])) {
-			return $this->_handle_has_one($field, $params, true);
-		}
 
-		if (isset($this->has_many_data[$field])) {
-			return $this->_handle_has_many($field, $params, true);
-		}
-		
-		if (isset($this->has_and_belongs_to_many_data[$field])) {
-			return $this->_handle_has_and_belongs_to_many($field, $params, true);
-		}
-*/
 		return null;
 	}	
 	
@@ -1111,14 +1078,24 @@ class Model extends DataSpace {
 	function inheritance_field() {
 		return $this->inheritance_field;	
 	}
-	
+
 	/**
 	 * Returns the type of the class. i.e. if the class is PageModel, returns page
 	 *
 	 * @return string
 	 */
+	function type() {
+		return Inflector::underscore(str_replace('model', '', strtolower(get_class($this))));		
+	}
+	
+	/**
+	 * Returns the type of the class. i.e. if the class is PageModel, returns page
+	 *
+	 * @return string
+	 * @deprecated use type() instead
+	 */
 	function _get_type() {
-		return Inflector::underscore(str_replace('model', '', strtolower(get_class($this))));
+		return $this->type();
 
 	}	
 	
@@ -1178,12 +1155,14 @@ class Model extends DataSpace {
 	function upload_path($field) {
 		if (!defined('UPLOAD_PATH')) {
 			trigger_error("UPLOAD_PATH is not defined in the config file", E_USER_ERROR);
+			return false;
 		}
 		
-		$path = UPLOAD_PATH.$this->_get_type().'/'.$field.'/';
+		$path = UPLOAD_PATH.$this->type().'/'.$field.'/';
 		
 		if (!file_exists($path)) {
 			trigger_error("Upload path '$path' doesn't exist", E_USER_ERROR);
+			return false;
 		}
 		
 		return $path;
