@@ -1,5 +1,17 @@
 <?php
 
+
+class MysqlColumn extends Column {
+	
+	function simplified_type($sql_type) {
+		if (preg_match('/^tinyint\(1\)/i', $sql_type)) {
+			return BOOLEAN;
+		}
+		
+		return parent::simplified_type($sql_type);	
+	}
+}
+
 /**
  * Mysql db abstraction class
  *
@@ -334,7 +346,7 @@ class MysqlDB extends DB {
 	    	$columns = $this->column_definitions($table);
 	    	
 	    	foreach($columns as $column) {
-	    		$result[$column['Field']] = new Column(
+	    		$result[$column['Field']] = new MysqlColumn(
 	    			$column['Field'], 
 	    			$column['Default'], 
 	    			$column['Type'], 

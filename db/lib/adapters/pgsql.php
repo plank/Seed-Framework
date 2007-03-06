@@ -1,5 +1,9 @@
 <?php
 
+class PgsqlColumn extends Column {
+	
+}
+
 /**
  * Mysql db abstraction class
  *
@@ -236,7 +240,7 @@ class PgsqlDB extends DB {
 	    	$columns = $this->column_definitions($table);
 	    	
 	    	foreach($columns as $column) {
-	    		$result[$column['Field']] = new Column(
+	    		$result[$column['Field']] = new PgsqlColumn(
 	    			$column['Field'], 
 	    			$this->default_value($column['Default']), 
 	    			$this->translate_field_type($column['Type']), 
