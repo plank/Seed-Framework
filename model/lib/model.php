@@ -302,12 +302,12 @@ class DataSpace {
 	 */
 	function assign($data) {
 		unset($this->valid);
-		
+
 		foreach ($data as $field => $value) {
 			
 			if ($field == $this->id_field) {
 				$this->id = $value;
-				continue;
+				//continue;
 			}
 			
 			if (!in_array($field, $this->protected_attributes()) && $this->field_exists($field) ) {
