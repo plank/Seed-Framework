@@ -468,8 +468,8 @@ class MultilangModel extends Model {
 	 *
 	 * @return array
 	 */
-	function dump_data() {
-		return array_merge(parent::dump_data(), $this->version->dump_data(), array($this->id_field=>$this->id));	
+	function to_array() {
+		return array_merge(parent::to_array(), $this->version->to_array(), array($this->id_field=>$this->id));	
 		
 	}
 	
