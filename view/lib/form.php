@@ -739,12 +739,18 @@ class SelectFormControl extends FormControl {
 		
 	}
 	
+	/**
+	 * Returns an array of options for the given type
+	 *
+	 * @param string $type
+	 * @return array
+	 */
 	function get_options($type) {
 		$finder = Finder::factory($type);
 		
 		$result = array();
 		
-		$options = $finder->find('all');
+		$options = $finder->find('all', array('order'=>$finder->model->name_field.' ASC'));
 		
 		while($option = $options->next()) {
 			$result[$option->get_id()] = $option->get($option->name_field);	
