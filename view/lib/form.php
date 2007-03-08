@@ -649,6 +649,41 @@ class TextareaFormControl extends FormControl  {
 }
 
 class SelectmultipleFormControl extends SelectFormControl {
+	function generate_read_only() {
+		// directly return the values from iterators
+		if (is_a($this->value, 'SeedIterator')) {
+			if ($this->value->size() == '0') {
+				return $this->empty_value;	
+			}
+			
+			$values = $this->value->to_name_array();
+			
+			return implode(', ', $values);
+		} 
+		
+		// values is an id or an array of ids
+		if (!is_array($this->value)) {
+			$values = array($this->value);
+		} else {
+			$values = $this->value;	
+		}
+		
+		foreach($values as $value) {
+			if (isset($this->options[$value])) {
+				$result[] = $this->options[$value];	
+			} 
+			
+		}
+		
+		if (isset($result)) {
+			return implode(', ', $result);
+		} else {
+			return $this->empty_value;	
+		}
+		
+	}	
+	
+	
 	function generate_control() {
 		if (isset($this->params['allow_none'])) {
 			$allow_none = $this->params['allow_none'];
