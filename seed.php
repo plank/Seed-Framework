@@ -44,7 +44,7 @@ seed_include('library/base');
 /**
  * Custom error handler
  */
-seed_include('library/error');
+seed_include('error/error');
 
 // FUNCTIONS //
 
