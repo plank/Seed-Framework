@@ -103,7 +103,6 @@ class ModelAssociation {
 	 * @return mixed
 	 */
 	function get(&$model, $params = null, $count = false) {
-		
 		$this->model = & $model;
 		
 		$association_params = $this->get_params();
@@ -121,9 +120,6 @@ class ModelAssociation {
 			$result = $this->finder->count($association_params['conditions']);
 		} else {
 			$result = $this->finder->find($this->find_type, $association_params);	
-			
-			//debug($this->finder->db->last_query);
-			
 		}		
 		
 		return $result;
@@ -137,6 +133,9 @@ class ModelAssociation {
 	 * @return bool
 	 */
 	function set(& $model, $field, $value) {
+		debug($model->dump_data(), $field, $value);
+		die('setting associated');
+		
 		return false;	
 		
 	}
@@ -508,7 +507,48 @@ class HasAndBelongsToManyAssociation extends ModelAssociation {
 
 		return $association_params;
 		
-	}		
+	}
+	
+	/**
+	 * Sets a new model to the association
+	 *
+	 * 
+	 * @return bool
+	 */
+	function set(& $model, $field, $value) {
+		//debug($model->dump_data(), $field, $value);
+		
+		// unfortunately, this technique will only work on a model that already has been persisted... oops
+		if (!$model->get_id()) {
+			return false;	
+		}
+		
+		// erase old 
+		$sql = "DELETE FROM ".$this->join_table." WHERE ".$this->foreign_key." = ".$model->get_id();
+		
+		$model->db->execute($sql);
+		
+		if (!is_array($value)) {
+			$value = array($value);	
+		}
+		
+		foreach($value as $item) {
+			if (is_a($item, 'Model')) {
+				$item = $item->get_id();	
+			}
+			
+			$sql = sprintf("INSERT INTO %s (%s, %s) VALUES (%u, %u)", 
+				$this->join_table, $this->foreign_key, $this->association_foreign_key, $model->get_id(), $item
+			);
+			
+			$model->db->execute($sql);
+			
+		}
+		
+		return true;	
+		
+	}	
+	
 	
 }
 
