@@ -87,7 +87,7 @@ class Response extends HTTPResponse {
 				header("$header: $value");
 			}
 		} else {
-			// print "Couldn't send headers, output already started at $file, line $line";	
+			print "<!-- Couldn't send headers, output already started at $file, line $line -->";
 		}
 		
 		if($method == 'HEAD' || $this->body == '') {
