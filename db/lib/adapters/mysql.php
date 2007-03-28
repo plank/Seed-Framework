@@ -332,6 +332,19 @@ class MysqlDB extends DB {
     	
     }
 		
+	/**
+	 * Creates a limit part of a query
+	 *
+	 */
+    function limit_offset($limit = 0, $offset = 0) {
+    	if (!$limit) return false;
+    		
+    	if ($offset) {
+    		return " LIMIT $offset, $limit";
+    	} else {
+    		return " LIMIT $limit";
+    	}
+    }
     
     /**
      * Retrieve the collection of columns for the table

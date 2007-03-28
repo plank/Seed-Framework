@@ -234,5 +234,9 @@ class DB {
 		trigger_error('Abstract method', E_USER_ERROR);
 	}	
 	
+	function limit_offset($limit = 0, $offset = 0) {
+		
+	}
+	
 }
 
