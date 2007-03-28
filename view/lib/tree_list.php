@@ -65,6 +65,9 @@ class TreeList {
 	 */
 	var $empty_return_value = '';
 	
+	
+	var $show_root_node;
+	
 	/**
 	 * Constuctor
 	 *
@@ -116,7 +119,7 @@ class TreeList {
 			
 			$node_level = $node->get($this->level_field);
 			
-			if ($node_level == 0) {
+			if ($node_level == 0 && !$this->show_root_node) {
 				continue;
 			}			
 			
