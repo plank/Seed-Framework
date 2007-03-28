@@ -9,7 +9,7 @@
 class Atom100Format extends FeedFormat {
 	var $protocol = 'atom';
 	var $version = '1.00';
-	
+	var $type = 'html';
 	var $content_type = "application/atom+xml";
 	
 	function detect($data) {
@@ -113,7 +113,20 @@ class Atom100Format extends FeedFormat {
 		return $result;
 	}
 	function xhtml_element($type, $string) {
-		return 	"<$type type='xhtml'><div xmlns='http://www.w3.org/1999/xhtml'>".$string."</div></$type>";
+		switch ($this->type) {
+			case 'html':
+				return 	"<$type type='html'>".$string."</$type>";
+				break;
+				
+			case 'xhtml':
+				return 	"<$type type='xhtml'><div xmlns='http://www.w3.org/1999/xhtml'>".$string."</div></$type>";			
+
+			case 'text':				
+			default:
+				return 	"<$type type='text'>".$string."</$type>";
+		}
+		
+		
 		
 	}
 	function escape($value) {
