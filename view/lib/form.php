@@ -34,6 +34,13 @@ class Form {
 	var $controller;	
 	
 	/**
+	 * Translator
+	 *
+	 * @var Translator
+	 */
+	var $translator;
+	
+	/**
 	 * An array of fields to generate as hidden inputs
 	 *
 	 * @var array
@@ -85,6 +92,8 @@ class Form {
 	 */
 	var $max_file_size = false;
 	
+	
+	
 	/**
 	 * Returns a new Simple subclass based on the type paramter given. 
 	 *
@@ -126,7 +135,7 @@ class Form {
 		$this->controls = array();
 		$this->buttons = array();
 		$this->controller = $controller;
-		
+		$this->translator = new Translator();
 		if (!$this->id) {
 			$this->id = Inflector::underscore(get_class($this));
 		}		
@@ -247,7 +256,8 @@ class Form {
 	 * @param FormControl $control
 	 */
 	function append_control(& $control) {
-		$this->controls[$control->name] = $control;
+		$control->translator = & $this->translator;
+		$this->controls[$control->name] = & $control;
 	}
 
 	/**
@@ -269,7 +279,8 @@ class Form {
 	}
 	
 	function append_button(& $button) {
-		$this->buttons[] = $button;	
+		$button->translator = & $this->translator;
+		$this->buttons[] = & $button;	
 		
 	}
 	
@@ -366,7 +377,7 @@ class Form {
 		
 		$return = "<tr class='$classname'>";		
 		
-		$return .= "<th><label for='$control->name'>$control->label</label></th>";		
+		$return .= "<th><label for='$control->name'>".$this->translator->text($control->label)."</label></th>";		
 		$return .= "<td>".$control->generate($data, $read_only)."</td>";
 		$return .= "</tr>\n";
 		
@@ -378,6 +389,8 @@ class Form {
 		$return .= "<th>&nbsp;</th><td>";		
 		
 		foreach($this->buttons as $button) {
+
+			//$button->translator = & $this->translator;
 			$return .= $button->generate()."&nbsp;";	
 		}
 		
@@ -396,6 +409,8 @@ class Form {
  * @subpackage html
  */
 class FormControl {
+	
+	var $translator;
 	
 	/**
 	 * The label to display next to the control.
@@ -701,7 +716,7 @@ class SelectmultipleFormControl extends SelectFormControl {
 		$this->params['name'] = $this->name.'[]';
 		$this->params['multiple'] = 'multiple';
 		
-		$return = "<em>Note: this data is not versioned - changes made will go live immediately even if you save as draft</em><br />";
+		$return = "<em>".$this->translator->text("Note: this data is not versioned - changes made will go live immediately even if you save as draft")."</em><br />";
 		$return .= "<select ".$this->get_attributes().">";
 /*		
 		if ($allow_none) {
@@ -755,7 +770,7 @@ class SelectFormControl extends FormControl {
 		$return = "<select ".$this->get_attributes().">";
 		
 		if ($allow_none) {
-			$return .= "<option value=''>(none)</option>\n";	
+			$return .= "<option value=''>".$this->translator->text("(none)")."</option>\n";	
 			
 		}
 		
@@ -858,7 +873,7 @@ class FileFormControl extends FormControl {
 		$return = '';
 		
 		if (!$this->value) {
-			$this->value = '(none)';
+			$this->value = $this->translator->text('(none)');
 		} else {
 			if ($image_root) {
 				$return = '<img src="' . $image_root.$this->value . '" alt="preview" />';
@@ -870,7 +885,7 @@ class FileFormControl extends FormControl {
 		}
 			
 		$return .= "<div style='margin-bottom: 4px'><em>Existing file: </em> ".$this->value."</div>";
-		$return .= "<div><em>Upload a new file:</em> <input ".$this->get_attributes()." /></div>";
+		$return .= "<div><em>".$this->translator->text("Upload a new file:")."</em> <input ".$this->get_attributes()." /></div>";
 
 		return $return;
 		
@@ -885,7 +900,7 @@ class FileFormControl extends FormControl {
 			if($this->value != ''){
 				$return = '<img mitch="'.$this->value.'" src="' . $image_root.$this->value . '" alt="preview" />';				
 			} else {
-				$return = "None.";
+				$return = $this->translator->text("None");
 			}
 		} else {
 			$return = $this->value;	
@@ -1062,7 +1077,7 @@ class ImageFormControl extends FormControl {
 		if ($this->value) {
 			return "<img src='".$this->value."' /><br />".basename($this->value);
 		} else {
-			return "No image";
+			return $this->translator->text("No image");
 		}
 	}
 }
@@ -1091,7 +1106,7 @@ class YesnoFormControl extends FormControl {
 		$return = "<select name='$this->name'>";
 		
 		if ($allow_none) {
-			$return .= "<option value=''>(none)</option>\n";	
+			$return .= "<option value=''>".$this->translator->text('(none)')."</option>\n";	
 			
 		}
 		
@@ -1285,7 +1300,7 @@ class SubmitFormControl extends FormControl {
 		$this->params['id'] = $this->name;		
 		$this->params['name'] = $this->name;
 		$this->params['type'] = 'submit';
-		$this->params['value'] = $this->value;
+		$this->params['value'] = $this->translator->text($this->value);
 
 		if (isset($this->params['confirm'])) {
 			$this->params['onclick'] = "return confirm('".$this->params['confirm']."')";

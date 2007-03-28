@@ -26,6 +26,13 @@ class Table {
 	var $controller;
 	
 	/**
+	 * Translator object
+	 *
+	 * @var Translator
+	 */
+	var $translator;
+	
+	/**
 	 * The html id for the table
 	 *
 	 * @var string
@@ -130,6 +137,7 @@ class Table {
 			return false;
 		}
 		
+		$this->translator = new Translator();
 		
 		$this->result = $iterator;
 		if (is_null($link_options)) {
@@ -197,6 +205,7 @@ class Table {
 	}
 	
 	function add_default_row_actions() {
+		$this->add_row_action('View', array('action'=>'view'));
 		$this->add_row_action('Edit', array('action'=>'edit'));
 		$this->add_row_action('Delete', array('action'=>'delete'), array('confirm'=>'Delete this '.$this->result->model_type.'?'));
 		
@@ -318,7 +327,7 @@ class Table {
 	
 			$link_options['sortby'] = $data->sort_field;
 			
-			$display = $data->label;
+			$display = $this->translator->text($data->label);
 			
 			if ($this->sortable && $display) {
 				// if this is the currently sorted field, assign the class
@@ -441,6 +450,8 @@ class Table {
 		$return = "<td class='actions'>";
 		
 		foreach ($this->row_actions as $display => $options) {
+			$display = $this->translator->text($display);
+			
 			list($target_options, $link_options, $only, $except) = $options;
 			
 			if (isset($link_options['confirm'])) {
