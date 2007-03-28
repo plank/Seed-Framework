@@ -367,7 +367,7 @@ class Controller {
 		$this->template = Template::factory($this->get_type());		
 
 		if (!$this->template) {
-			$this->template = new ApplicationTemplate();
+			$this->template = & new ApplicationTemplate($this);
 		}
 		
 		$this->template->controller = & $this;

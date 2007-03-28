@@ -86,7 +86,7 @@ class TemplateFactory {
 	 * @param string $type
 	 * @return Template
 	 */
-	function factory($type, $router = null) {
+	function factory($type, $controller, $router = null) {
 		
 		$type = strtolower($type);
 		
@@ -101,7 +101,7 @@ class TemplateFactory {
 			return false;
 		}
 		
-		$template = new $class_name;
+		$template = & new $class_name($controller);
 		
 		if (!is_a($template, 'Template')) {
 			trigger_error("Class '$class_name' doesn't extend Template", E_USER_ERROR);
@@ -159,7 +159,8 @@ class Template {
 	 *
 	 * @return Template
 	 */
-	function Template() {
+	function Template(& $controller) {
+		$this->controller = & $controller;
 		$this->setup();
 	}
 	
@@ -314,9 +315,8 @@ class Template {
 			return false;
 		}
 		
-		$partial = & new Template();
+		$partial = & new ApplicationTemplate($this->controller);
 		$partial->helper = & $this->helper;
-		$partial->controller = & $this->controller;
 		$partial->flash = & $this->flash;
 		
 		if (isset($local_assigns)) {
