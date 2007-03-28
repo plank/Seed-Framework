@@ -389,7 +389,7 @@ class Finder {
 			$query->having = array($options['having']);	
 		}
 		
-		return $query->generate();
+		return $query->generate($this->db);
 	}	
 	
 	/**

@@ -16,6 +16,11 @@
  */
 class SelectQueryBuilder {
 	/**
+	 * @var Db
+	 */
+	var $db;
+	
+	/**
 	 * @var string
 	 */
 	var $table;
@@ -270,10 +275,11 @@ class SelectQueryBuilder {
 	/**
 	 * Generates the sql query
 	 *
+	 * @param DB $db
 	 * @param bool $count
 	 * @return string
 	 */
-	function generate($count = false) {
+	function generate($db, $count = false) {
 	
 		$sql = "SELECT ";
 		
@@ -315,15 +321,7 @@ class SelectQueryBuilder {
 			$sql .= " ORDER BY ".$this->order;
 		}
 		
-		if ($this->limit) {
-			$sql .= " LIMIT ";
-			
-			if ($this->offset) {
-				$sql .= $this->offset.", ";
-			}
-			
-			$sql .= $this->limit;
-		}
+		$sql .= $db->limit_offset($this->limit, $this->offset);
 			
 		return $sql;
 	}
@@ -332,9 +330,10 @@ class SelectQueryBuilder {
 	 * Generate a count query, which returns the number of rows the query would return without
 	 * a limit
 	 *
+	 * @param DB $db	 
 	 * @return string
 	 */
-	function generate_count() {
+	function generate_count($db) {
 		return $this->generate(true);	
 	}
 	

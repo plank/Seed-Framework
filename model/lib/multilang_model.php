@@ -91,7 +91,7 @@ class MultilangFinder extends Finder {
 			$query->having = array($options['having']);	
 		}		
 		
-		return $query->generate();
+		return $query->generate($this->db);
 		
 	}	
 	
@@ -384,6 +384,17 @@ class MultilangModel extends Model {
 		$this->version->insert();
 		
 		return parent::update();
+	}
+	
+	function update_over() {
+		// set the language field to the default if it doesn't have a value
+		if (!$this->version->get($this->language_field)) {
+			$this->version->set($this->language_field, $this->default_language);	
+		}
+
+		$this->version->update();
+		
+		return parent::update();			
 	}
 	
 	function insert() {

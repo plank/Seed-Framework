@@ -112,7 +112,7 @@ class VersionedModel extends Model {
 
 //		debug($query->generate());
 		
-		return $query->generate();
+		return $query->generate($this->db);
 		
 	}
 	

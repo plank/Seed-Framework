@@ -1168,6 +1168,15 @@ class Model extends DataSpace {
 		return $path;
 	}
 	
+	function path_for($field) {
+		
+		if (!$this->get($field)) return false;
+		
+		$path = UPLOAD_URL.$this->type().'/'.$field.'/';
+			
+		return $path.$this->get($field);
+	}
+	
 	/**
 	 * Returns the filename to store for an upload
 	 *
@@ -1399,7 +1408,16 @@ class Model extends DataSpace {
 		return $return;		
 	}
 	
-
+	/**
+	 * @return bool
+	 */
+	function is_valid() {
+		if ($this->is_new_record()) {
+			return $this->validate_on_create();	
+		} else {
+			return $this->validate_on_update();	
+		}
+	}	
 	
 	/**
 	 * @return bool
@@ -1407,7 +1425,7 @@ class Model extends DataSpace {
 	function validate() {
 		return true;	
 	}
-
+	
 	/**
 	 * @return bool
 	 */

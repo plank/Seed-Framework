@@ -202,7 +202,10 @@ class BelongsToAssociation extends ModelAssociation {
 	 * @return array
 	 */
 	function get_params() {
-		if (!key_exists($this->foreign_key, $this->model->data)) {
+		
+		$foreign_key = end(explode('.', $this->foreign_key));
+		
+		if (!key_exists($foreign_key, $this->model->data)) { // @TODO was working on *something* here... (debug($foreign_key, $this->model->data));
 			return null;	
 		}
 		
@@ -219,8 +222,6 @@ class BelongsToAssociation extends ModelAssociation {
 			}			
 			
 		}
-		
-		$foreign_key = $this->foreign_key;
 
 		$this->finder = Finder::factory($class_name);
 
