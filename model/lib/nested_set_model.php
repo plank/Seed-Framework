@@ -34,7 +34,15 @@ class NestedSetModel extends Model {
 	 */
 	function scope_condition() {
 		if ($this->scope_column) {
-			return "$scope_column = ".$this->get('scope_column');	
+			if (!$this->get($this->scope_column)) {
+				die(debug($this->scope_column, $this->to_array()));	
+			}
+			
+			if (is_string($this->get($this->scope_column))) {
+				return $this->scope_column." = '".$this->get($this->scope_column)."'";
+			} else {
+				return $this->scope_column." = ".$this->get($this->scope_column);	
+			}
 		}
 		
 		return '1 = 1';		
