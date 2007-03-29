@@ -119,6 +119,8 @@ class Table {
 	
 	var $link_options;
 	
+	var $row_id_option = 'id';
+	
 	/**
 	 * Constructor
 	 *
@@ -375,7 +377,7 @@ class Table {
 
 		}
 		
-		$options['id'] = $row_id;
+		$options[$this->row_id_option] = $row_id;
 		
 		return $this->controller->url_for(null, $options);
 	} 
