@@ -121,7 +121,7 @@ class ModelAssociation {
 		} else {
 			$result = $this->finder->find($this->find_type, $association_params);	
 		}		
-		
+
 		return $result;
 		
 	}	
@@ -177,6 +177,7 @@ class BelongsToAssociation extends ModelAssociation {
 		}
 
 		if (isset($options['polymorphic']) && $options['polymorphic']) {
+			
 			if (!isset($this->model->columns[$field.'_id']) || !isset($this->model->columns[$field.'_type'])) {
 				trigger_error("Required fields for polymorphic association '$field' missing", E_USER_WARNING);
 				return false;
@@ -314,13 +315,14 @@ class HasManyAssociation extends ModelAssociation {
 		
 		// allow foreign keys to specify a table
 		if (strpos($this->foreign_key, '.') === false) {
-			$condition = $table_name.'.'.$this->foreign_key." = ".$this->model->get_id();	
+			$conditions = $table_name.'.'.$this->foreign_key." = ".$this->model->get_id();	
 		} else {
-			$condition = $this->foreign_key." = ".$this->model->get_id();	
+			$conditions = $this->foreign_key." = ".$this->model->get_id();	
 		}
 		
 		if ($this->as) {
-			$condition .= ' AND '.$table_name.'.'.$this->as."_type = '".$this->model->_get_type()."'";
+			$conditions .= ' AND '.$table_name.'.'.$this->as."_type = '".$this->model->type."'";
+
 		}
 		
 		if ($this->through) {
@@ -341,14 +343,14 @@ class HasManyAssociation extends ModelAssociation {
 			$association_params = array(
 				//'select' => $select,
 				'joins' => $join,
-				'conditions' => $condition." AND ".$this->conditions,
+				'conditions' => $conditions." AND ".$this->conditions,
 				'order' => $this->order
 			);
 			
 		} else {
 		
 			$association_params = array(
-				'conditions' => $condition." AND ".$this->conditions,
+				'conditions' => $conditions." AND ".$this->conditions,
 				'order' => $this->order
 			);		
 			
@@ -375,6 +377,7 @@ class HasOneAssociation extends ModelAssociation {
 	
 	var $dependant = false;
 	var $as;
+	var $through = false;	
 	
 	var $find_type = 'first';
 	
@@ -396,9 +399,19 @@ class HasOneAssociation extends ModelAssociation {
 			$options['class_name'] = $field;	
 		}
 
-		if (!isset($options['foreign_key'])) {
-			$options['foreign_key'] = $this->model->table_name().'_id';
-		}
+		
+		if (!isset($options['as'])) {
+			$options['as'] = false;	
+			
+			if (!isset($options['foreign_key'])) {
+				$options['foreign_key'] = $this->model->table_name().'_id';
+			}
+			
+		} else {
+			$options['foreign_key'] = $options['as'].'_id';
+			
+		}		
+		
 		
 		$this->field = $field;
 		$this->set_properties($options);			
@@ -417,8 +430,25 @@ class HasOneAssociation extends ModelAssociation {
 		
 		$this->finder = Finder::factory($this->class_name);
 		
+		// choose the table the conditions will be applied to
+		if ($this->through) {
+			$join_model = Model::factory($this->through);
+			$table_name = $join_model->table;
+				
+		} else {
+			$table_name = $this->finder->table_name();	
+			
+		}		
+		
+		$conditions = $this->conditions;
+		
+		if ($this->as) {
+			$conditions .= ' AND '.$table_name.'.'.$this->as."_type = '".$this->model->type."'";
+
+		}		
+		
 		$association_params = array(
-			'conditions' => $this->foreign_key." = ".$this->model->get_id()." AND ".$this->conditions,
+			'conditions' => $this->foreign_key." = ".$this->model->get_id()." AND ".$conditions,
 			'order' => $this->order
 		);
 		
