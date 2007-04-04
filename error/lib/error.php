@@ -52,7 +52,23 @@ function debug() {
 	
 	array_unshift($args, 'debug');
 	
-	call_user_func_array('message', $args);
+	call_user_func_array('message', $args);	
+	
+}
+
+/**
+ * Prints a debug message to firebug console
+ * Very basic, but does the trick for now.
+ */
+function debug_console() {
+	$args = func_get_args();
+	
+	print '<script type="text/javascript" charset="utf-8">';
+	foreach ($args as $key => $arg) {
+		//Using urlencode to deal with escaping ' 
+		print  "console.log('".$key.':'.urlencode($arg)."')";		
+	}
+	print '</script>';
 	
 }
 
