@@ -1609,6 +1609,20 @@ class ModelIterator extends SeedIterator {
 	
 	}
 	
+	function to_array() {
+		$result = array();	
+		
+		$this->reset();
+		
+		while ($option = $this->next()) {
+			$result[$option->get_id()] = $option;	
+			
+		}
+		
+		return $result;
+		
+	}
+	
 	/**
 	 * Returns an array of values of a given field
 	 *
@@ -1617,6 +1631,8 @@ class ModelIterator extends SeedIterator {
 	 */
 	function to_name_array($value_field = null, $key_field = null) {
 		$result = array();
+		
+		$this->reset();
 		
 		while($option = $this->next()) {
 			if (is_null($value_field)) {
