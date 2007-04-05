@@ -303,11 +303,6 @@ class MysqlDB extends DB {
 		return '`'.$string.'`';
 	}
 	
-	function bind($statement, $data) {
-		
-		
-	}
-	
 	/**
 	 * Closes the db connection and frees the stored result
 	 */
@@ -549,6 +544,7 @@ class MysqlIterator extends SeedIterator  {
 			return mysql_data_seek($this->data, 0);
 		}
 	}
+	
 }
 
 /**

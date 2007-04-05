@@ -238,5 +238,28 @@ class DB {
 		
 	}
 	
+	
+	function sanitize_sql($sql) {
+		if (!is_array($sql)) return $sql;	
+		
+		$string = array_shift($sql);
+		
+		for($x = 0; $x < count($sql); $x++) {
+			if (!is_numeric($sql[$x])) {
+				$sql[$x] = "'".$this->escape($sql[$x])."'";
+				
+			} elseif (is_integer($sql[$x])) {
+				$sql[$x] = intval($sql[$x]);
+				
+			} elseif (is_float($sql[$x])) {
+				$sql[$x] = floatval($sql[$x]);
+			}
+			
+		}
+		
+		return vsprintf(str_replace('?', '%s', $string), $sql);
+		
+	}
+	
 }
 
