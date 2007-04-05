@@ -390,7 +390,7 @@ class Form {
 		
 		foreach($this->buttons as $button) {
 
-			//$button->translator = & $this->translator;
+			// $button->translator = & $this->translator;
 			$return .= $button->generate()."&nbsp;";	
 		}
 		
@@ -535,14 +535,15 @@ class FormControl {
 	 */
 	function get_attributes() {
 		foreach($this->params as $name => $value) {
-			$return[] = $name.'="'.htmlentities($value).'"';
+			$return[] = $name.'="'.htmlentities($value, ENT_QUOTES, 'UTF-8').'"';
 		}
 		
 		return implode(' ', $return);
 	}
 	
 	function escape($string) {
-		return utf8_decode($string);
+		return ($string);
+		//return utf8_decode($string);
 	}
 
 	/**
