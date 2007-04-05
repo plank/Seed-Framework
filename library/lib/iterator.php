@@ -87,6 +87,24 @@ class SeedIterator {
 		return $return;
 
 	}
+
+	/**
+	 * Returns an array containing the iterator data
+	 *
+	 * @return array
+	 */
+	function to_array() {
+		$result = array();	
+		
+		$this->reset();
+		
+		while ($item = $this->next()) {
+			$result[] = $item;	
+		}
+		
+		return $result;
+		
+	}
 	
 }
 
