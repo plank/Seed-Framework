@@ -39,6 +39,14 @@ class Translator {
 	 */
 	var $lang = 'en';	
 	
+	
+	/**
+	 * Cache of terms
+	 *
+	 * @var array
+	 */
+	var $cache = array();
+	
 	/**
 	 * Constructor
 	 *
@@ -59,24 +67,37 @@ class Translator {
 	 * @return string 
 	 */
 	function text($string) {
+		if (!$string) return false;
+		
 		$args = func_get_args();
 		array_shift($args);
 		
-		if (!$translation = $this->_get_translation($string)) {
-
-			$this->_insert_translation($string);
-			$translation = 	$string;
+		// check for a cached translation first
+		if (!isset($this->cache[$string])) {
+			if (!$translation = $this->_get_translation($string)) {
+				$translation = $this->_insert_translation($string);
+			}
+		
+			$this->cache[$string] = $translation;
+		
 		}
 		
-		return vsprintf($translation, $args);		
+		// ignore errors
+		@$translation = vsprintf($this->cache[$string], $args);		
+		
+		if (!$translation) {
+			return vsprintf($string, $args);		
+		}
+		
+		return $translation;
 		
 	}
 
 	/**
 	 * Returns the translation for a given string. Normally overridden in sub classes
 	 *
-	 * @param string $string  The term to be translated
-	 * @return string		  Returns false if a translation isn't found
+	 * @param string $term  The term to be translated
+	 * @return string		Returns false if a translation isn't found
 	 */
 	function _get_translation($term) {
 		return $term;	
@@ -86,10 +107,10 @@ class Translator {
 	 * Stores a term in the database to be translated
 	 *
 	 * @param string $term
-	 * @return bool
+	 * @return string		Returns the input term
 	 */
 	function _insert_translation($term) {
-		return true;	
+		return $term;	
 	}
 }
 
@@ -116,7 +137,7 @@ class DbTranslator extends Translator {
 		// check for a translation
 		$sql = sprintf("SELECT translation FROM cms_translations WHERE domain = '%s' AND language = '%s' AND original = '%s'", $this->domain, $this->lang, $this->db->escape($term));
 		$result = $this->db->query_single($sql);		
-
+		
 		if (isset($result['translation'])) {
 			return $result['translation'];	
 		} else {
@@ -125,9 +146,17 @@ class DbTranslator extends Translator {
 	}
 	
 	function _insert_translation($term) {
-		// if there aren't any, insert
-		$sql = sprintf("INSERT INTO cms_translations (domain, language, original, translation) VALUES ('%s', '%s', '%s', '%s')", $this->domain, $this->lang, $this->db->escape($term), $this->db->escape($term));	
-		return $this->db->execute($sql);
+		// check to see if maybe the term is present, but untranslated
+		$sql = sprintf("SELECT original FROM cms_translations WHERE domain = '%s' AND language = '%s' AND original = '%s'", $this->domain, $this->lang, $this->db->escape($term));
+		$result = $this->db->query_single($sql);		
+		
+		if (!isset($result['original'])) { 		//die(debug($result));
+			// if there aren't any, insert
+			$sql = sprintf("INSERT INTO cms_translations (domain, language, original, translation) VALUES ('%s', '%s', '%s', '%s')", $this->domain, $this->lang, $this->db->escape($term), $this->db->escape($term));	
+			$this->db->execute($sql);
+		}
+		
+		return $term;
 		
 	}
 	
