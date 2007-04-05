@@ -92,7 +92,7 @@ class Scaffolding {
 		
 		// add like condition
 		if (isset($this->controller->params['like']) && $this->controller->params['like']) {
-			$conditions[] = $finder->like_condition('%'.$this->controller->params['like'].'%');
+			$conditions[] = $finder->like_condition('%'.$this->controller->db->escape($this->controller->params['like']).'%');
 		}
 		
 		if (isset($this->controller->params['search'])) {
@@ -172,6 +172,7 @@ class Scaffolding {
 			
 			$this->controller->template->form = Form::factory($type, $model, $this->controller);
 			$this->controller->template->form->action = $this->controller->url_for(null, array('action'=>'update'));
+			$this->controller->template->form->translator = $this->controller->template->translator;
 			
 		} else {
 			trigger_error('no id', E_USER_WARNING);
