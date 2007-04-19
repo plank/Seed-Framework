@@ -45,6 +45,10 @@ class Router {
 		
 		$path_params = $this->parse($request->url->directory.$request->url->base_name);
 
+		if(defined('DEBUG_ROUTES')) {
+			die(debug($this->log));
+		}
+		
 		if (!isset($path_params['controller'])) {
 			trigger_error("The mapper couldn't find a controller for the request '".$request->url->to_path_string()."', please check the routings file", E_USER_ERROR);	
 			return false;
