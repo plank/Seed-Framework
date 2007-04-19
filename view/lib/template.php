@@ -155,12 +155,20 @@ class Template {
 	var $flash;
 	
 	/**
+	 * Translator
+	 *
+	 * @var Translator
+	 */
+	var $translator;
+	
+	/**
 	 * Constructor
 	 *
 	 * @return Template
 	 */
 	function Template(& $controller) {
 		$this->controller = & $controller;
+		$this->translator = new Translator();
 		$this->setup();
 	}
 	
