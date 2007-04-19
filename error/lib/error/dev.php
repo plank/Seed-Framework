@@ -73,6 +73,8 @@ function error_handler($errno, $errstr, $errfile, $errline, $errcontext)
 	print "</div>";	
 	
 	foreach(array('Get'=>$_GET, 'Post'=>$_POST, 'Cookies'=>$_COOKIE, 'Session'=>$_SESSION, 'Server'=>$_SERVER, 'Env'=>$_ENV, 'Context'=>$errcontext) as $title => $vars) {
+		if (!isset($vars)) continue;
+		
 		print "<div class='tabbertab'>";
 		print "<h2>$title</h2>";
 		print "<pre>".print_r($vars, true)."</pre>";
