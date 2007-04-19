@@ -131,7 +131,7 @@ class TreeList {
 			if ($node_level > $level) {
 				while($node_level > $level) {
 					if ($level) {
-						$return .= "<ul id='{$this->id}_child_{$id}'>\n";
+						$return .= "<ul id='{$this->id}_child_".$node->get_id()."'>\n";
 						$id ++;	
 					} else {
 						$return .= "<ul id='$this->id' class='$this->class_name'>\n";							
