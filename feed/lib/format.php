@@ -1,6 +1,7 @@
 <?php
 
 seed_include('xml/parser');
+seed_include('library/file');
 
 /**
  * Base feed Format class
@@ -56,14 +57,7 @@ class FeedFormat {
 			return $result;	
 		}
 		
-		$file_name = dirname(__FILE__).'/formats/'.$format.'.php';
-		
-		if (!file_exists($file_name)) {
-			trigger_error("Couldn't find an adapter for feed format $format");	
-			return false;
-		}
-		
-		require_once($file_name);
+		FeedFormat::import($format);
 		
 		if (!class_exists($class_name)) {
 			trigger_error("Adapter file didn't contain adapter for feed format $format");
@@ -75,7 +69,59 @@ class FeedFormat {
 		
 	}
 	
+	function import($format) {
+		$file_name = dirname(__FILE__).'/formats/'.$format.'.php';
+		
+		if (!file_exists($file_name)) {
+			trigger_error("Couldn't find an adapter for feed format $format");	
+			return false;
+		}
+		
+		require_once($file_name);
+		
+		return true;
+		
+	}
+	
+	/**
+	 * Returns an array containing all the available feed formats
+	 *
+	 * @return array
+	 */
+	function list_formats() {
+		$file = new File(dirname(__FILE__).'/formats');
+		
+		$files = $file->list_files();
+		
+		
+		$result = array();
+		
+		foreach ($files as $format) {
+			$result[] = $format->get_name(true);	
+			
+		}		
+		
+		return $result;
+		
+	}
+	
 	function detect($data) {
+		if (!$data = FeedFormat::prepare_data($data)) {
+			return false;	
+		}
+		
+		$formats = FeedFormat::list_formats();
+		
+		foreach ($formats as $format) {
+			$parser = FeedFormat::factory($format);
+			
+			if ($parser->detect($data)) {
+				return $parser;	
+			}
+					
+		}
+
+		return false;
 		
 	}
 	

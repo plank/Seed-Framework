@@ -14,6 +14,10 @@ class ItunesFormat extends FeedFormat {
 	var $date_format = RFC2822_DATE_FORMAT;
 	
 	function detect($data) {
+		return false;
+		
+		// @FIXME
+		
 		if (!$data = $this->prepare_data($data)) {
 			return false;		
 		}		

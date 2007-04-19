@@ -13,7 +13,7 @@ class RSS200Format extends FeedFormat {
 	var $version = '2.00';
 	
 	function detect($data) {
-		if (!$data = $this->prepare_data($data)) {
+		if (!$data = FeedFormat::prepare_data($data)) {
 			return false;		
 		}		
 
@@ -22,7 +22,50 @@ class RSS200Format extends FeedFormat {
 		}
 
 		return false;
-	}	
+	}
+
+	/**
+	 * Parses a feed and returns a Feed object
+	 *
+	 * @param mixed $data
+	 * @return Feed
+	 */
+	function parse($data) {
+		
+		$this->feed = & new Feed();
+		
+		if (!$data = $this->prepare_data($data)) {
+			return false;		
+		}
+		
+		$data = $data->channel[0];
+		
+		// feed info
+		$this->feed->title = $data->title[0]->get_data();
+		$this->feed->link = $data->link[0]->get_data();
+		$this->feed->description = $data->description[0]->get_data();
+		$this->feed->updated = strtotime($data->lastBuildDate[0]->get_data());
+		$this->feed->copyright = $data->copyright[0]->get_data();
+		
+		// entries
+		foreach ($data->item as $entry) {
+			$item = & $this->feed->addEntry(
+				$entry->link[0]->get_data(), 
+				$entry->title[0]->get_data(), 
+				$entry->description[0]->get_data(), 
+				strtotime($entry->pubDate[0]->get_data()),
+				$entry->author[0]->get_data()
+			);
+			
+			$item->id = $entry->guid[0]->get_data();
+			
+		}
+		
+		return $this->feed;
+		
+		
+	}
+	
 	/**
 	 * Generates a feed using the passed feed object
 	 *

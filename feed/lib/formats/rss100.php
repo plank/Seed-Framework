@@ -12,7 +12,7 @@ class RSS100Format extends FeedFormat {
 	var $version = '1.00';
 	
 	function detect($data) {
-		if (!$data = $this->prepare_data($data)) {
+		if (!$data = FeedFormat::prepare_data($data)) {
 			return false;		
 		}		
 

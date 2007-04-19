@@ -13,7 +13,7 @@ class Atom100Format extends FeedFormat {
 	var $content_type = "application/atom+xml";
 	
 	function detect($data) {
-		if (!$data = $this->prepare_data($data)) {
+		if (!$data = FeedFormat::prepare_data($data)) {
 			return false;		
 		}		
 		
@@ -48,7 +48,7 @@ class Atom100Format extends FeedFormat {
 		}
 		
 		if (isset($data->author[0]->name[0])) {
-			$this->feed->author_name = 	$data->author[0]->name[0]->get_data();
+			$this->feed->author_name = $data->author[0]->name[0]->get_data();
 		}
 		
 		foreach ($data->entry as $entry) {
