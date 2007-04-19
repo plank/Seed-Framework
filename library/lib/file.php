@@ -42,7 +42,7 @@ class File {
 	 * @return File
 	 */
 	function File($path, $mode = null) {
-		$this->path = $path;
+		$this->path = trim($path);
 		
 		if (isset($mode)) {
 			
@@ -391,7 +391,24 @@ class File {
 	function copy($target) {
 		if ($this->is_file()) {
 			copy($this->path, $target);	
+			return true;
 		}
+		
+		return false;
+		
+	}
+	
+	function copy_recursive($target) {
+		if ($this->is_file()) {
+			return $this->copy($target);	
+		}	
+		
+		if (!$this->is_directory()) {
+			return false;	
+		}
+		
+		
+		die('not implemented');
 		
 	}
 	
