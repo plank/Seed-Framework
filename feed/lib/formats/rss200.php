@@ -53,11 +53,22 @@ class RSS200Format extends FeedFormat {
 				$entry->link[0]->get_data(), 
 				$entry->title[0]->get_data(), 
 				$entry->description[0]->get_data(), 
-				strtotime($entry->pubDate[0]->get_data()),
-				$entry->author[0]->get_data()
+				strtotime($entry->pubDate[0]->get_data())
+				
 			);
+
+			if (isset($entry->category[0])) {
+				$item->category = $entry->category[0]->get_data();
+			}
 			
-			$item->id = $entry->guid[0]->get_data();
+			if (isset($entry->author[0])) {
+				$item->author_name = $entry->author[0]->get_data();
+			}
+			
+			// use default id of link if the guid is missing or empty
+			if (isset($entry->guid[0]) && $entry->guid[0]->get_data()) {
+				$item->id = $entry->guid[0]->get_data();
+			}
 			
 		}
 		
