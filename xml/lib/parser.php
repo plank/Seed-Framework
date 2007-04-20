@@ -23,14 +23,14 @@ class XmlParser {
 	 * @param string $xml_data
 	 * @return XmlNode
 	 */
-	function parse($xml_data) {
+	function parse($xml_data, $input_encoding = '') {
 		// reset parser
 		$this->_stack = array();
 		$this->document = null;
 		
 		$parser = & new ExpatStreamParser($this);
 		
-		$parser->parse($xml_data);
+		$parser->parse($xml_data, $input_encoding);
 		
 		return $this->document;
 		
