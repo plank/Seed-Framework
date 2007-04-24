@@ -603,6 +603,62 @@ class EmailValidationRule extends ValidationRule {
 	
 }
 
+/**
+* checks that an extension is proper type
+*
+* When declaring this validation rule, pass allowed types in a params array of allowed type.
+* $this->validate->add('extension', 'pdf', array('allowed_types'=>array('pdf'),'message'=>'need pdf'));
+* 
+* @param	string	Target directory for the generated HTML Files
+*/
+class ExtensionValidationRule extends ValidationRule {
+	var $message = '%s is not a the right extension';
+
+	var $allow_empty;
+	
+	function setup() {
+		//default: allow empty
+		$this->allow_empty = assign($this->params['allow_empty'], true);	
+	}
+	
+	function validate_attribute($values, $attribute, $value) {
+		//$values - the object being checkd
+		
+		//$attribute - the column being checked
+		
+		//$value - the value being checked (in this case, the filename)
+		
+		//Types to check file extension against
+		//$this->params['allowed_types'];
+
+		if (!$value  && $this->allow_empty) {
+			return true;
+		}
+
+		$allowed_types = $this->params['allowed_types']; 
+						
+		foreach ($allowed_types as $allowed_type) {
+			
+			$parts = pathinfo($value);
+			
+			if(strtolower($parts['extension']) == $allowed_type){
+				$result = true;
+				break;
+			} else {		
+				$result = false;
+			}
+		}
+		
+		if (!$result) {
+			$this->add_error_message($attribute, $value);	
+		}
+				
+		return $result;
+		
+	}	
+	
+}
+
 class UniquenessValidationRule extends ValidationRule {
 	var $message = "%s is already taken";
 	
