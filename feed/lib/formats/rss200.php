@@ -44,7 +44,7 @@ class RSS200Format extends FeedFormat {
 		$this->feed->title = $data->title[0]->get_data();
 		$this->feed->link = $data->link[0]->get_data();
 		$this->feed->description = $data->description[0]->get_data();
-		$this->feed->updated = strtotime($data->lastBuildDate[0]->get_data());
+		$this->feed->updated = $this->parse_date($data->lastBuildDate[0]->get_data());
 		$this->feed->copyright = $data->copyright[0]->get_data();
 		
 		// entries
@@ -53,7 +53,7 @@ class RSS200Format extends FeedFormat {
 				$entry->link[0]->get_data(), 
 				$entry->title[0]->get_data(), 
 				$entry->description[0]->get_data(), 
-				strtotime($entry->pubDate[0]->get_data())
+				$this->parse_date($entry->pubDate[0]->get_data())
 				
 			);
 

@@ -188,15 +188,32 @@ class FeedFormat {
 	 */
 	function date($value) {
 		
-		if ($value) {
-			$value = strtotime($value);
-		} else {
+		if (!$value) {
 			$value = time();	
+		}
+		
+		if (!is_numeric($value)) {
+			$value = strtotime($value);
 		}
 		
 		return date($this->date_format, $value);
 	}
 
+	function parse_date($string) {
+		if ($time = parse_RFC3339_date($string)) {
+			return $time;
+		}
+		
+		$time = strtotime($string); 
+		
+		if ($time == -1) {
+			die(debug($string, parse_RFC3339_date($string)));
+		}
+		
+		return $string;	
+		
+	}
+	
 	/**
 	 * Sends the appropriate header for the feed
 	 */

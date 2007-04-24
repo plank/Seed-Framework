@@ -247,6 +247,12 @@ class FeedEntry {
 	var $summary;
 	
 	/**
+	 * The content of the entry
+	 * @var string
+	 */
+	var $content;
+	
+	/**
 	 * The name of the author of the entry
 	 * @var string
 	 */

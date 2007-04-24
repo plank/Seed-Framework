@@ -38,14 +38,17 @@ class Atom100Format extends FeedFormat {
 			return false;		
 		}
 			
-		$feed_data = array('title', 'description', 'updated', 'id');
-		$entry_data = array('title', 'summary', 'updated', 'id');
+		$feed_data = array('title', 'description', 'id');
+		$entry_data = array('title', 'summary', 'content', 'id');
 		
 		foreach ($feed_data as $field) {
 			if (isset($data->{$field}[0])) {
 				$this->feed->{$field} = $data->{$field}[0]->get_data();
 			}
 		}
+		
+		
+		$this->feed->updated = $this->parse_date($data->updated[0]->get_data());
 		
 		if (isset($data->author[0]->name[0])) {
 			$this->feed->author_name = $data->author[0]->name[0]->get_data();
@@ -60,10 +63,16 @@ class Atom100Format extends FeedFormat {
 				}
 			}			
 			
+			$feed_entry->updated = $this->parse_date($entry->updated[0]->get_data());
+			
 			if (isset($entry->author[0]->name[0])) {
 				$feed_entry->author_name = $entry->author[0]->name[0]->get_data();
 			}
 
+
+			
+			$feed_entry->link = $entry->link[0]->href;
+			
 			$this->feed->appendEntry($feed_entry);
 			unset($feed_entry);
 		}
@@ -103,6 +112,10 @@ class Atom100Format extends FeedFormat {
 			if ($entry->summary) {
 				$result .= "    ".$this->xhtml_element('summary', $entry->summary)."\n";
 			}
+			
+			if ($entry->content) {
+				$result .= "    ".$this->xhtml_element('content', $entry->summary)."\n";
+			}			
 			
 			$result .= "  </entry>\n";
 		
