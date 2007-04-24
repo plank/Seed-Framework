@@ -523,7 +523,9 @@ function escape_non_xml_entities($string) {
  */
 function parse_RFC3339_date($string) {
 
-	if (preg_match('/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.(\d{3})-(\d{2}:\d{2})/', $string, $matches)) {
+	if (preg_match('/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})Z/', $string, $matches)) {
+		return mktime($matches[4], $matches[5], $matches[6], $matches[2], $matches[3], $matches[1]);
+	} else if (preg_match('/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.(\d{3})-(\d{2}:\d{2})/', $string, $matches)) {
 		return mktime($matches[4], $matches[5], $matches[6], $matches[2], $matches[3], $matches[1]);
 	} else {
 		return false;	
