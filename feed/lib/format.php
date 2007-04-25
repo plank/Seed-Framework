@@ -205,12 +205,8 @@ class FeedFormat {
 		}
 		
 		$time = strtotime($string); 
-		
-		if ($time == -1) {
-			die(debug($string, parse_RFC3339_date($string)));
-		}
-		
-		return $string;	
+
+		return $time;	
 		
 	}
 	
