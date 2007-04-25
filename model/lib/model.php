@@ -246,11 +246,7 @@ class DataSpace {
 	 * @return bool
 	 */
 	function is_set($field) {
-		return isset($this->data[$field]) || 
-			isset($this->has_one_data[$field]) || 
-			isset($this->belongs_to_data[$field]) ||
-			isset($this->has_many_data[$field]) ||
-			isset($this->has_and_belongs_to_many_data[$field]);
+		return isset($this->data[$field]) || isset($this->associations[$field]);
 		
 	}	
 	
@@ -269,10 +265,7 @@ class DataSpace {
 			return true;
 		}
 		
-		if(isset($this->has_one_data[$field]) || 
-			isset($this->belongs_to_data[$field]) || 
-			isset($this->has_many_data[$field]) ||
-			isset($this->has_and_belongs_to_many_data[$field])) {
+		if(isset($this->associations[$field])) {
 			
 			return true;
 		}
