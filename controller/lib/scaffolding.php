@@ -79,9 +79,12 @@ class Scaffolding {
 			// this is likely not be the best default
 			$this->id = assign($this->controller->params['id'], 1);
 			
-			if (isset($model->belongs_to_data[$this->controller->belongs_to])) {
-				$data = $model->belongs_to_data[$this->controller->belongs_to];
-				$conditions[] = $data['foreign_key'].' = '.$this->controller->db->escape($this->id);
+			if (isset($model->associations[$this->controller->belongs_to])) {
+				$data = $model->associations[$this->controller->belongs_to];
+				
+				if ($data->type = 'belongs_to') {
+					$conditions[] = $data->foreign_key_name().' = '.$this->controller->db->escape($this->id);
+				}
 			}
 		}	
 		
@@ -194,9 +197,12 @@ class Scaffolding {
 		$model = Model::factory($type);
 		
 		// if we have an id and we've defined a belongs_to, assign that ID to it
-		if ($id && isset($this->controller->belongs_to) && isset($model->belongs_to_data[$this->controller->belongs_to])) {
-			$data = $model->belongs_to_data[$this->controller->belongs_to];
-			$model->set($data['foreign_key'], $id);
+		if ($id && isset($this->controller->belongs_to) && isset($model->associations[$this->controller->belongs_to])) {
+			$data = $model->associations[$this->controller->belongs_to];
+			
+			if ($data->type = 'belongs_to') {
+				$model->set($data->foreign_key_name(), $id);
+			}
 		}
 		
 		$this->controller->template->form = Form::factory($type, $model, $this->controller);
@@ -311,8 +317,8 @@ class Scaffolding {
 			
 			$belongs_to = $this->controller->belongs_to;
 			
-			if (isset($model->belongs_to_data[$belongs_to])) {
-				$id = $model->get($model->belongs_to_data[$belongs_to]['foreign_key']);
+			if (isset($model->associations[$belongs_to]) && $model->associations[$belongs_to]->type = 'belongs_to') {
+				$id = $model->get($model->associations[$belongs_to]->foreign_key_name());
 				
 			} else {
 				$id = null;	

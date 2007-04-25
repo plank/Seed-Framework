@@ -177,9 +177,8 @@ class Form {
 				case $column->type == 'integer':
 					$key = substr($column->name, 0, strlen($column->name) - 3);
 					
-					if (isset($this->data->belongs_to_data[$key])) {
-						//debug($this->data->belongs_to_data[$key]);
-						$this->add_control('select', $column->name, ucfirst($key), null, $this->data->belongs_to_data[$key]['class_name']);	
+					if (isset($this->data->associations[$key]) && $this->data->associations[$key]->type = 'belongs_to') {
+						$this->add_control('select', $column->name, ucfirst($key), null, $this->data->associations[$key]->class_name);	
 					}
 					break;
 					

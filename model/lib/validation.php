@@ -637,6 +637,9 @@ class ExtensionValidationRule extends ValidationRule {
 
 		$allowed_types = $this->params['allowed_types']; 
 						
+
+		$result = false;		
+		
 		foreach ($allowed_types as $allowed_type) {
 			
 			$parts = pathinfo($value);
@@ -644,8 +647,6 @@ class ExtensionValidationRule extends ValidationRule {
 			if(strtolower($parts['extension']) == $allowed_type){
 				$result = true;
 				break;
-			} else {		
-				$result = false;
 			}
 		}
 		

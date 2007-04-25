@@ -139,6 +139,18 @@ class ModelAssociation {
 		return false;	
 		
 	}
+	
+	/**
+	 * Returns the foreign key's field name, without the table
+	 *
+	 */
+	function foreign_key_name() {
+		$key = explode('.', $this->foreign_key);
+		return end($key);
+		
+	}
+	
+	
 }
 
 /**
