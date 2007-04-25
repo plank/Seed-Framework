@@ -28,7 +28,9 @@ function clone($object) {
  * Allow an array unshift with a reference
  */
 function array_unshift_byref(& $stack, & $var) {
-	return array_unshift($stack, & $var);
+	$return = array_unshift($stack,'');
+	$stack[0] =& $var;
+	return $return;	
 	
 }
 
