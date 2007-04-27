@@ -485,6 +485,20 @@ function nl2p($string) {
 }
 
 /**
+ * Returns an xhtml-ized version of a string if it doesn't contain any p or br tags
+ *
+ * @param string $string
+ * @return string
+ */
+function xhtmlize($string) {
+	if (preg_match('@<p\s*>|<br\s*/?>@', $string)) {
+		return $string;
+	} else {
+		return nl2p($string);	
+	}
+}
+
+/**
  * Returns the boolean value of a variable. Any value that evaluates to false,
  * as well as the strings 'false' or 'f', will return as false. Everything
  * else will return as true.
