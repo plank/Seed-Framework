@@ -1088,6 +1088,30 @@ class ImageFormControl extends FormControl {
 }
 
 /**
+ * Class for checkboxes
+ *
+ * @package view
+ * @subpackage html
+ */
+class CheckboxFormControl extends FormControl {
+		
+	function generate_control() {
+		$this->params['id'] = $this->name;
+		$this->params['name'] = $this->name;
+		$this->params['type'] = 'checkbox';
+		$this->params['class'] = 'checkbox';
+
+		if ($this->value) {
+			$this->params['checked'] = 'checked';
+		}
+		
+		return "<input ".$this->get_attributes()." />";
+		
+	}
+	
+}
+
+/**
  * Base class for form controls
  *
  * @package view
@@ -1125,7 +1149,11 @@ class YesnoFormControl extends FormControl {
 			$this->options = array('no', 'yes');
 		}
 
-		return $this->options[$this->value];
+		if (isset($this->options[$this->value])) {
+			return $this->options[$this->value];
+		} else {
+			return 'no';
+		}
 			
 	}
 	
