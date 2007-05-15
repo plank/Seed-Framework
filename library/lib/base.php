@@ -524,7 +524,7 @@ function boolval($var) {
  * @return string
  */
 function escape_non_xml_entities($string) {
-	$string = preg_replace('/&(?!(quot|amp|apos|lt|gt))([A-Za-z]*);/', '&amp;\\2;', $string);
+	$string = preg_replace('/&(?!(quot|amp|apos|lt|gt))([A-Za-z0-9]*);/', '&amp;\\2;', $string);
 	return $string;	
 	
 }
@@ -545,6 +545,36 @@ function parse_RFC3339_date($string) {
 		return false;	
 	}
 	
+}
+
+/**
+ * Generates a random password
+ *
+ * @param int $length 
+ * @param bool $use_numbers
+ * @param bool $use_lower_case
+ * @param bool $use_upper_case
+ * @param bool $use_punctuation
+ * @return string
+ */
+function generate_password($length = 8, $use_numbers = true, $use_lower_case = true, $use_upper_case = true, $use_punctuation = true) {
+	
+	$choices = array();
+	
+	if ($use_numbers) $choices = array_merge($choices, range(0,9));
+	if ($use_lower_case) $choices = array_merge($choices, range('a','z'));
+	if ($use_upper_case) $choices = array_merge($choices, range('A','Z'));
+	if ($use_punctuation) $choices = array_merge($choices, array('!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '+', '='));	
+	if (!count($choices)) return false;
+	
+	$result = '';
+	
+	for ($x = 0; $x < $length; $x ++) {
+		$result .= $choices[mt_rand(0, count($choices) - 1)];	
+		
+	}
+	
+	return $result;
 }
 
 
