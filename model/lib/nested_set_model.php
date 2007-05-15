@@ -14,6 +14,96 @@
 require_once('model.php');
 
 /**
+ * Finder for nested sets, with extra convenience methods
+ *
+ * @package model
+ */
+class NestedSetFinder extends Finder {
+	
+	function cleanup() {
+		
+		$result = $this->find('all', array('order'=>'lft ASC'));
+		$data = $result->to_array();
+
+		$data = $this->_fix_levels($data);
+		$data = $this->_fix_positions($data);
+		
+		foreach($data as $item) {
+			$item->save();
+		}
+		
+		return true;
+		
+	}
+
+
+	function _fix_levels($data) {
+		$node = array_shift($data);
+		$node->set('level', 0);
+		$stack = array($node);	// technically not a stack, but does what is desired
+		$result = array($node);
+		$level = 0;
+	
+		// we'll start by getting the levels right
+		foreach($data as $node) {
+			if ($node->get('lft') < $stack[$level]->get('rgt')) {
+				$level ++;	
+			} 
+	
+			while ($node->get('lft') > $stack[$level - 1]->get('rgt')) {
+				$level --;	
+				
+				if ($level == 0) die("level too low");	
+			}
+			
+			$node->set('parent_id', $stack[$level - 1]->get_id());				
+			
+			$node->set('level', $level);
+			$stack[$level] = $node;
+	
+			$result[] = $node;
+			
+		}
+		
+		return $result;
+		
+	}	
+	
+	function _fix_positions($data) {
+		$node = array_shift($data);
+		$node->set('lft', 1);
+		$node->set('rgt', count($data) * 2 + 2);
+		$stack = array($node);	// technically not a stack, but does what is desired
+		$result = array($node);
+		$level = 0;
+		$number = 2;
+		
+		foreach($data as $node) {
+			while ($node->get('level') <= $level) {
+				$result[$stack[$level]]->set('rgt', $number ++);
+				$level --;
+			}
+			
+			$node->set('lft', $number ++);
+			$level = $node->get('level');
+			$stack[$level] = $node->get('lft');		
+			$result[$node->get('lft')] = $node;
+			
+		}
+		
+		while ($level) {
+			$result[$stack[$level]]->set('rgt', $number ++);
+			$level --;
+		}	
+		
+		return $result;	
+		
+		
+	}	
+	
+}
+
+/**
  * A model class for nested sets, which is a way of representing a hierarchy in a flat format
  * that allows rapid reads (one query) at the cost of slower writes
  *
