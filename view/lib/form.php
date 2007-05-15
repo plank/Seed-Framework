@@ -584,6 +584,23 @@ class StaticFormControl extends FormControl {
 	}	
 }
 
+class AutocompleteFormControl extends FormControl {
+	function generate_control() {
+		$this->params['id'] = $this->name;
+		$this->params['name'] = $this->name;
+		$this->params['value'] = $this->value;
+		$this->params['type'] = 'text';
+		$this->params['class'] = 'text';
+				
+		$return = "<input ".$this->get_attributes()." /><div id='".$this->name."_choices' class='autocomplete'></div>\n";		
+		$return .= "<script type='text/javascript'>new Ajax.Autocompleter('".$this->name."', '".$this->name."_choices', '".$this->options."', { tokens: ',' });</script>\n";
+
+		return $return;
+	
+	}	
+	
+}
+
 /**
  * Class for hidden form controls
  *
