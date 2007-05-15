@@ -69,8 +69,6 @@ class Atom100Format extends FeedFormat {
 				$feed_entry->author_name = $entry->author[0]->name[0]->get_data();
 			}
 
-
-			
 			$feed_entry->link = $entry->link[0]->href;
 			
 			$this->feed->appendEntry($feed_entry);

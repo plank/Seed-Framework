@@ -424,11 +424,11 @@ class Template {
 	}
 	
 	/**
-	* Creates links to stylesheets.
-	*
-	* @param string $stylesheets  Comma seperated list of style sheets to load.
-	* @return string
-	*/
+	 * Creates links to stylesheets.
+	 *
+	 * @param string $stylesheets  Comma seperated list of style sheets to load.
+	 * @return string
+	 */
 	function link_to_stylesheet($stylesheets) {
 		if (!is_array($stylesheets)) {
 			$stylesheets = explode(',', $stylesheets);
