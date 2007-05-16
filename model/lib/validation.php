@@ -401,8 +401,8 @@ class ConfirmationValidationRule extends ValidationRule {
 	var $confirmation_attribute;
 	
 	function validate_attribute($values, $attribute, $value) {
-		if (isset($params['confirmation'])) {
-			$this->confirmation_attribute = $params['confirmation'];
+		if (isset($this->params['confirmation'])) {
+			$this->confirmation_attribute = $this->params['confirmation'];
 			
 		} else {
 			$this->confirmation_attribute = $attribute.'_confirmation';
