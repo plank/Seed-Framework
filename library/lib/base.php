@@ -111,6 +111,10 @@ function array_diff_by_key($array1, $array2) {
 /**
  * Works like array combine, but works when the array are of different sizes. If there are more keys than values,
  * values will be set to null; if there are more values, they will be discarded 
+ *
+ * @param array $keys
+ * @param array $values
+ * @return array
  */
 function array_combine_resized($keys, $values) {
 	foreach($keys as $key) {
@@ -118,6 +122,21 @@ function array_combine_resized($keys, $values) {
 	}
 	
 	return $result;	
+}
+
+/**
+ * Trucantes a string to a given length, with an indicator at the end
+ *
+ * @param string $string
+ * @param int $length
+ * @param string $indicator
+ * @return string
+ */
+function truncate($string, $length, $indicator = '...') {
+	if (strlen($string) < $length) return $string;
+
+	return substr($string, 0, $length).$indicator;
+	
 }
 
 
@@ -557,14 +576,14 @@ function parse_RFC3339_date($string) {
  * @param bool $use_punctuation
  * @return string
  */
-function generate_password($length = 8, $use_numbers = true, $use_lower_case = true, $use_upper_case = true, $use_punctuation = true) {
+function generate_password($length = 8, $use_numbers = true, $use_lower_case = true, $use_upper_case = true, $use_punctuation = false) {
 	
 	$choices = array();
 	
 	if ($use_numbers) $choices = array_merge($choices, range(0,9));
 	if ($use_lower_case) $choices = array_merge($choices, range('a','z'));
 	if ($use_upper_case) $choices = array_merge($choices, range('A','Z'));
-	if ($use_punctuation) $choices = array_merge($choices, array('!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '+', '='));	
+	if ($use_punctuation) $choices = array_merge($choices, array('!', '@', '#', '$', '%', '^', '&', '*', '-', '_', '+', '='));	
 	if (!count($choices)) return false;
 	
 	$result = '';
