@@ -399,7 +399,7 @@ class Finder {
 	 * @return string
 	 */
 	function like_condition($value) {
-		$columns = $this->model->columns;
+		$columns = $this->model->columns();
 		$search = array();
 		
 		foreach($columns as $column) {
