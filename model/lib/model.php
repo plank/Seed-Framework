@@ -831,6 +831,10 @@ class Model extends DataSpace {
 			return false;
 		}
 		
+		if (!$this->before_save()) {
+			return false;	
+		}		
+		
 		if (!$this->before_update()) {
 			return false;	
 		}
@@ -854,6 +858,8 @@ class Model extends DataSpace {
 		
 		$this->after_update();
 		
+		$this->after_save();
+		
 		return $result;
 	}
 	
@@ -869,6 +875,10 @@ class Model extends DataSpace {
 		if (!$this->validate_on_update()) {
 			return false;
 		}
+		
+		if (!$this->before_save()) {
+			return false;	
+		}		
 		
 		if (!$this->before_create()) {
 			return false;	
@@ -902,6 +912,8 @@ class Model extends DataSpace {
 			
 			$this->after_create();
 			
+			$this->after_save();			
+			
 			return true;
 			
 		} else {
@@ -921,17 +933,11 @@ class Model extends DataSpace {
 	
 	function save() {
 		
-		if (!$this->before_save()) {
-			return false;	
-		}
-		
 		if ($this->is_new_record()) {
 			$result = $this->insert();
 		} else {
 			$result = $this->update();
 		}
-
-		$this->after_save();
 		
 		return $result;
 		
