@@ -676,7 +676,7 @@ class TextareaFormControl extends FormControl  {
 		$this->params['id'] = $this->name;		
 		$this->params['name'] = $this->name;
 				
-		return "<textarea ".$this->get_attributes()." >$this->value</textarea>";
+		return "<textarea ".$this->get_attributes()." >".$this->escape($this->value)."</textarea>";
 	}
 }
 
