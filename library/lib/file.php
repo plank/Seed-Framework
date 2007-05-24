@@ -377,7 +377,9 @@ class File {
 			$make_path .= $path_part.'/';
 			
 			if (!file_exists($make_path)) {
-				mkdir($make_path);
+				if (!mkdir($make_path)) {
+					return false;	
+				}
 				
 				chmod($make_path, 0777);
 			}
@@ -410,6 +412,14 @@ class File {
 		
 		die('not implemented');
 		
+	}
+	
+	function delete() {
+		if (!$this->exists()) return false;
+		
+		if ($this->is_file()) return unlink($this->path);	
+		
+		die('delete not implemented for folders');
 	}
 	
 	/**
