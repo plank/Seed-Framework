@@ -68,7 +68,7 @@ class ModelFactory {
 	 */
 	function import($type, $ignore_errors = false) {
 		$type = strtolower($type);
-		
+
 		if (isset($this->mappings[$type])) {
 			$path = $this->mappings[$type];
 		} else {
@@ -823,21 +823,13 @@ class Model extends DataSpace {
 	 * @return bool
 	 */
 	function update() {
-		if (!$this->validate()) {
-			return false;
-		}
-		
-		if (!$this->validate_on_update()) {
-			return false;
-		}
-		
-		if (!$this->before_save()) {
-			return false;	
-		}		
-		
-		if (!$this->before_update()) {
-			return false;	
-		}
+		// callbacks
+		if (!$this->before_validate()) return false;	
+		if (!$this->validate()) return false;
+		if (!$this->validate_on_update()) return false;
+		if (!$this->after_validate()) return false;	
+		if (!$this->before_save()) return false;	
+		if (!$this->before_update()) return false;			
 		
 		// set the updated time if the field is present
 		if ($this->updated_at_field && isset($this->columns[$this->updated_at_field])) {
@@ -869,20 +861,13 @@ class Model extends DataSpace {
 	 * @return bool
 	 */
 	function insert() {
-		if (!$this->validate()) {
-			return false;
-		}
-		if (!$this->validate_on_update()) {
-			return false;
-		}
-		
-		if (!$this->before_save()) {
-			return false;	
-		}		
-		
-		if (!$this->before_create()) {
-			return false;	
-		}
+		// callbacks
+		if (!$this->before_validate()) return false;	
+		if (!$this->validate()) return false;
+		if (!$this->validate_on_create()) return false;
+		if (!$this->after_validate()) return false;	
+		if (!$this->before_save()) return false;	
+		if (!$this->before_create()) return false;	
 		
 		// sequence field needs to be empty
 		unset($this->data[$this->sequence_field]);
@@ -1076,6 +1061,14 @@ class Model extends DataSpace {
 	}
 	
 	// Callbacks
+	
+	function before_validate() {
+		return true;	
+	}
+	
+	function after_validate() {
+		return true;	
+	}
 	
 	/**
 	 * Called before saves
