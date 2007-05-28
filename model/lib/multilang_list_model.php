@@ -73,6 +73,7 @@ class MultilangListModel extends MultilangModel {
 		}
 		
 		$item = $this->higher_item();
+		
 		if($item){
 			$item->increment_position();
 			$this->decrement_position();
@@ -92,6 +93,7 @@ class MultilangListModel extends MultilangModel {
 		}
 		
 		$item = $this->lower_item();
+		
 		if($item){
 			$this->increment_position();
 			$item->decrement_position();	
@@ -105,7 +107,7 @@ class MultilangListModel extends MultilangModel {
 	 */
 	function increment_position() {
 		$this->data[$this->position_field] ++;
-		return $this->save();
+		return $this->update_over();
 	}
 	
 	/**
@@ -123,7 +125,7 @@ class MultilangListModel extends MultilangModel {
 	 */
 	function decrement_position() {
 		$this->data[$this->position_field] --;		
-		$this->save();
+		$this->update_over();
 	}
 	
 	/**
