@@ -409,6 +409,11 @@ class ConfirmationValidationRule extends ValidationRule {
 			
 		}		
 		
+		// only run this rule if a confirmation value exists
+		if (!isset($values[$this->confirmation_attribute])) {
+			return true;
+		}
+		
 		$confirmation_value = assign($values[$this->confirmation_attribute], '');	
 		
 		$result = ($value == $confirmation_value);
