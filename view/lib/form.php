@@ -452,11 +452,16 @@ class FormControl {
 	 */
 	var $empty_value = '-';	
 	
-	function FormControl($name = '') {
+	function FormControl($name = '', $params = null, $options = null) {
 		if ($name) {
 			$this->name = $name;
 			$this->label = ucfirst($name);
 		}
+		
+		if (!is_null($params)) $this->params = $params;
+		
+		if (!is_null($options)) $this->options = $options;
+		
 	}
 	
 	function set_options($options) {
