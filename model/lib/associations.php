@@ -98,6 +98,7 @@ class ModelAssociation {
 	/**
 	 * Returns models as defined by the associtaion
 	 *
+	 * @param Model $model
 	 * @param array $params  Additional params to pass, should generally be limited to sort, limit and offset
 	 * @param bool $count	 If this is true, this will simply retrieve a count
 	 * @return mixed

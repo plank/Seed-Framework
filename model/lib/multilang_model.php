@@ -366,6 +366,28 @@ class MultilangModel extends Model {
 	}
 	
 	/**
+	 * Allows retrieving associated models with additional params
+	 *
+	 * @param string $field
+	 * @param array $parms
+	 * @return mixed  Returns a single model or a collection, depending on the type of association. Will return false if the
+	 * association exists but no records are being returned, and will return null if the association doesn't exist
+	 */
+	function find_associated($field, $params = null) {
+		if (isset($this->associations[$field])) {
+			$association = $this->associations[$field];
+
+			if (is_a($association->model, 'Model')) {
+				$params['language'] = $this->get('lang');
+			}
+			
+			return $this->associations[$field]->get($this, $params);	
+		}
+
+		return null;
+	}
+	
+	/**
 	 * Updates the model by inserting a new versions
 	 */
 	function update() {
