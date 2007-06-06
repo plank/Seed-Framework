@@ -959,7 +959,7 @@ class FckeditorFormControl extends FormControl  {
 		if (defined('FCKEDITOR_TOOLBAR_SET')) {
 			$FCKeditor->ToolbarSet = FCKEDITOR_TOOLBAR_SET ;
 		} else{
-			$FCKeditor->ToolbarSet = 'Default';
+			$FCKeditor->ToolbarSet = 'Basic';
 		}
 	
 		if (isset($this->params['height'])) {
