@@ -92,7 +92,7 @@ class Form {
 	 */
 	var $max_file_size = false;
 	
-	
+	var $right_to_left = false;
 	
 	/**
 	 * Returns a new Simple subclass based on the type paramter given. 
@@ -136,6 +136,7 @@ class Form {
 		$this->buttons = array();
 		$this->controller = $controller;
 		$this->translator = new Translator();
+		
 		if (!$this->id) {
 			$this->id = Inflector::underscore(get_class($this));
 		}		
@@ -228,7 +229,7 @@ class Form {
 	 */
 	function add_control($type, $name, $label = null, $params = null, $options = null) {
 		$control = FormControl::factory($type);
-		
+		$control->translator = & $this->translator;
 		if (!$control) {
 			trigger_error("No control found for '$type'", E_USER_WARNING);
 			return false;
@@ -307,6 +308,10 @@ class Form {
 	 */
 	function generate($data = null, $read_only = false) {
 
+		if (isset($this->controller)) {
+			$this->right_to_left = $this->controller->config->is_right_to_left($this->translator->lang);		
+		}
+		
 		if (isset($data)) {
 			$this->data = $data;
 		}
@@ -376,8 +381,14 @@ class Form {
 		
 		$return = "<tr class='$classname'>";		
 		
-		$return .= "<th><label for='$control->name'>".$this->translator->text($control->label)."</label></th>";		
-		$return .= "<td>".$control->generate($data, $read_only)."</td>";
+		if ($this->right_to_left) {
+			$return .= "<td>".$control->generate($data, $read_only)."</td>";			
+			$return .= "<th><label for='$control->name'>".$this->translator->text($control->label)."</label></th>";		
+		} else {
+			$return .= "<th><label for='$control->name'>".$this->translator->text($control->label)."</label></th>";		
+			$return .= "<td>".$control->generate($data, $read_only)."</td>";
+		}
+		
 		$return .= "</tr>\n";
 		
 		return $return;
@@ -385,7 +396,9 @@ class Form {
 	
 	function generate_buttons() {
 		$return = "<tr>";
-		$return .= "<th>&nbsp;</th><td>";		
+		
+		if (!$this->right_to_left) $return .= "<th>&nbsp;</th>";		
+		$return .= "<td>";
 		
 		foreach($this->buttons as $button) {
 
@@ -393,7 +406,11 @@ class Form {
 			$return .= $button->generate()."&nbsp;";	
 		}
 		
-		$return .= "</td></tr>\n";		
+		$return .= "</td>";
+		
+		if ($this->right_to_left) $return .= "<th>&nbsp;</th>";		
+		
+		$return .= "</tr>\n";
 		
 		return $return;
 	}
@@ -409,7 +426,17 @@ class Form {
  */
 class FormControl {
 	
+	/**
+	 * @var Translator
+	 */
 	var $translator;
+	
+	/**
+	 * The current language
+	 *
+	 * @var string
+	 */
+	var $lang;
 	
 	/**
 	 * The label to display next to the control.
@@ -687,6 +714,8 @@ class TextareaFormControl extends FormControl  {
 
 class SelectmultipleFormControl extends SelectFormControl {
 	function generate_read_only() {
+		$this->fix_options($this->options);
+		
 		// directly return the values from iterators
 		if (is_a($this->value, 'SeedIterator')) {
 			if ($this->value->size() == '0') {
@@ -722,6 +751,8 @@ class SelectmultipleFormControl extends SelectFormControl {
 	
 	
 	function generate_control() {
+		$this->fix_options($this->options);
+		
 		if (isset($this->params['allow_none'])) {
 			$allow_none = $this->params['allow_none'];
 			unset($this->params['allow_none']);
@@ -768,7 +799,8 @@ class SelectmultipleFormControl extends SelectFormControl {
  */
 class SelectFormControl extends FormControl {
 	
-	function set_options($options) {
+	function fix_options($options) {
+		
 		if (is_string($options)) {
 			$this->options = $this->get_options($options);	
 		} else {
@@ -777,6 +809,8 @@ class SelectFormControl extends FormControl {
 	}
 	
 	function generate_control() {
+		$this->fix_options($this->options);
+		
 		if (isset($this->params['allow_none'])) {
 			$allow_none = $this->params['allow_none'];
 			unset($this->params['allow_none']);
@@ -803,6 +837,9 @@ class SelectFormControl extends FormControl {
 	}
 	
 	function generate_read_only() {
+		$this->fix_options($this->options);
+		
+		
 		if (isset($this->options[$this->value])) {
 			return $this->options[$this->value];	
 		} else {
@@ -821,8 +858,8 @@ class SelectFormControl extends FormControl {
 		$finder = Finder::factory($type);
 		
 		$result = array();
-		
-		$options = $finder->find('all', array('order'=>$finder->model->name_field.' ASC'));
+		//debug($this->translator);
+		$options = $finder->find('all', array('order'=>$finder->model->name_field.' ASC', 'language'=>$this->translator->lang));
 		
 		while($option = $options->next()) {
 			$result[$option->get_id()] = $option->get($option->name_field);	

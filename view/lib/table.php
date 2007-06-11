@@ -122,6 +122,13 @@ class Table {
 	var $row_id_option = 'id';
 	
 	/**
+	 * Set to true to display columns in a right to left order
+	 *
+	 * @var bool
+	 */
+	var $right_to_left = false;
+	
+	/**
 	 * Constructor
 	 *
 	 * @param SeedIterator $iterator
@@ -296,7 +303,15 @@ class Table {
 	 * @return string
 	 */
 	function generate_colgroup() {
-		$return = "<colgroup>";
+		
+		$return = '';
+		
+		if (count($this->row_actions) && $this->right_to_left) {
+			$return .= "<col id='col_actions'>";
+		}
+		
+		
+		$return .= "<colgroup>";
 		
 		foreach ($this->columns as $field => $display) {
 			$return .= "<col id='col_$field' />";
@@ -305,7 +320,7 @@ class Table {
 		
 		$return .= "</colgroup>\n";
 		
-		if (count($this->row_actions)) {
+		if (count($this->row_actions) && $this->right_to_left) {
 			$return .= "<col id='col_actions'>";
 		}
 		
@@ -322,6 +337,10 @@ class Table {
 		
 		// $link_array = $this->link_array;
 		$link_options = $this->link_options;
+		
+		if (count($this->row_actions) && $this->right_to_left) {
+			$return .= "<th id='th_actions'>&nbsp;</th>";			
+		}
 		
 		foreach($this->columns as $field => $data) {
 			
@@ -361,7 +380,7 @@ class Table {
 			
 		}
 		
-		if (count($this->row_actions)) {
+		if (count($this->row_actions) && !$this->right_to_left) {
 			$return .= "<th id='th_actions'>&nbsp;</th>";			
 		}
 		
@@ -405,6 +424,8 @@ class Table {
 			$id = $row->get_id();
 		}
 		
+		if ($this->right_to_left) $return .= $this->generate_row_actions($row);		
+		
 		//$link_options['id'] = $id;
 		
 		foreach($this->columns as $field => $column) {
@@ -429,8 +450,8 @@ class Table {
 		
 		}
 		
-		$return .= $this->generate_row_actions($row);		
-		
+		if (!$this->right_to_left) $return .= $this->generate_row_actions($row);		
+				
 		$return .= "</tr>\n";
 		
 		return $return;		
@@ -517,7 +538,14 @@ class Table {
 	 * @return string
 	 */
 	function generate()	{
-
+		if (isset($this->controller)) {
+			$this->right_to_left = $this->controller->config->is_right_to_left($this->translator->lang);		
+		}
+		
+		if ($this->right_to_left) {
+			$this->columns = array_reverse($this->columns);	
+		}
+		
 		$return = '';
 		
 		if ($this->action) {
