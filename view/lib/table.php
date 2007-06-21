@@ -538,7 +538,7 @@ class Table {
 	 * @return string
 	 */
 	function generate()	{
-		if (isset($this->controller)) {
+		if (isset($this->controller->config)) {
 			$this->right_to_left = $this->controller->config->is_right_to_left($this->translator->lang);		
 		}
 		

@@ -308,7 +308,7 @@ class Form {
 	 */
 	function generate($data = null, $read_only = false) {
 
-		if (isset($this->controller)) {
+		if (isset($this->controller->config)) {
 			$this->right_to_left = $this->controller->config->is_right_to_left($this->translator->lang);		
 		}
 		
@@ -928,10 +928,12 @@ class FileFormControl extends FormControl {
 		$this->params['class'] = 'file';
 		$link_root = assign($this->params['link_root']);
 		$image_root = assign($this->params['image_root']);
+		$removable = assign($this->params['removable'], false);
 		
 		$return = '';
 		
 		if (!$this->value) {
+			$removable = false;
 			$this->value = $this->translator->text('(none)');
 		} else {
 			if ($image_root) {
@@ -943,9 +945,15 @@ class FileFormControl extends FormControl {
 			}
 		}
 			
-		$return .= "<div style='margin-bottom: 4px'><em>Existing file: </em> ".$this->value."</div>";
-		$return .= "<div><em>".$this->translator->text("Upload a new file:")."</em> <input ".$this->get_attributes()." /></div>";
+		$return .= "<div style='margin-bottom: 4px'><em>Existing file: </em> ".$this->value;
+		
+		if ($removable) {
+			$return .= "&nbsp;<label for='{$this->name}_remove'><input type='checkbox' id='{$this->name}_remove' name='$this->name' value='' /> Remove?</label>";	
+		}
+		
+		$return .= "</div><div><em>".$this->translator->text("Upload a new file:")."</em> <input ".$this->get_attributes()." /></div>";
 
+		
 		return $return;
 		
 	}
