@@ -614,7 +614,15 @@ class Model extends DataSpace {
 		return true;
 
 	}
+	
+	function association($field) {
+		if (isset($this->associations[$field])) {
+			return $this->associations[$field];
+		}		
 		
+		return null;
+	}
+	
 	function set_associated($field, $value) {
 		if (isset($this->associations[$field])) {
 			return $this->associations[$field]->set($this, $field, $value);
@@ -1226,6 +1234,8 @@ class ModelIterator extends SeedIterator {
 		$this->position ++;
 		$model = Model::factory($this->model_type);
 		$model->assign($this->iterator->next());
+		if (method_exists($model, 'after_find')) $model->after_find();
+		
 		return $model;
 	}
 

@@ -69,7 +69,7 @@ class MultilangFinder extends Finder {
 			$query->add_conditions($options['version_conditions']);
 		}
 		
-		$query->add_conditions($language_field." = '".$options['language']."'");
+		$query->add_conditions("$version_table_name.$language_field = '".$options['language']."'");
 		
 		if (isset($options['group'])) {
 			$query->add_group_by($options['group']);	
@@ -363,6 +363,14 @@ class MultilangModel extends Model {
 		}
 		
 		return false;
+	}
+	
+	function association($field) {
+		if (isset($this->associations[$field])) {
+			return $this->associations[$field];
+		}		
+
+		return $this->version->association($field);
 	}
 	
 	/**
