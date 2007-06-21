@@ -542,6 +542,13 @@ class Controller {
 		}
 	}
 	
+	function render_to_string($template_path = null) {
+		$this->render($template_path);	
+		$result = $this->response->body;
+		$this->erase_render_results();
+		return $result;
+	}
+	
 	/**
 	 * Renders a given string, with the given status code
 	 *
@@ -559,6 +566,13 @@ class Controller {
 			$this->response->body = $text;
 		}
 		
+	}
+	
+	function erase_render_results() {
+		$this->performed_render = false;
+		$this->response->response_code = 200;
+		$this->response->body = '';
+			
 	}
 	
 	/**
