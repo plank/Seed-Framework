@@ -167,8 +167,6 @@ class VersionedModel extends Model {
 	/**
 	 * Assign an array of fields and values to the object
 	 *
-	 * By default, only store values for fields stored in the _meta_data array
-	 * 
 	 * IMPORTANT: Any array passed as a value will get combined into a string, with dashes
 	 * this format will work to enter a date into a datestamp field, but may not work at all
 	 * in other databases.

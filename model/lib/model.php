@@ -288,8 +288,6 @@ class DataSpace {
 	/**
 	 * Assign an array of fields and values to the object
 	 *
-	 * By default, only store values for fields stored in the _meta_data array
-	 * 
 	 * @param array $data
 	 * @return bool
 	 */
