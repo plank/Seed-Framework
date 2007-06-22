@@ -14,6 +14,12 @@ error_reporting(E_ALL);
 
 // CONSTANTS //
 
+// Probably not the best way to detect if we're on the command line
+/**
+ * If the request was made via the command line
+ */
+define('COMMAND_LINE', isset($_SERVER['PWD']) && true);	
+
 /**
  * Major php version
  */
@@ -27,12 +33,20 @@ define('FRAMEWORK_PATH', dirname(__FILE__).'/');
 /**
  * Path to the called script
  */
-define('SCRIPT_PATH', $_SERVER['SCRIPT_FILENAME']);	
+if (COMMAND_LINE) {
+	define('SCRIPT_PATH', realpath($_SERVER['PWD'].'/'.$_SERVER['SCRIPT_FILENAME']));
+} else {
+	define('SCRIPT_PATH', $_SERVER['SCRIPT_FILENAME']);	
+}
 
 /**
  * The current request URI
  */
-define('REQUEST_URI', $_SERVER['REQUEST_URI']);
+if (isset($_SERVER['REQUEST_URI'])) {
+	define('REQUEST_URI', $_SERVER['REQUEST_URI']);
+} else {
+	define('REQUEST_URI', '');
+}
 
 // INCLUDES //
 

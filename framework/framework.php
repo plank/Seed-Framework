@@ -12,8 +12,8 @@ seed_include('library/file');
  */
 seed_include('library/logger');
 
-
 // CONSTANTS //
+
 /**
  * Path to the root of the framework templates. This is where the scaffold template are located.
  */
@@ -69,7 +69,11 @@ define('LOG_PATH', APP_PATH.'logs/');
 /**
  * Hostname with protocol
  */
-define('APP_HOST', 'http://'.$_SERVER['HTTP_HOST']);
+if (isset($_SERVER['HTTP_HOST'])) { 
+	define('APP_HOST', 'http://'.$_SERVER['HTTP_HOST']);
+} else {
+	define('APP_HOST', '');
+}
 
 // allow custom settings for APP_URL, which would be set in index.php
 if (!defined('APP_URL')) {
@@ -106,6 +110,12 @@ if (defined('SESSION_LIFETIME')) {
 function start() {
 	$app = new SeedFramework();
 	$app->start();	
+	
+}
+
+function start_cli() {
+	$app = new SeedFramework();
+	$app->start_cli();	
 	
 }
 
@@ -154,14 +164,10 @@ class SeedFramework {
 		$url = isset($_GET['url']) ? $_GET['url']: '';
 		
 		// if the $url points to a static file in the public folder, display that
-		if ($this->display_static_files($url)) {
-			return true;	
-		}
-
+		if ($this->display_static_files($url)) return true;	
+		
 		// ignore requests with extensions that we've decided to ignore
-		if ($this->ignore_extensions($url)) {
-			return true;		
-		}
+		if ($this->ignore_extensions($url)) return true;
 
 		// include all the framework libraries		
 		$this->include_libraries();
@@ -192,6 +198,34 @@ class SeedFramework {
 		return true;
 		
 	}	
+	
+	/**
+	 * Call this function to start processing command line scripts
+	 *
+	 * @return bool Returns true
+	 */	
+	function start_cli() {
+		// include all the framework libraries		
+		$this->include_libraries();
+		
+		// include vendor libraries
+		$this->include_vendor_libraries();
+		
+		// include the app's general config file
+		$this->include_config();
+	
+		// include the app's environment config file
+		$this->include_environment_config();
+		
+		// include application files
+		$this->include_application_files();
+		
+		// register all objects
+		$this->register_objects();		
+		
+		return true;
+		
+	}
 	
 	/**
 	 * Checks for the existance of a static file in the "public" directory at the given url
