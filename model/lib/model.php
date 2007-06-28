@@ -475,6 +475,15 @@ class Model extends DataSpace {
 		return $this->columns;	
 	}
 	
+	function column($column_name) {
+		$columns = $this->columns();	
+		
+		if (isset($columns[$column_name])) return $columns[$column_name];	
+		
+		return false;
+		
+	}
+	
 	/* not ready to implement yet
 	function protected_attributes() {
 		return array($this->sequence_field, $this->inheritance_field());
