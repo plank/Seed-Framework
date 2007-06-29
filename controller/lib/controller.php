@@ -213,6 +213,13 @@ class Controller {
 	var $template;
 	
 	/**
+	 * The class to use for the template object
+	 *
+	 * @var string
+	 */
+	var $template_type = '';
+	
+	/**
 	 * The flash object
 	 *
 	 * @var Flash
@@ -364,7 +371,11 @@ class Controller {
 		$this->params = $request->parameters;
 		$this->response = $response;
 
-		$this->template = Template::factory($this->get_type());		
+		if ($this->template_type) {
+			$this->template = Template::factory($this->template_type);
+		} else {
+			$this->template = Template::factory($this->get_type());
+		}
 
 		if (!$this->template) {
 			$this->template = & new ApplicationTemplate($this);
