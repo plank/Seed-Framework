@@ -55,17 +55,51 @@ class CSVImport
   }
   
 
-  function custom_import($relation, $tablename) {
+  function custom_import($import_data, $tablename) {
 	
-  	$file_data = $this->get_csv_data($relation);
+  	$file_data = $this->get_csv_data($import_data);
+  	$table_fields = $this->db->column_definitions($tablename);
+  	// rebuild table field results
   	
+  	foreach ($table_fields as $key => $value) {
+  		$field_info[$value['Field']] = $value;
+  	}
+  	
+  	$final_file_data = array();
 	foreach ($file_data as $row => $data) {
-		if(!$this->db->insert_query($tablename, $file_data[$row])) {
-			 return false;
+
+		// VALIDATION BEFORE INSERT
+		$valid = true;
+		
+		foreach ($data as $field => $value) {
+					
+			if($field_info[$field]['Key'] == 'UNI') {
+				if($result = $this->db->query_single('SELECT * FROM ' . $tablename . ' WHERE UCASE(' . $field . ') LIKE UCASE(\'' . mysql_real_escape_string($value) . '\')')) {
+					 $errors[] = array("Row: $row: Unique field '$field' already has the value $value",
+					 					$result);
+					 $valid = false;
+					 
+				} 		
+			}
+		
+			
 		}
+		// END VALIDATION
+		
+		if($valid) {
+				$final_file_data[] = $file_data[$row];
+				$this_row = $file_data[$row];
+				
+				if(!$this->db->insert_query($tablename, $this_row)) {
+				 return false;
+			}
+		}
+		
 	}
 	
-	return true;
+	$final_file_data['errors'] = $errors;
+	
+	return $final_file_data;
   }
   
   /**
@@ -75,30 +109,43 @@ class CSVImport
    *		array key is the csv fields and the value is the database fields. ie: $relation[csv_field] = database_field 					 		
    * @return array of data such that row has fields and fields have field values ie: $value = [row][field]
    */
-  function get_csv_data($relation){
+  function get_csv_data($import_data){
 		$handle = fopen($this->file_name, "r");
 		$row = 0;
-		
+		$all_fields = $this->get_csv_header_fields();
+
 		while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
 			
 		
-			$num = count($relation);
+			$num = count($all_fields);
+			$preserve = '';
+			
 		    for ($c=0; $c < $num; $c++) {
-		    	
 		    	// get field names
 		    	if($row == '0'){
-		  			if(isset($relation[$data[$c]])) {
-		    			$field_names[] = $relation[$data[$c]];
+		  			if(isset($import_data['relation'][$data[$c]])) {
+		    			$field_names[] = $import_data['relation'][$data[$c]];
 		  			} else {
 		  				$field_names[] = 'blank';
 		  			}
 		    	} else {
 		    		if($field_names[$c] != 'blank') {
 			    		$cur_data = $data[$c];
-			        	$all_data[$row][$field_names[$c]] = $cur_data;
-		    		}
+			        	$all_data[$row][$field_names[$c]] = trim(htmlentities($cur_data), '&nbsp;');
+		    		} 
 		    	}
+		    	
+		    	// let's compile the extra data that wasn't mapped to be put into a specific field
+		    	foreach ($import_data['preserve'] as $key => $value) {
+		    		if($import_data['preserve'][$key] == $all_fields[$c]) {
+		    			$preserve .= $import_data['preserve'][$key] . ': ' . $data[$c] . "\r\n"; }
+		    	}
+		    	
 		    }
+		    // set our extra data if isset and put it into the given field
+	    	if((isset($import_data['extra']) && $import_data['extra'] != '') && $row != 0) {
+	    		$all_data[$row][$import_data['extra']] = $preserve;
+	    	}
 		    $row++;
 		}
 		fclose($handle);
