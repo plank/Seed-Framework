@@ -926,6 +926,8 @@ class FileFormControl extends FormControl {
 		$this->params['name'] = $this->name;
 		$this->params['type'] = 'file';
 		$this->params['class'] = 'file';
+		$help = assign($this->params['help'], false);
+		unset ($this->params['help']);
 		$link_root = assign($this->params['link_root']);
 		$image_root = assign($this->params['image_root']);
 		$removable = assign($this->params['removable'], false);
@@ -951,8 +953,14 @@ class FileFormControl extends FormControl {
 			$return .= "&nbsp;<label for='{$this->name}_remove'><input type='checkbox' id='{$this->name}_remove' name='$this->name' value='' /> Remove?</label>";	
 		}
 		
-		$return .= "</div><div><em>".$this->translator->text("Upload a new file:")."</em> <input ".$this->get_attributes()." /></div>";
+		$return .= "</div><div><em>".$this->translator->text("Upload a new file:")."</em> <input ".$this->get_attributes()." />"; 
 
+		if ($help) {
+			$return .= "&nbsp;".$help;
+		}
+
+		$return .= "</div>";
+		
 		
 		return $return;
 		
