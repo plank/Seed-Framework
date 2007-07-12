@@ -14,6 +14,11 @@
 require_once('model.php');
 
 /**
+ * Extends finder
+ */
+require_once('finder.php');
+
+/**
  * Finder for nested sets, with extra convenience methods
  *
  * @package model
