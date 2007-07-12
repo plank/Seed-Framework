@@ -837,12 +837,14 @@ class Model extends DataSpace {
 	 *
 	 * @return bool
 	 */
-	function update() {
+	function update($validate = true) {
 		// callbacks
-		if (!$this->before_validate()) return false;	
-		if (!$this->validate()) return false;
-		if (!$this->validate_on_update()) return false;
-		if (!$this->after_validate()) return false;	
+		if ($validate) {
+			if (!$this->before_validate()) return false;	
+			if (!$this->validate()) return false;
+			if (!$this->validate_on_update()) return false;
+			if (!$this->after_validate()) return false;	
+		}
 		if (!$this->before_save()) return false;	
 		if (!$this->before_update()) return false;			
 		
@@ -875,12 +877,14 @@ class Model extends DataSpace {
 	 *
 	 * @return bool
 	 */
-	function insert() {
+	function insert($validate = true) {
 		// callbacks
-		if (!$this->before_validate()) return false;	
-		if (!$this->validate()) return false;
-		if (!$this->validate_on_create()) return false;
-		if (!$this->after_validate()) return false;	
+		if ($validate) {
+			if (!$this->before_validate()) return false;	
+			if (!$this->validate()) return false;
+			if (!$this->validate_on_create()) return false;
+			if (!$this->after_validate()) return false;	
+		}
 		if (!$this->before_save()) return false;	
 		if (!$this->before_create()) return false;	
 		
@@ -931,12 +935,12 @@ class Model extends DataSpace {
 	 * @return bool
 	 */
 	
-	function save() {
+	function save($validate = true) {
 		
 		if ($this->is_new_record()) {
-			$result = $this->insert();
+			$result = $this->insert($validate);
 		} else {
-			$result = $this->update();
+			$result = $this->update($validate);
 		}
 		
 		return $result;
@@ -1250,6 +1254,7 @@ class ModelIterator extends SeedIterator {
 	 * Resets the iterator to the beginning
 	 */
 	function reset() {
+		
 		return $this->iterator->reset();
 	
 	}
