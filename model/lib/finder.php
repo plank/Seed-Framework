@@ -401,9 +401,9 @@ class Finder {
 	function like_condition($value) {
 		$columns = $this->model->columns();
 		$search = array();
-		
+
 		foreach($columns as $column) {
-			if ($column->type == 'string') {
+			if ($column->type == 'string' || $column->type == 'text') {
 				$search[] = $this->db->escape_identifier($column->name)." LIKE '".$this->db->escape($value)."'";
 			}
 		}
