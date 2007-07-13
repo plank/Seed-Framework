@@ -22,7 +22,7 @@ description:
 * @abstract Added methods: custom_import, get_csv_data
 * 			Removed: Old mysql connection. Now using framework DB object
 * @todo Clean up existing functions that Skakunov wrote. They seem messy and are using original mysql_connect. Should convert it to use our DB object
-* 
+* @todo Break code into more independant functions
 */
 
 
@@ -54,7 +54,17 @@ class CSVImport
     $this->num_records = '';
   }
   
-
+	/**
+	 * Function takes a data array parsed from a csv file and a table name
+	 * and returns false if a critical error occurs or returns an array with information
+	 * that contains the final data that was imported, those that weren't and any error
+	 * or notices.
+	 *
+	 * @param unknown_type $import_data
+	 * @param unknown_type $tablename
+	 * @return unknown
+	 */
+	
   function custom_import($import_data, $tablename) {
 	
   	$file_data = $this->get_csv_data($import_data);
@@ -66,31 +76,128 @@ class CSVImport
   	}
   	
   	$final_file_data = array();
+  	$errors = array();  	
+  	
+  	// get our primary keys
+	foreach($field_info as $k=>$v) {
+		if($field_info[$k]['Key'] == 'PRI') {
+			$primaries[] = $k;
+		}
+	}
+		
 	foreach ($file_data as $row => $data) {
 
 		// VALIDATION BEFORE INSERT
 		$valid = true;
-		
+		 
 		foreach ($data as $field => $value) {
 					
-			if($field_info[$field]['Key'] == 'UNI') {
-				if($result = $this->db->query_single('SELECT * FROM ' . $tablename . ' WHERE UCASE(' . $field . ') LIKE UCASE(\'' . mysql_real_escape_string($value) . '\')')) {
-					 $errors[] = array("Row: $row: Unique field '$field' already has the value $value",
-					 					$result);
-					 $valid = false;
+			// get values in brackets of field type. ie: the 55 in varchar(55)
+			if(stristr($field_info[$field]['Type'], ')')) {
+				$startpos = strpos($field_info[$field]['Type'], '(') + 1;
+				$endpostmp = strpos($field_info[$field]['Type'], ')');
+				$endpos = $endpostmp - $startpos;
+				$typevalue = substr($field_info[$field]['Type'], $startpos, $endpos);
+			}
+			
+			 
+			/**
+			 *  Here are our core DB validations
+			 */
+			
+			/// UNIQUE HANDLER
+
+			if($field_info[$field]['Key'] == 'UNI' || $field_info[$field]['Key'] == 'MUL') {
+				if($result = $this->db->query_single('SELECT * FROM ' . $tablename . ' WHERE UCASE(' . $field . ') LIKE UCASE(\'' . mysql_real_escape_string(trim($value)) . '\')')) {
+					
+					// DISCARD DUPLICATES
+					if($import_data['rules']['rule_unique'] == 'discard') {
+					 $errors['unique'][] = array("<strong>[DISCARDED]CSV Row $row </strong>: Unique field '$field' already has the value <strong>'$value'</strong>.", $result);
+					 $valid = false;	
+					 
+					 // OVERWRITE ORIGINAL			 
+					} else if($import_data['rules']['rule_unique'] == 'overwrite') {
+						$this->db->update_query($tablename, "id = '" . $result['id'] . "'", $data);
+						
+						$errors['unique'][] = array("<strong>[OVERWRITTEN]CSV Row $row </strong>: Unique field '$field' already has the value <strong>'$value'</strong>. Record " . $result['id'] . ' has been overwritten.', $result);
+						$valid = false;
+						 
+					// MERGE DUPLICATE	 
+					} else if($import_data['rules']['rule_unique'] == 'merge') {
+						 die('merge rule not implemented yet');
+						 $valid = false;
+					}
 					 
 				} 		
 			}
-		
+			/// END UNIQUE HANDLER
 			
+			
+			// insert defaults if blank value
+			if(trim($value) == '') {
+				$file_data[$row][$field] = $field_info[$field]['Default'];
+			}
+			
+			// check varchars
+			if(stristr($field_info[$field]['Type'], 'varchar') ) {
+				if(strlen($value) > $typevalue) {
+					$shortened_value = substr($value, 0, $typevalue);		
+					 $errors['truncated'][] = array("CSV Row: $row: The value <strong>'$value'</strong> going into the field <strong>'$field'</strong> is too long and has been shortened to <strong>'$shortened_value'</strong>");
+					 $file_data[$row][$field] = $shortened_value;
+				}
+			}
+			
+			// check enums
+			if(stristr($field_info[$field]['Type'], 'enum') ) {
+				$enum_pass = false;
+				$enum_values = explode(',', str_replace("'", "", $typevalue));
+				foreach($enum_values as $k => $v) {
+					if($value == $enum_values[$k]) {
+						$enum_pass = true;
+					} 
+				}
+				
+				if(!$enum_pass){
+					$errors['enum'][] = array("CSV Row: $row: The value <strong>'$value'</strong> going into the field <strong>'$field'</strong> does not match any of the optional values. Value has been overwritten to the default value '<strong>" . $field_info[$field]['Default'] . "</strong>'");
+				}
+				$file_data[$row][$field] = $field_info[$field]['Default'];
+			}
+			
+			// check ints
+			if(stristr($field_info[$field]['Type'], 'int')) {
+				if(!is_numeric($value)) {
+					$errors['number'][] = array("CSV Row: $row: The value <strong>'$value'</strong> going into the field <strong>'$field'</strong> is not an integer. Value has been overwritten to the default value '<strong>" . $field_info[$field]['Default'] . "</strong>'");
+					$file_data[$row][$field] = $field_info[$field]['Default'];
+					
+				} else if(strlen($value) > $typevalue){
+					$shortened_value = substr($value, 0, $typevalue);		
+					 $errors['truncated'][] = array("CSV Row: $row: The value <strong>'$value'</strong> going into the field <strong>'$field'</strong> is too long and has been shortened to <strong>'$shortened_value'</strong>");
+					 $file_data[$row][$field] = $shortened_value;
+				}
+			}
+			/**
+			 * End core DB validation. Will break into functions soon. Maybe place into db models?
+			 */
+			
+			
+			// validate dates!
+			if(stristr($field_info[$field]['Type'], 'date')) {
+				
+				if(($value != '') && (strtotime($value) == -1)) {
+					$errors['date'][] = array("CSV Row: $row: The value <strong>'$value'</strong> going into the field <strong>'$field'</strong> is not a valid date format. The date value will set to its default");
+					$file_data[$row][$field] = 'invalid date';
+				}
+			}
 		}
+		
 		// END VALIDATION
 		
-		if($valid) {
-				$final_file_data[] = $file_data[$row];
-				$this_row = $file_data[$row];
 				
-				if(!$this->db->insert_query($tablename, $this_row)) {
+		if($valid) {
+			$final_file_data[] = $file_data[$row];	
+			$this_row = $file_data[$row];
+			
+			if(!$this->db->insert_query($tablename, $this_row)) {					
 				 return false;
 			}
 		}
@@ -113,45 +220,77 @@ class CSVImport
 		$handle = fopen($this->file_name, "r");
 		$row = 0;
 		$all_fields = $this->get_csv_header_fields();
-
+		$reserved_csvfield = array();
+		
 		while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-			
 		
 			$num = count($all_fields);
 			$preserve = '';
 			
+			// per row, let's go through each column of data $c
 		    for ($c=0; $c < $num; $c++) {
+		    	
+		    	$reserved = false;
+		    	
+		    	
+		    	// we know how many columns there are hence there should be data set in each column  
+		    	// even blank. CSV's from excel don't always generate the right amount of commas so 
+		    	// let's  make sure if there is missing a comma, we compensate for it
+		    	if(($row != '0') && (!isset($data[$c]))) {
+		    		$data[$c] = '';
+		    	}
+		    	
+		    	// let's compile the extra data that wasn't mapped to be put into a specific field
+		    	foreach ($import_data['preserve'] as $key => $value) {
+		    		
+		    		if(($import_data['preserve'][$key] == $all_fields[$c]) && $data[$c] != '') {
+		    			$preserve .= $import_data['preserve'][$key] . ': ' . $data[$c] . "\r\n";
+		    		}
+		    			
+		    		if(($row == '0') && (trim($data[$c]) == trim($import_data['preserve'][$key]))) {
+		    			$reserved = true;
+		    			$reserved_csvfield[$c] = '';
+		    		}
+		    	}
+		   
+		    	
 		    	// get field names
 		    	if($row == '0'){
 		  			if(isset($import_data['relation'][$data[$c]])) {
 		    			$field_names[] = $import_data['relation'][$data[$c]];
 		  			} else {
-		  				$field_names[] = 'blank';
+		  				if(!$reserved) {
+		  					$field_names[] = 'blank';
+		  				} else {
+		  					$field_names[] = $import_data['extra'];
+		  				}
 		  			}
 		    	} else {
-		    		if($field_names[$c] != 'blank') {
-			    		$cur_data = $data[$c];
-			        	$all_data[$row][$field_names[$c]] = trim(htmlentities($cur_data), '&nbsp;');
-		    		} 
-		    	}
-		    	
-		    	// let's compile the extra data that wasn't mapped to be put into a specific field
-		    	foreach ($import_data['preserve'] as $key => $value) {
-		    		if($import_data['preserve'][$key] == $all_fields[$c]) {
-		    			$preserve .= $import_data['preserve'][$key] . ': ' . $data[$c] . "\r\n"; }
-		    	}
-		    	
+		    		$cur_data = $data[$c];
+
+		    		if(!isset($reserved_csvfield[$c]) && $field_names[$c] != 'blank') {
+		        		$all_data[$row][$field_names[$c]] = trim(htmlentities($cur_data), '&nbsp;'); 
+		    		}
+	    		}	
 		    }
+		    
 		    // set our extra data if isset and put it into the given field
-	    	if((isset($import_data['extra']) && $import_data['extra'] != '') && $row != 0) {
-	    		$all_data[$row][$import_data['extra']] = $preserve;
+	    	if((isset($import_data['extra']) && $import_data['extra'] != 'off') && $row != 0) {
+	    		
+	    		if(isset($all_data[$row][$import_data['extra']])) {
+		    		 $all_data[$row][$import_data['extra']] .= "\r\n" . $preserve;
+	    		} else {
+	    			$all_data[$row][$import_data['extra']] = $preserve;
+	    		}
+		    	
 	    	}
 		    $row++;
 		}
+		
 		fclose($handle);
 		
 		// set number of rows in file
-		$this->num_records = ($row - 1);
+		$this->num_records = ($row - 1); //die(debug($all_data));
 		return $all_data;
 	}
   
