@@ -668,7 +668,7 @@ class TextFormControl extends FormControl  {
 		
 		$this->params['id'] = $this->name;
 		$this->params['name'] = $this->name;
-		$this->params['value'] = $this->escape($this->value);
+		$this->params['value'] = $this->value;
 		$this->params['type'] = 'text';
 		$this->params['class'] = 'text';
 		
@@ -689,7 +689,7 @@ class PasswordFormControl extends FormControl  {
 	function generate_control() {
 		$this->params['id'] = $this->name;
 		$this->params['name'] = $this->name;
-		$this->params['value'] = $this->escape($this->value);
+		$this->params['value'] = $this->value;
 		$this->params['type'] = 'password';
 		$this->params['class'] = 'text';
 		
