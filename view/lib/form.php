@@ -573,7 +573,7 @@ class FormControl {
 	}
 	
 	function escape($string) {
-		return ($string);
+		return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
 		//return utf8_decode($string);
 	}
 
@@ -1030,6 +1030,7 @@ class FckeditorFormControl extends FormControl  {
  *
  * @package view
  * @subpackage html
+ * @todo Doesn't support dates such as 1950-0-0, which is valid in mysql
  */
 class DateFormControl extends FormControl {
 	
@@ -1047,7 +1048,7 @@ class DateFormControl extends FormControl {
 				$first_option = "<option value='0'></option>";
 				$date = new Date($this->value);
 			} else {
-				$first_option = "<option selected='selected' values='0'></option>";
+				$first_option = "<option selected='selected' value='0'></option>";
 				$date = false;
 			}
 			
