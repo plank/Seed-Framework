@@ -157,7 +157,7 @@ class MultilangListModel extends MultilangModel {
 	 * @return int
 	 */
 	function bottom_position_in_list() {
-		$sql = "SELECT $this->position_field FROM $this->table WHERE ".$this->scope_condition()." ORDER BY $this->position_field DESC LIMIT 1";
+		$sql = "SELECT $this->position_field FROM $this->table LEFT JOIN ".$this->version_table_name()." ON $this->table.id = ".$this->version_table_name().".{$this->table}_id WHERE ".$this->scope_condition()." ORDER BY $this->position_field DESC LIMIT 1";
 		return $this->db->query_value($sql);
 	}
 	
