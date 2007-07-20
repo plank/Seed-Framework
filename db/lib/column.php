@@ -235,9 +235,9 @@ class Column {
 	 */
 	function simplified_type($sql_type) {
 		$sql_type = $this->extract_type($sql_type);
-		
+		//debug($sql_type);
 		$types = array(
-			'/^int(.*)/i' => INTEGER,
+			'/(.*)int(.*)/i' => INTEGER,
 			'/^float/i' => FLOAT,
 			'/^double/i' => FLOAT,
 			'/^decimal/i' => FLOAT,
@@ -247,7 +247,7 @@ class Column {
 			'/^time/i' => TIME,
 			'/^date/i' => DATE,
 			'/^clob/i' => TEXT,
-			'/^text/i' => TEXT,
+			'/(.*)text/i' => TEXT,
 			'/^blob/i' => BINARY,
 			'/^binary/i' => BINARY,
 			'/^varchar(.*)/i' => STRING,
