@@ -26,15 +26,17 @@ class MultilangFinder extends Finder {
 			$latest_field = $this->model->latest_field;
 			
 		}
+
+		// add the join to the version table
+		$version_join = "$version_table_name ON $table_name.$id_field = $version_table_name.$foreign_key";
+
 		
 		if (isset($options['joins']) && $options['joins']) {
-			$options['joins'] = $options['joins'].' LEFT JOIN ';
+			$options['joins'] = $version_join.' LEFT JOIN '.$options['joins'];
 		} else {
-			$options['joins'] = '';	
+			$options['joins'] = $version_join;	
 		}
 		
-		// add the join to the version table
-		$options['joins'] .= "$version_table_name ON $table_name.$id_field = $version_table_name.$foreign_key";
 		
 		if (!isset($options['select'])) {
 			$options['select'] = "$table_name.*, $version_table_name.*";	
