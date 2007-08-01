@@ -127,7 +127,7 @@ class XBaseWritableTable extends XBaseTable {
 	}
 	function writeRecord() {
 		fseek($this->fp,$this->headerLength+($this->record->recordIndex*$this->recordByteLength));
-		$data =& $this->record->serializeRawData();
+		$data = $this->record->serializeRawData(); // removed referencing
 		fwrite($this->fp,$data);
 		if ($this->record->inserted) $this->writeHeader();
 		flush($this->fp);

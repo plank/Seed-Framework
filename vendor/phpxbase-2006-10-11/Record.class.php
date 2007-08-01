@@ -110,7 +110,8 @@ class XBaseRecord {
         return $this->getObject($this->table->getColumn($columnIndex));
     }
     function getObject($columnObj) {
-        switch ($columnObj->getType()) {
+
+    	switch ($columnObj->getType()) {
             case DBFFIELD_TYPE_CHAR : return $this->getString($columnObj);
             case DBFFIELD_TYPE_DATE : return $this->getDate($columnObj);
             case DBFFIELD_TYPE_DATETIME : return $this->getDateTime($columnObj);

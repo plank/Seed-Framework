@@ -144,7 +144,7 @@ class XBaseTable {
 	    if (!$this->isOpen()) $this->open();
         $valid=false;
         do {
-            if ($this->recordPos+1>=$this->recordCount) return false;
+            if ($this->recordPos+1>=$this->recordCount) { $result = false; return $result; }
             $this->recordPos++;
             $this->record =& new XBaseRecord($this,$this->recordPos,$this->readBytes($this->recordByteLength));
             if ($this->record->isDeleted()) {
@@ -157,7 +157,10 @@ class XBaseTable {
     }
     function &moveTo($index) {
 	    $this->recordPos=$index;
-	    if ($index<0) return;
+	    if ($index<0) {
+	    	fseek($this->fp,$this->headerLength); // rewind doesn't work properly without this
+	    	return $index;
+	    }
 	    fseek($this->fp,$this->headerLength+($index*$this->recordByteLength));
 	    $this->record =& new XBaseRecord($this,$this->recordPos,$this->readBytes($this->recordByteLength));
         return $this->record;
