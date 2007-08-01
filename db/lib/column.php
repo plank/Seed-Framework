@@ -125,6 +125,8 @@ class Column {
 	 * @return mixed
 	 */
 	function type_cast($value) {
+		if (is_null($value)) return null;
+		
 		switch ($this->type) {
 			case DATE:	
 				return date(SQL_DATE_TIME_FORMAT, strtotime($value));
