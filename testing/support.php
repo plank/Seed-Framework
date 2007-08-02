@@ -19,11 +19,11 @@ require_once(SEEDTEST_SEED_PATH.'seed.php');
 if (!file_exists(SEEDTEST_CONFIG_PATH)) {
 	die("Config file for tests not found in '".SEEDTEST_CONFIG_PATH."', please create it");
 }
-	
-require_once(SEEDTEST_CONFIG_PATH);	
+
+require_once(SEEDTEST_CONFIG_PATH);
 
 if (!file_exists(SEEDTEST_SIMPLETEST_PATH)) {
-	die("Simpletst not found in '".SEEDTEST_SIMPLETEST_PATH."', please install it");
+	die("Simpletest not found in '".SEEDTEST_SIMPLETEST_PATH."', please install it");
 }
 
 require_once(SEEDTEST_SIMPLETEST_PATH.'unit_tester.php');
@@ -36,8 +36,8 @@ class SeedGroupTest extends GroupTest {
 	function SeedGroupTest($label = false) {
 		parent::GroupTest($label);
 	}
-	
-	
+
+
 	/**
 	 * test the given component
 	 *
@@ -45,27 +45,27 @@ class SeedGroupTest extends GroupTest {
 	 */
 	function add_component($name) {
 		seed_include($name);
-		
+
 		$path = SEEDTEST_SEED_PATH.'/'.$name.'/test/';
-		
+
 		if (file_exists($path.'support.php')) {
-			require_once($path.'support.php');	
+			require_once($path.'support.php');
 		}
-		
+
 		// include all classes
 		$dir = dir($path);
-		
+
 		while(($file = $dir->read()) !== false ) {
 			if (substr($file, 0, 1) == '.') {
 				continue;
 			}
-			
+
 			if (is_file($path.$file) && substr($file, -9) == '_test.php') {
 				$this->addTestFile($path.$file);
 			}
-			
-		}	
-		
+
+		}
+
 		return true;
 	}
 
@@ -77,26 +77,26 @@ class SeedGroupTest extends GroupTest {
  * @param DB $db
  */
 function setup_db($db) {
-	
+
 	// basic test table
 	$db->drop_table('test', true);
-	
+
 	$db->query("CREATE TABLE `test` (
 		`id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
 		`name` VARCHAR( 255 ) NOT NULL ,
 		PRIMARY KEY ( `id` )
 		);"
 	);
-	
+
 	$db->query("INSERT INTO `test` (`name`) VALUES ('one');");
 	$db->query("INSERT INTO `test` (`name`) VALUES ('two');");
 	$db->query("INSERT INTO `test` (`name`) VALUES ('three');");
 	$db->query("INSERT INTO `test` (`name`) VALUES ('four');");
 	$db->query("INSERT INTO `test` (`name`) VALUES ('five');");
-	
+
 	// news table
 	$db->drop_table('news', true);
-	
+
 	$db->query("CREATE TABLE `news` (
 		`id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
 		`date` DATE NOT NULL ,
@@ -106,14 +106,14 @@ function setup_db($db) {
 		PRIMARY KEY ( `id` )
 		);"
 	);
-	
+
 	$db->query("INSERT INTO `news` ( `id` , `date` , `title` , `text` , `user_id` ) VALUES ('', '2006-04-19', 'Article 1', 'Some text', '1');");
 	$db->query("INSERT INTO `news` ( `id` , `date` , `title` , `text` , `user_id` ) VALUES ('', '2006-04-25', 'Article 2', 'Some more text', '1');");
 	$db->query("INSERT INTO `news` ( `id` , `date` , `title` , `text` , `user_id` ) VALUES ('', '2006-05-10', 'Article 3', 'Again some text', '2');");
-	
+
 	// users table
 	$db->drop_table('user', true);
-	
+
 	$db->query("CREATE TABLE `user` (
 		`id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
 		`username` VARCHAR( 255 ) NOT NULL ,
@@ -122,12 +122,12 @@ function setup_db($db) {
 		PRIMARY KEY ( `id` )
 		);"
 	);
-	
+
 	$db->query("INSERT INTO `user` ( `id` , `username` , `password` , `user_id` ) VALUES ('', 'admin', 'admin', '1'), ('', 'author', 'author', '2');");
 
 	// category table
 	$db->drop_table('category', true);
-	
+
 	$db->query("CREATE TABLE `category` (
 		`id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
 		`name` VARCHAR( 255 ) NOT NULL ,
@@ -137,25 +137,25 @@ function setup_db($db) {
 
 	$db->query("INSERT INTO `category` ( `id` , `name` ) VALUES ('', 'category 1'), ('', 'category 2');");
 	$db->query("INSERT INTO `category` ( `id` , `name` ) VALUES ('', 'category 3'), ('', 'category 4');");
-	
+
 	// category_news join table
 	$db->drop_table('category_news', true);
-	
+
 	$db->query("CREATE TABLE `category_news` (
 		`category_id` TINYINT( 11 ) UNSIGNED NOT NULL ,
 		`news_id` TINYINT( 11 ) UNSIGNED NOT NULL
 		);"
 	);
-	
+
 	$db->query("ALTER TABLE `category_news` ADD INDEX `index` ( `category_id` , `news_id` );");
-	
+
 	$db->query("INSERT INTO `category_news` ( `category_id` , `news_id` ) VALUES ('1', '1'), ('2', '1');");
 	$db->query("INSERT INTO `category_news` ( `category_id` , `news_id` ) VALUES ('2', '2'), ('3', '2');");
 	$db->query("INSERT INTO `category_news` ( `category_id` , `news_id` ) VALUES ('3', '3'), ('4', '3');");
-	
+
 	// tag table
 	$db->drop_table('tag', true);
-	
+
 	$db->query("CREATE TABLE `tag` (
 		`id` int(11) unsigned NOT NULL auto_increment,
 		`name` varchar(255) NOT NULL default '',
@@ -174,20 +174,20 @@ function setup_db($db) {
 	$db->query("INSERT INTO `tag` VALUES (6, 'Author Tag', 'user', 2);");
 
 	// firm table
-	
+
 	$db->drop_table('firm', true);
-	
+
 	$db->query("CREATE TABLE `firm` (
 		`id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
 		`name` VARCHAR( 255 ) NOT NULL ,
 		PRIMARY KEY ( `id` )
 		);"
 	);
-	
+
 	$db->query("INSERT INTO `firm` ( `id` , `name` ) VALUES ('', 'Firm A'), ('', 'Firm B');");
-	
+
 	$db->drop_table('client', true);
-	
+
 	$db->query("CREATE TABLE `client` (
 		`id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
 		`name` VARCHAR( 255 ) NOT NULL ,
@@ -195,13 +195,13 @@ function setup_db($db) {
 		PRIMARY KEY ( `id` )
 		);"
 	);
-	
+
 
 	$db->query("INSERT INTO `client` ( `id` , `name` , `firm_id` ) VALUES ('', 'Client A', '1'), ('', 'Client B', '1');");
-	$db->query("INSERT INTO `client` ( `id` , `name` , `firm_id` ) VALUES ('', 'Client C', '2'), ('', 'Client D', '2');");	
-	
+	$db->query("INSERT INTO `client` ( `id` , `name` , `firm_id` ) VALUES ('', 'Client C', '2'), ('', 'Client D', '2');");
+
 	$db->drop_table('invoice', true);
-	
+
 	$db->query("CREATE TABLE `invoice` (
 		`id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
 		`client_id` INT( 11 ) UNSIGNED NOT NULL ,
@@ -213,8 +213,8 @@ function setup_db($db) {
 	$db->query("INSERT INTO `invoice` ( `id` , `client_id` , `amount` ) VALUES ('', '1', '10.00'), ('', '1', '20.00');");
 	$db->query("INSERT INTO `invoice` ( `id` , `client_id` , `amount` ) VALUES ('', '2', '30.00'), ('', '2', '40.00');");
 	$db->query("INSERT INTO `invoice` ( `id` , `client_id` , `amount` ) VALUES ('', '3', '50.00'), ('', '3', '60.00');");
-	$db->query("INSERT INTO `invoice` ( `id` , `client_id` , `amount` ) VALUES ('', '4', '70.00'), ('', '4', '80.00');");	
-	
+	$db->query("INSERT INTO `invoice` ( `id` , `client_id` , `amount` ) VALUES ('', '4', '70.00'), ('', '4', '80.00');");
+
 }
 
 ?>
