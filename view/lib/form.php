@@ -185,6 +185,10 @@ class Form {
 					
 				case $column->type == 'date':
 				case $column->type == 'datetime':
+					if ($column->name == 'created_at' || $column->name == 'modified_at') {
+						continue;
+					}
+				
 					$this->add_control('date', $column->name);
 					break;
 				
