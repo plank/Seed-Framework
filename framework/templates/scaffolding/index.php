@@ -1,5 +1,9 @@
+<div id="page_header">
+<div id="page_header_links"><?php print $this->link_to('Add '.Inflector::humanize($this->controller->get_type()), array('action'=>'add')); ?></div>
 <h1><?php print Inflector::humanize($this->controller->get_type()) ?> List</h1>
-<p><?php print $this->link_to('Add '.Inflector::humanize($this->controller->get_type()), array('action'=>'add')); ?></p>
+</div>
+
+<div id="page_body">
 <?php 
 
 if ($this->table) {
@@ -12,3 +16,4 @@ if ($this->table) {
 }
 
 ?>
+</div>
