@@ -254,31 +254,84 @@ class Geography {
 			'zr'=>'Zaire',
 			'zw'=>'Zimbabwe'
 		);
-		
+
 		asort($countries);
-		
+
 		if (isset($start_with)) {
 			foreach($start_with as $code) {
 				if (isset($countries[$code])) {
-					$start_countries[$code] = $countries[$code];	
+					$start_countries[$code] = $countries[$code];
 					unset($countries[$code]);
 				}
-			}	
-			
+			}
+
 			$countries = array_merge($start_countries, $countries);
 		}
-		
+
 		return $countries;
-		
+
 	}
-	
+
+	/**
+	 * Returns an array of time zone, keyed by their offsets
+	 *
+	 * @return array
+	 */
+	function time_zones() {
+		return DateTimeZone::listIdentifiers();
+
+		return array(
+			'-12'=>'UTC - 12',
+			'-11'=>'UTC - 11',
+			'-10'=>'UTC - 10',
+			'-9:30'=>'UTC - 9:30',
+			'-9'=>'UTC - 9',
+			'-8'=>'UTC - 8',
+			'-7'=>'UTC - 7',
+			'-6'=>'UTC - 6',
+			'-5'=>'UTC - 5',
+			'-4'=>'UTC - 4',
+			'-3:30'=>'UTC - 3:30',
+			'-3'=>'UTC - 3',
+			'-2'=>'UTC - 2',
+			'-1'=>'UTC - 1',
+			'0'=>'UTC',
+			'+1'=>'UTC + 1',
+			'+2'=>'UTC + 2',
+			'+3'=>'UTC + 3',
+			'+3:30'=>'UTC + 3:30',
+			'+4'=>'UTC + 4',
+			'+4:30'=>'UTC + 4:30',
+			'+5'=>'UTC + 5',
+			'+5:30'=>'UTC + 5:30',
+			'+5:45'=>'UTC + 5:45',
+			'+6'=>'UTC + 6',
+			'+6:30'=>'UTC + 6:30',
+			'+7'=>'UTC + 7',
+			'+8'=>'UTC + 8',
+			'+8:45'=>'UTC + 8:45',
+			'+9'=>'UTC + 9',
+			'+9:30'=>'UTC + 9:30',
+			'+10'=>'UTC + 10',
+			'+10:30'=>'UTC + 10:30',
+			'+11'=>'UTC + 11',
+			'+11:30'=>'UTC + 11:30',
+			'+12'=>'UTC + 12',
+			'+12:45'=>'UTC + 12:45',
+			'+13'=>'UTC + 13',
+			'+14'=>'UTC + 14'
+
+		);
+
+	}
+
 	/**
 	 * Returns an array of canadian provinces
 	 *
 	 * @return array
 	 */
 	function canadian_provinces() {
-		
+
 		return array(
 			'AB'=>'Alberta',
 			'BC'=>'British Columbia',
@@ -294,14 +347,14 @@ class Geography {
 			'SK'=>'Saskatchewan',
 			'YT'=>'Yukon'
 		);
-		
+
 	}
-	
+
 	/**
 	 * Returns an array of us states
 	 *
 	 * @return array
-	 */	
+	 */
 	function us_states() {
 
 		return array(
@@ -356,11 +409,11 @@ class Geography {
 			'WV'=>'West Virginia',
 			'WI'=>'Wisconsin',
 			'WY'=>'Wyoming'
-		);		
-		
+		);
+
 	}
-	
-	
+
+
 }
 
 ?>
