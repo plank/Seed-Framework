@@ -37,7 +37,7 @@ class Scaffolding {
 	 */
 	function get_model_type() {
 
-		return $this->controller->model_name;
+		return $this->controller->model;
 	}
 
 	/**
