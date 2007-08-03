@@ -22,7 +22,7 @@ define('FRAMEWORK_TEMPLATE_PATH', FRAMEWORK_PATH.'framework/templates/');
 /**
  * Path to the root of the application
  */
-define('APP_PATH', dirname(dirname(SCRIPT_PATH)).'/');	
+define('APP_PATH', dirname(dirname(SCRIPT_PATH)).'/');
 
 /**
  * Path to the root of controllers
@@ -43,6 +43,11 @@ define('MODEL_PATH', APP_PATH.'app/models/');
  * Path to the root of the helpers
  */
 define('HELPER_PATH', APP_PATH.'app/helpers/');
+
+/**
+ * Path to the root of the cache
+ */
+define('CACHE_PATH', APP_PATH.'cache/');
 
 /**
  * Path to the root of the config files
@@ -69,7 +74,7 @@ define('LOG_PATH', APP_PATH.'logs/');
 /**
  * Hostname with protocol
  */
-if (isset($_SERVER['HTTP_HOST'])) { 
+if (isset($_SERVER['HTTP_HOST'])) {
 	define('APP_HOST', 'http://'.$_SERVER['HTTP_HOST']);
 } else {
 	define('APP_HOST', '');
@@ -78,18 +83,18 @@ if (isset($_SERVER['HTTP_HOST'])) {
 // allow custom settings for APP_URL, which would be set in index.php
 if (!defined('APP_URL')) {
 	if (dirname(dirname($_SERVER['PHP_SELF'])) == '/') {
-		define('APP_URL', '/');	
+		define('APP_URL', '/');
 	} else {
 		define('APP_URL', dirname(dirname($_SERVER['PHP_SELF'])).'/');
 	}
 }
 
 if (APP_URL == '/') {
-	define('APP_ROOT', APP_HOST.'/');		
+	define('APP_ROOT', APP_HOST.'/');
 
 } else {
 	define('APP_ROOT', APP_HOST.dirname(APP_URL.'#').'/');
-	
+
 }
 
 /**
@@ -109,30 +114,30 @@ if (defined('SESSION_LIFETIME')) {
  */
 function start() {
 	$app = new SeedFramework();
-	$app->start();	
-	
+	$app->start();
+
 }
 
 function start_cli() {
 	$app = new SeedFramework();
-	$app->start_cli();	
-	
+	$app->start_cli();
+
 }
 
 /**
  * Application class
  *
- * This class handles the requests, loading the libraries and config files only if needed. Call the start() method to start execution. 
+ * This class handles the requests, loading the libraries and config files only if needed. Call the start() method to start execution.
  */
 class SeedFramework {
-	
+
 	/**
-	 * A comma delimited list of file extensions the framework shouldn't handle 
+	 * A comma delimited list of file extensions the framework shouldn't handle
 	 *
 	 * @var string
 	 */
 	var $ignore_extensions = 'js,css,jpg,jpeg,gif,png,flw';
-	
+
 	/**
 	 * Turn on check for static files in the "public" directory. This is required
 	 * when full mod_rewrite support is missing.
@@ -140,21 +145,21 @@ class SeedFramework {
 	 * @var bool
 	 */
 	var $handle_static_files = false;
-	
+
 	/**
 	 * These are the various file names an index file can take
 	 *
 	 * @var array
 	 */
 	var $index_file_names = array('index', 'default', 'welcome');
-	
+
 	/**
 	 * These are the various file extensions an index file can take
 	 *
 	 * @var array
 	 */
 	var $index_file_extensions = array('php', 'html', 'htm');
-	
+
 	/**
 	 * Call this function to start processing
 	 *
@@ -162,71 +167,71 @@ class SeedFramework {
 	 */
 	function start() {
 		$url = isset($_GET['url']) ? $_GET['url']: '';
-		
+
 		// if the $url points to a static file in the public folder, display that
-		if ($this->display_static_files($url)) return true;	
-		
+		if ($this->display_static_files($url)) return true;
+
 		// ignore requests with extensions that we've decided to ignore
 		if ($this->ignore_extensions($url)) return true;
 
-		// include all the framework libraries		
+		// include all the framework libraries
 		$this->include_libraries();
-		
+
 		// include vendor libraries
 		$this->include_vendor_libraries();
-		
+
 		// include the app's general config file
 		$this->include_config();
-	
+
 		// include the app's environment config file
 		$this->include_environment_config();
 
 		$this->set_error_handler();
-		
+
 		// include application files
 		$this->include_application_files();
-		
+
 		// register all objects
 		$this->register_objects();
-		
+
 		// log the request
 		Logger::log('dispatch', LOG_LEVEL_DEBUG, 'dispatching '. $url);
-		
+
 		// dispatch the request
 		Dispatcher::dispatch();
-		
+
 		return true;
-		
-	}	
-	
+
+	}
+
 	/**
 	 * Call this function to start processing command line scripts
 	 *
 	 * @return bool Returns true
-	 */	
+	 */
 	function start_cli() {
-		// include all the framework libraries		
+		// include all the framework libraries
 		$this->include_libraries();
-		
+
 		// include vendor libraries
 		$this->include_vendor_libraries();
-		
+
 		// include the app's general config file
 		$this->include_config();
-	
+
 		// include the app's environment config file
 		$this->include_environment_config();
-		
+
 		// include application files
 		$this->include_application_files();
-		
+
 		// register all objects
-		$this->register_objects();		
-		
+		$this->register_objects();
+
 		return true;
-		
+
 	}
-	
+
 	/**
 	 * Checks for the existance of a static file in the "public" directory at the given url
 	 * and outputs that to the browser if a file exists there.
@@ -236,32 +241,32 @@ class SeedFramework {
 	 */
 	function display_static_files($url) {
 		if (!$this->handle_static_files || !$url) {
-			return false;	
+			return false;
 		}
-		
+
 		$file = new File(PUBLIC_PATH.$url);
-		
+
 		if (!$file->exists()) {
-			return false;	
+			return false;
 		}
-		
+
 		if ($file->is_directory()) {
 			$file = $this->get_directory_index($file);
-			
+
 		}
-		
+
 		if ($file) {
 			Logger::log('dispatch', LOG_LEVEL_DEBUG, 'static '. $url);
-			
+
 			return $this->output_file($file);
-			
+
 		} else {
 			return false;
-			
+
 		}
-		
+
 	}
-	
+
 	/**
 	 * Checks a given directory for the existance of an index file
 	 *
@@ -273,17 +278,17 @@ class SeedFramework {
 		foreach ($this->index_file_names as $name) {
 			foreach ($this->index_file_extensions as $extension) {
 				$index_file = new File($file->path.'/'.$name.'.'.$extension);
-				
+
 				if ($index_file->exists()) {
-					return $index_file;	
+					return $index_file;
 				}
-			}	
-		}			
+			}
+		}
 
 		return false;
-		
+
 	}
-	
+
 	/**
 	 * Output the file to the browser with proper headers
 	 *
@@ -294,19 +299,19 @@ class SeedFramework {
 		// if the file is a php file, include it
 		if ($file->get_extension() == 'php') {
 			include($file->get_path());
-				
+
 		} else {
 			$mimetype = $file->get_mime_type();
 			header("HTTP/1.0 200 OK", true, 200);
 			header("Content-type: $mimetype");
-	
+
 			$file->output_contents();
-			
+
 		}
 
 		return true;
 	}
-	
+
 	/**
 	 * Include the general config files
 	 */
@@ -316,7 +321,7 @@ class SeedFramework {
 		require_once(CONFIG_PATH.'config.php');
 
 	}
-	
+
 	/**
 	 * Include the environment config files
 	 */
@@ -330,21 +335,21 @@ class SeedFramework {
 			}
 		} else {
 			trigger_error('No environment defined, please define ENVIRONMENT in the config file', E_USER_WARNING);
-		}		
+		}
 	}
-	
+
 	/**
 	 * Sets the error handler, defaults to dev if one isn't explicitely set
 	 */
 	function set_error_handler() {
 		if (!defined('ERROR_HANDLER')) {
 			define('ERROR_HANDLER', 'dev');
-		} 
-			
-		return seed_set_error_handler(ERROR_HANDLER);	
-		
+		}
+
+		return seed_set_error_handler(ERROR_HANDLER);
+
 	}
-	
+
 	/**
 	 * Register objects
 	 */
@@ -353,14 +358,14 @@ class SeedFramework {
 		if (!defined('DB_TYPE')) {
 			define('DB_TYPE', 'mysql');
 		}
-		
+
 		if (defined('DB_HOST')) {
 			// register db
-			$db = DB::register('default', DB_TYPE, DB_HOST, DB_USER, DB_PASS, DB_NAME);		
+			$db = DB::register('default', DB_TYPE, DB_HOST, DB_USER, DB_PASS, DB_NAME);
 		}
 
 	}
-	
+
 	/**
 	 * Check the requested url to make sure it's not on the ignored extensions list
 	 *
@@ -372,20 +377,20 @@ class SeedFramework {
 		if (!$this->ignore_extensions) {
 			return false;
 		}
-			
+
 		$ignore = str_replace(',', '|', $this->ignore_extensions);
-	
-		if (preg_match('/\.('.$ignore.')$/i', $url)) {	
+
+		if (preg_match('/\.('.$ignore.')$/i', $url)) {
 			Logger::log('dispatch', LOG_LEVEL_DEBUG, 'ignoring '. $url);
 			header("HTTP/1.0 404 Not Found", true, 404);
 			print ('page not found');
 			return true;
-			
+
 		} else {
 			return false;
-			
+
 		}
-		
+
 	}
 
 	/**
@@ -393,13 +398,13 @@ class SeedFramework {
 	 */
 	function include_libraries() {
 		seed_include('model');
-		
+
 		seed_include('controller');
-		
+
 		seed_include('view');
-		
+
 	}
-	
+
 	/**
 	 * Include all the vendor libraries
 	 */
@@ -407,8 +412,8 @@ class SeedFramework {
 		// include all classes
 		seed_require_dir(FRAMEWORK_PATH.'vendor/');
 
-	}	
-	
+	}
+
 	/**
 	 * Include application specific files
 	 */
@@ -416,19 +421,19 @@ class SeedFramework {
 
 		// Require all the files in the app's vendor path
 		seed_require_dir(VENDOR_PATH);
-		
+
 		// Require the global application controller, if it exists
 		if (file_exists(CONTROLLER_PATH.'application.php')) {
 			require_once(CONTROLLER_PATH.'application.php');
 		} else {
-			trigger_error('Required ApplicationTemplate not found', E_USER_ERROR);	
-		}	
-		
+			trigger_error('Required ApplicationTemplate not found', E_USER_ERROR);
+		}
+
 		// Require the global application view, if it exists
 		if (file_exists(TEMPLATE_PATH.'application.php')) {
-			require_once(TEMPLATE_PATH.'application.php');			
+			require_once(TEMPLATE_PATH.'application.php');
 		} else {
-			trigger_error('Required ApplicationTemplate not found', E_USER_ERROR);	
+			trigger_error('Required ApplicationTemplate not found', E_USER_ERROR);
 		}
 	}
 
@@ -440,7 +445,7 @@ class SeedFramework {
 $default_values = array();
 
 // Define the defaults
- 
+
 foreach($default_values as $name => $value) {
 	if (!defined($name)) {
 		define($name, $value);
