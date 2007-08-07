@@ -410,10 +410,6 @@ class SeedFramework {
 	 */
 	function include_vendor_libraries() {
 		// include all classes
-		if (file_exists(FRAMEWORK_PATH.'vendor/index.php')) {
-			require_once(FRAMEWORK_PATH.'vendor/index.php');
-		}
-
 		seed_require_dir(FRAMEWORK_PATH.'vendor/');
 
 	}
@@ -424,7 +420,7 @@ class SeedFramework {
 	function include_application_files() {
 
 		// Require all the files in the app's vendor path
-		seed_require_dir(VENDOR_PATH);
+		seed_require_dir(VENDOR_PATH, 'index.php');
 
 		// Require the global application controller, if it exists
 		if (file_exists(CONTROLLER_PATH.'application.php')) {
