@@ -410,6 +410,10 @@ class SeedFramework {
 	 */
 	function include_vendor_libraries() {
 		// include all classes
+		if (file_exists(FRAMEWORK_PATH.'vendor/index.php')) {
+			require_once(FRAMEWORK_PATH.'vendor/index.php');
+		}
+
 		seed_require_dir(FRAMEWORK_PATH.'vendor/');
 
 	}
