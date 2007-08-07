@@ -79,7 +79,7 @@ class Column {
 	 * @var string
 	 */
 	var $default;
-	
+
 	/**
 	 * The type of the column
 	 *
@@ -110,14 +110,14 @@ class Column {
 	 * @return Column
 	 */
 	function Column($name, $default = null, $sql_type = null, $null = true) {
-		$this->name = $name;	
+		$this->name = $name;
 		$this->default = $default;
 		$this->type = $this->simplified_type($sql_type);
 		$this->limit = $this->extract_limit($sql_type);
-		$this->null = $null;	
-		
+		$this->null = $null;
+
 	}
-	
+
 	/**
 	 * Cast the value to an appropriate type
 	 *
@@ -126,25 +126,28 @@ class Column {
 	 */
 	function type_cast($value) {
 		if (is_null($value)) return null;
-		
+
 		switch ($this->type) {
-			case DATE:	
+			case DATETIME:
 				return date(SQL_DATE_TIME_FORMAT, strtotime($value));
-			
+
+			case DATE:
+				return date('Y-m-d', strtotime($value));
+
 			case INTEGER:
 				return intval($value);
-				
+
 			case FLOAT:
 				return floatval($value);
-			
+
 			case BOOLEAN:
 				return boolval($value);
-					
+
 			default:
 				return $value;
 		}
 	}
-	
+
 	/**
 	 * Convert an array to the appropriate type
 	 *
@@ -157,36 +160,36 @@ class Column {
 		switch ($this->type) {
 			case DATETIME:
 				$value = array_values($value);
-				return date(SQL_DATE_TIME_FORMAT, mktime($value[3], $value[4], $value[5], $value[1], $value[2], $value[0]));			
-				
+				return date(SQL_DATE_TIME_FORMAT, mktime($value[3], $value[4], $value[5], $value[1], $value[2], $value[0]));
+
 			case DATE:
 				if (count($value) > 3) {
-					$value = array_slice($value, 0, 3);	
+					$value = array_slice($value, 0, 3);
 				}
-			
+
 				return implode('-', $value);
-			
+
 			case TIME:
 				if (count($value) > 3) {
-					$value = array_slice($value, 0, 3);	
+					$value = array_slice($value, 0, 3);
 				}
-			
+
 				return implode(':', $value);
-			
+
 			case TIMESTAMP:
 				return mktime($value[3], $value[4], $value[5], $value[1], $value[2], $value[0]);
-			
+
 			case STRING:
 			case TEXT:
 				return implode(', ', $value);
-				
+
 			default:
 				return implode('', $value);
-			
-		}	
-		
+
+		}
+
 	}
-	
+
 	/**
 	 * Returns a search condition appropriate for the type
 	 *
@@ -196,39 +199,39 @@ class Column {
 	function search_condition($value) {
 
 		if (is_array($value)) {
-			$value = $this->array_to_type($value);	
+			$value = $this->array_to_type($value);
 		}
-		
+
 		switch ($this->type) {
 
-			case TIMESTAMP:					
+			case TIMESTAMP:
 			case INTEGER:
 				$result = $this->name." = ".intval($value);
 				break;
-				
+
 			case FLOAT:
 				$result = $this->name." = ".floatval($value);
 				break;
-				
+
 			case DATETIME:
 			case TIME:
 			case DATE:
 				$result = $this->name." = '".$value."'";
 				break;
-				
+
 			case BINARY:
 			case TEXT:
 			case STRING:
 			default:
 				$result = $this->name." LIKE '".$value."'";
 				break;
-			
-		}		
-		
+
+		}
+
 		return $result;
-		
+
 	}
-	
+
 	/**
 	 * Returns a simplified type for a given SQL type
 	 *
@@ -257,26 +260,26 @@ class Column {
 			'/^string/i' => STRING,
 			'/^boolean/i' => BOOLEAN
 		);
-		
+
 		$type = preg_replace(array_keys($types), array_values($types), $sql_type);
-		
+
 		return $type;
-		
+
 	}
-	
+
 	function extract_type($sql_type) {
 		$result = preg_match("/\w*/", $sql_type, $matches);
-		
+
 		if ($result) {
 			return $matches[0];
-			
+
 		} else {
-			return false;	
-			
-		}		
-		
+			return false;
+
+		}
+
 	}
-	
+
 	/**
 	 * Extract the limit from an sql type string
 	 *
@@ -285,17 +288,17 @@ class Column {
 	 */
 	function extract_limit($sql_type) {
 		$result = preg_match("/\((.*)\)/", $sql_type, $matches);
-		
+
 		if ($result) {
 			return $matches[1];
-			
+
 		} else {
-			return false;	
-			
+			return false;
+
 		}
-		
+
 	}
-	
+
 }
 
 
