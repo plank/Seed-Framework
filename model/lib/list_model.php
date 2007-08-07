@@ -51,13 +51,13 @@ class ListModel extends Model {
 
 	}
 
-	function delete() {
+	function destroy() {
 		if ($this->position_field) {
 			$this->decrement_position_on_lower_items();
 		}
 
 
-		return parent::delete();
+		return parent::destroy();
 
 	}
 
