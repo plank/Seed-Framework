@@ -611,5 +611,18 @@ function uuid()
 	);
 }
 
+/**
+ * Works like strpos, but matches a regex
+ *
+ * @param string $pattern
+ * @param string $subject
+ * @param int $offset
+ * @return int				Returns the position of the match, or false if no match was found
+ */
+function preg_pos($pattern, $subject, $offset) {
+	if (!preg_match($pattern, $subject, $matches, PREG_OFFSET_CAPTURE, $offset)) return false;
+
+	return $matches[0][1];
+}
 
 ?>
