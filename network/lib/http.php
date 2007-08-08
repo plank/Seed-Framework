@@ -18,21 +18,21 @@
  * @package Network
  */
 class HTTP {
-	
+
 	/**
 	 * The currently connected URL
 	 *
 	 * @var URL
 	 */
 	var $url;
-	
+
 	/**
 	 * The socket object being used to make requests
 	 *
 	 * @var SimpleSocket
 	 */
 	var $socket;
-	
+
 	/**
 	 * Constructor
 	 *
@@ -41,7 +41,7 @@ class HTTP {
 	function HTTP(& $socket) {
 		$this->socket = & $socket;
 	}
-	
+
 	/**
 	 * Opens a connection to the given url
 	 *
@@ -49,17 +49,24 @@ class HTTP {
 	 * @return bool
 	 */
 	function open($url) {
+
 		if (is_string($url)) {
-			$url = new URL($url);	
-			
-		}		
-		
+			$url = trim($url);
+
+			if (!URL::has_scheme($url)) {
+				$url = 'http://'.$url;
+			}
+
+			$url = new URL($url);
+
+		}
+
 		$this->url = $url;
-		
+
 		return $this->socket->open($url);
-		
+
 	}
-	
+
 	/**
 	 * Closes the currently open connection
 	 *
@@ -67,7 +74,7 @@ class HTTP {
 	 */
 	function close() {
 		return $this->socket->close();
-		
+
 	}
 
 	/**
@@ -77,40 +84,40 @@ class HTTP {
 	 * @return HTTPResponse
 	 */
 	function post($data) {
-		
+
 		if (!$this->socket->connected) {
 			trigger_error("Socket not connected", E_USER_WARNING);
-			return false;	
+			return false;
 		}
-		
+
 		if (is_array($data)) {
-			$data = $this->build_data_string($data);	
+			$data = $this->build_data_string($data);
 		}
-	
+
 		if (!is_string($data)) {
 			trigger_error("Posted data must either be a string or an array", E_USER_WARNING);
 			return false;
 		}
-		
+
 		$headers = array(
 			'Host'=>$this->url->host,
 			'Content-type'=>'application/x-www-form-urlencoded; charset=utf-8',
 			'Content-length'=>strlen($data),
 			'Connection'=>'close'
 		);
-		
+
 		$this->_write_headers("POST", $headers);
-		
+
 		$this->socket->put($data."\r\n\r\n");
-		
+
 		$response = new HTTPResponse();
-		
+
 		$response->parse_response($this->socket->get_all());
-		
+
 		return $response;
-		
+
 	}
-	
+
 	/**
 	 * Returns the http response code for the current url, if it's valid
 	 *
@@ -119,22 +126,22 @@ class HTTP {
 	function head() {
 		if (!$this->socket->connected) {
 			trigger_error("Socket not connected", E_USER_WARNING);
-			return false;	
+			return false;
 		}
-		
+
 		$headers = array(
 			'Host'=>$this->url->host,
 			'Connection'=>'close'
-		);		
-		
+		);
+
 		$this->_write_headers('HEAD', $headers);
-	
+
 		$response = new HTTPResponse();
-		
+
 		$response->parse_response($this->socket->get_all());
-		
+
 		return $response;
-		
+
 	}
 
 	/**
@@ -144,26 +151,25 @@ class HTTP {
 	 */
 	function get() {
 		if (!$this->socket->connected) {
-			trigger_error("Socket not connected", E_USER_WARNING);
-			return false;	
+			return false;
 		}
-		
+
 		$headers = array(
 			'Host'=>$this->url->host,
 			'Connection'=>'close'
-		);			
-	
+		);
+
 		$this->_write_headers('GET', $headers);
-	
+
 		$response = new HTTPResponse();
-		
+
 		$response->parse_response($this->socket->get_all());
-		
+
 		return $response;
-		
-	}	
-		
-	
+
+	}
+
+
 	/**
 	 * Write the headers for the given method to the socket
 	 *
@@ -172,47 +178,47 @@ class HTTP {
 	 */
 	function _write_headers($method, $headers) {
 		$path = $this->url->path;
-		
+
 		if ($this->url->query) {
-			$path .= '?'.$this->url->query;	
+			$path .= '?'.$this->url->query;
 		}
-		
-		$this->socket->put($method." ".$path." HTTP/1.1\r\n"); 
-		
+
+		$this->socket->put($method." ".$path." HTTP/1.1\r\n");
+
 		foreach ($headers as $key => $value) {
-			$this->socket->put($key.": ".$value."\r\n");	
-			
+			$this->socket->put($key.": ".$value."\r\n");
+
 		}
-		
+
 		$this->socket->put("\r\n");
 	}
-	
+
 	/**
 	 * Builds a post string using an array
 	 *
 	 * @param array @data
 	 * @return string
-	 */	
+	 */
 	function build_data_string($data) {
-		
+
 		$result = array();
-		
+
 		foreach($data as $field => $value) {
 			if ($value) {
 				$result[] = $field."=".urlencode($value);
 			}
 
 		}
-		
+
 		if (count($result)) {
-			return implode('&', $result);	
-			
-		}		
-		
+			return implode('&', $result);
+
+		}
+
 		return '';
-		
+
 	}
-	
+
 }
 
 /**
@@ -224,14 +230,14 @@ class HTTP {
  * @package Network
  */
 class HTTPResponse {
-	
+
 	/**
 	 * The http version of the response
 	 *
 	 * @var string
 	 */
 	var $http_version;
-	
+
 	/**
 	 * The response code
 	 *
@@ -245,7 +251,7 @@ class HTTPResponse {
 	 * @var string
 	 */
 	var $message;
-	
+
 	/**
 	 * The headers
 	 *
@@ -259,7 +265,7 @@ class HTTPResponse {
 	 * @var string
 	 */
 	var $body;
-	
+
 	/**
 	 * Adds a given header with the given value to the response
 	 *
@@ -268,33 +274,33 @@ class HTTPResponse {
 	 */
 	function add_header($header, $value) {
 		$this->headers[$header] = $value;
-	}	
-	
+	}
+
 	/**
 	 * Parses a given response string
 	 *
 	 * @param string $string
 	 */
 	function parse_response($string) {
-		
+
 		$parts  = explode("\r\n\r\n", $string, 2);
-		
+
 		if (isset($parts[1])) {
-			$this->body = $parts[1];	
+			$this->body = $parts[1];
 		} else {
-			$this->body = '';	
+			$this->body = '';
 		}
-		
+
 		$headers = explode("\r\n", $parts[0]);
-		
+
 		list($this->http_version, $this->response_code, $this->message) = $this->parse_status_line(array_shift($headers));
-		
+
 		$this->headers = $this->parse_headers($headers);
-		
+
 		$this->body = $this->parse_body($this->body, $this->is_chunked());
-		
+
 	}
-	
+
 	/**
 	 * Returns true if the transfer encoding is set to chunked
 	 *
@@ -302,14 +308,14 @@ class HTTPResponse {
 	 */
 	function is_chunked() {
 		if (isset($this->headers['Transfer-Encoding']) && strtolower($this->headers['Transfer-Encoding']) == 'chunked') {
-			return true;	
-			
-		}	
-		
+			return true;
+
+		}
+
 		return false;
-		
+
 	}
-	
+
 	/**
 	 * Parses an http status line
 	 *
@@ -318,16 +324,16 @@ class HTTPResponse {
 	 */
 	function parse_status_line($string) {
 		$pattern = preg_match('/\AHTTP(?:\/(\d+\.\d+))?\s+(\d\d\d)\s*(.*)\z/', $string, $matches);
-		
+
 		if (count($matches) == 4) {
-			array_shift($matches);	
+			array_shift($matches);
 			return $matches;
 		} else {
 			return false;
 		}
-		
+
 	}
-	
+
 	/**
 	 * Parses an array of headers
 	 *
@@ -336,19 +342,19 @@ class HTTPResponse {
 	 */
 	function parse_headers($headers) {
 		$result = array();
-		
+
 		foreach ($headers as $header) {
 			preg_match('/\A([^:]+):\s*(.*)/', $header, $matches);
 			if (count($matches) == 3) {
-				$result[$matches[1]] = $matches[2];	
+				$result[$matches[1]] = $matches[2];
 			}
-			
+
 		}
-		
+
 		return $result;
-		
+
 	}
-	
+
 	/**
 	 * Parses a chunk encoded body
 	 *
@@ -358,18 +364,18 @@ class HTTPResponse {
 	 */
 	function parse_body($body, $chunked = false) {
 		if (!$chunked) {
-			return $body;	
+			return $body;
 		}
 
 		$result = '';
 		$pointer = 0;
-		
+
 		while($pointer < strlen($body)) {
 			$chunkstring = substr($body, $pointer, strpos($body, "\r\n", $pointer) - $pointer);
 			$chunksize = hexdec($chunkstring);
 
 			if ($chunksize == 0) {
-				break;	
+				break;
 			}
 
 			$pointer += strlen($chunkstring) + 2;
@@ -377,11 +383,11 @@ class HTTPResponse {
 			$pointer += $chunksize + 2;
 
 		}
-		
+
 		return $result;
-		
+
 	}
-	
+
 	/**
 	 * Returns the proper string for a given response code
 	 *
@@ -429,16 +435,16 @@ class HTTPResponse {
 		    502 => "Bad Gateway",
 		    503 => "Service Unavailable",
 		    504 => "Gateway Time-out"
-		);	
-		
+		);
+
         if (isset($codes[$code])) {
         	return $code.' '.$codes[$code];
-        	
+
         } else {
         	return false;
-        	
+
         }
-        
+
 	}
 }
 
