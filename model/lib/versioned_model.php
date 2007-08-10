@@ -86,6 +86,10 @@ class VersionedFinder extends Finder {
 
 }
 
+class VersionFinder extends Finder {
+
+}
+
 /**
  * First attempt at a versioned model
  */
