@@ -71,11 +71,19 @@ define('LOG_PATH', APP_PATH.'logs/');
 
 // Application URL constants
 
+
+if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
+	define('APP_SCHEME', 'https');
+} else {
+	define('APP_SCHEME', 'http');
+}
+
+
 /**
- * Hostname with protocol
+ * Hostname
  */
 if (isset($_SERVER['HTTP_HOST'])) {
-	define('APP_HOST', 'http://'.$_SERVER['HTTP_HOST']);
+	define('APP_HOST', APP_SCHEME.'://'.$_SERVER['HTTP_HOST']);
 } else {
 	define('APP_HOST', '');
 }
