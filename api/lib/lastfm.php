@@ -1,5 +1,7 @@
 <?php
 
+require_once('api.php');
+
 class LastfmApi {
 
 	/**
@@ -41,21 +43,7 @@ class LastfmApi {
  * Base class for lastfm objects
  *
  */
-class LastfmObject {
-
-	/**
-	 * The type of object
-	 *
-	 * @var string
-	 */
-	var $_type;
-
-	/**
-	 * HTTP Object for requesting data
-	 *
-	 * @var HTTP
-	 */
-	var $_connection;
+class LastfmObject extends ApiObject {
 
 	/**
 	 * The name of an action that can be executed to load additional data
@@ -85,22 +73,8 @@ class LastfmObject {
 	 */
 	var $name;
 
+
 	// Public
-
-	/**
-	 * Constructor
-	 *
-	 * @param unknown_type $data
-	 * @return LastfmObject
-	 */
-
-	function LastfmObject($data, $connection) {
-
-		$this->_connection = $connection;
-
-		$result = $this->_parse_data($data);
-
-	}
 
 	/**
 	 * Checks to see if the object is valid
@@ -108,7 +82,7 @@ class LastfmObject {
 	 * @return bool
 	 */
 	function is_valid() {
-		return $this->_request_data($this->_existance_action, 'xml', true);
+		return $this->_request_data($this->_existance_action, null, 'xml', true);
 
 	}
 
@@ -135,101 +109,20 @@ class LastfmObject {
 	// Private
 
 	/**
-	 * Parses a data source and assigns values
-	 *
-	 * @param mixed $data  Can either be a string, an array, or an SimpleXMLElement. If it's a string, it's assumed to be the name.
-	 * @return bool
-	 */
-	function _parse_data($data) {
-		if (is_string($data)) {
-			$data = array('name'=>$data);
-		}
-
-		if (is_array($data)) {
-			foreach ($data as $key => $value) {
-				$this->{$key} = $value;
-			}
-		}
-
-		if (is_a($data, 'SimpleXMLElement')) {
-			$this->_parse_xml($data);
-		}
-
-		$this->_fix_data();
-
-		if (isset($this->url) && $this->url) $this->_parse_url($this->url);
-
-		return true;
-	}
-
-	/**
 	 * Massages the given data after parsing.
 	 *
 	 * @return bool
 	 */
 	function _fix_data() {
-		return true;
-	}
+		if (isset($this->url) && $this->url) $this->_parse_url($this->url);
 
-	/**
-	 * Parses an SimpleXMLElement object.
-	 *
-	 * @param SimpleXMLElement $xml
-	 */
-	function _parse_xml($xml) {
-		foreach ($xml as $key => $value) {
-			if (!count($value)) {
-				$this->{$key} = trim((string) $value);
-			} else {
-				$this->{$key} = (array) $value;
-			}
-		}
+		return true;
 	}
 
 	function _parse_url($url) {
 		return true;
 	}
 
-
-	function _request_data($action, $format = 'xml', $check_existance = false) {
-		$url = $this->_request_url($action, $format);
-
-		//debug($url);
-
-		$this->_connection->open($url);
-
-		if ($check_existance) {
-			$data = $this->_connection->head();
-		} else {
-			$data = $this->_connection->get();
-		}
-
-		$this->_connection->close(); // this is probably slowing everything down..
-
-		if (!$data) return false;
-
-		if ($data->response_code != 200) {
-			return false;
-		}
-
-		if ($check_existance) return true;
-
-		$data = $data->body;
-
-		if (!$data) return false;
-
-		if ($format == 'xml') {
-			try {
-				return new SimpleXMLElement($data);
-			} catch(Exception $e) {
-				die(debug($data));
-				//echo 'Caught exception: ',  $e->getMessage(), "\n";
-			}
-		}
-
-		return $data;
-
-	}
 
 	/**
 	 * Gets a URL for a given action on the current object
@@ -238,8 +131,8 @@ class LastfmObject {
 	 * @param string $format
 	 * @return string
 	 */
-	function _request_url($action, $format = 'xml') {
-		return 'http://ws.audioscrobbler.com/1.0/'.$this->_type.'/'.$this->_encode($this->name).'/'.$action.'.'.$format;
+	function _request_url($method, $params = null, $format = 'xml') {
+		return 'http://ws.audioscrobbler.com/1.0/'.$this->_type.'/'.$this->_encode($this->name).'/'.$method.'.'.$format;
 
 	}
 
@@ -373,7 +266,7 @@ class LastfmAlbum extends LastfmObject {
 	}
 
 	// albums have a different URL format
-	function _request_url($action, $format = 'xml') {
+	function _request_url($action, $params = null, $format = 'xml') {
 		return 'http://ws.audioscrobbler.com/1.0/'.$this->_type.'/'.$this->_encode($this->artist).'/'.$this->_encode($this->name).'/'.$action.'.'.$format;
 
 	}
