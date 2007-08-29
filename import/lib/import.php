@@ -269,7 +269,7 @@ class CSVImport
 		    		$cur_data = $data[$c];
 
 		    		if(!isset($reserved_csvfield[$c]) && $field_names[$c] != 'blank') {
-		        		$all_data[$row][$field_names[$c]] = trim(htmlentities($cur_data), '&nbsp;'); 
+		        		$all_data[$row][$field_names[$c]] = trim(htmlentities($cur_data)); 
 		    		}
 	    		}	
 		    }
