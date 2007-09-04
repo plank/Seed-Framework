@@ -22,6 +22,7 @@ define('FRAMEWORK_TEMPLATE_PATH', FRAMEWORK_PATH.'framework/templates/');
 /**
  * Path to the root of the application
  */
+
 define('APP_PATH', dirname(dirname(SCRIPT_PATH)).'/');
 
 /**
@@ -71,13 +72,14 @@ define('LOG_PATH', APP_PATH.'logs/');
 
 // Application URL constants
 
-
+/**
+ *  Scheme
+ */
 if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
 	define('APP_SCHEME', 'https');
 } else {
 	define('APP_SCHEME', 'http');
 }
-
 
 /**
  * Hostname
