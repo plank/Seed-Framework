@@ -307,10 +307,18 @@ class Finder {
 	function update_all($updates, $conditions = null) {
 
 		$sql = "UPDATE ".$this->db->escape_identifier($this->table_name())." SET $updates";
-
+		//exit($this->add_conditions($conditions));
 		$sql .= " WHERE ".$this->add_conditions($conditions);
 
 		$this->db->query($sql);
+	}
+	
+	function update_all_versions($updates, $conditions = null){
+		$sql = "UPDATE ".$this->db->escape_identifier($this->table_name()).",`"
+			.$this->table_name()."_versions` SET $updates";
+		//exit($this->add_conditions($conditions));
+		$sql .= " WHERE ".$this->add_conditions($conditions);
+		$this->db->query($sql);				
 	}
 
 	function delete_all($conditions) {
