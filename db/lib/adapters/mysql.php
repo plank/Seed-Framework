@@ -86,7 +86,8 @@ class MysqlDB extends DB {
 			return false;
 		}
 
-		$this->last_query = $sql;		
+		$this->last_query = $sql;
+	
 		
 		$time = micro_time();
 		
@@ -95,7 +96,7 @@ class MysqlDB extends DB {
 		$elapsed = (micro_time() - $time) * 1000;
 		
 		Logger::log('SQL', LOG_LEVEL_DEBUG, $sql."\t".$elapsed.' ms');		
-		
+
 		// describe queries
 		if (defined('EXPLAIN_QUERIES') && EXPLAIN_QUERIES) {
 			$result = $this->explain($sql);
