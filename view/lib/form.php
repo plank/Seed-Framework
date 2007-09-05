@@ -1038,8 +1038,15 @@ class FckeditorFormControl extends FormControl  {
  */
 class DateFormControl extends FormControl {
 	
+	var $year_min = 0;
+	var $year_max = 0;
+	
 	function generate_control() {
 		$discard = assign($this->params['discard']);
+
+		$this->year_min = assign($this->params['year_min'],0);
+		$this->year_max = assign($this->params['year_max'],0);
+
 		$hide = false;
 		
 		if (!intval($this->value)) {
@@ -1089,11 +1096,20 @@ class DateFormControl extends FormControl {
 
 	}
 	
-	function year_options($date) {
+	function year_options($date, $range = array()) {
+		
+		if($this->year_min == '0') {
+			$this->year_min = 1900;
+		}
+		
+		if($this->year_max == '0') {
+			$this->year_max = 2020;
+		}
+		
 		if ($date) {
-			return make_number_options(1900, 2020, $date->get_year());
+			return make_number_options($this->year_min, $this->year_max, $date->get_year());
 		} else {
-			return make_number_options(1900, 2020, '');
+			return make_number_options($this->year_min, $this->year_max, '');
 		}
 		
 	}
