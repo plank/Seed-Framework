@@ -1207,6 +1207,15 @@ class Model extends DataSpace {
 
 	}
 
+	function __sleep() {
+		return array_keys((array)$this);
+	}
+
+
+	function __wakeup() {
+
+	}
+
 	/**
 	 * Get overloading
 	 *
