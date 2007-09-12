@@ -1370,7 +1370,9 @@ function make_options($data, $default_value = '', $not_found = '', $use_numeric_
 		}
 
 		if (in_array($key, $default_value)) {
-			$return .= " selected ";
+		//	debug($key,$default_value);
+		//	die();
+			$return .= " selected='selected' ";
 		}
 
 		if ($escape) {
