@@ -381,7 +381,7 @@ class MultilangModel extends Model {
 		if (isset($this->associations[$field])) {
 			$association = $this->associations[$field];
 
-			if (is_a($association->model, 'Model')) {
+			if (is_a($association->model, 'Model') && !isset($params['language'])) {
 				$params['language'] = $this->get('lang');
 			}
 

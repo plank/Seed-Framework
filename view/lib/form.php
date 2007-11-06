@@ -135,7 +135,12 @@ class Form {
 		$this->controls = array();
 		$this->buttons = array();
 		$this->controller = $controller;
-		$this->translator = new Translator();
+
+		if (isset($this->controller->template->translator)) {
+			$this->translator = $this->controller->template->translator;
+		} else {
+			$this->translator = new Translator();
+		}
 
 		if (!$this->id) {
 			$this->id = Inflector::underscore(get_class($this));
@@ -1047,7 +1052,7 @@ class DateFormControl extends FormControl {
 
 	var $year_min = 0;
 	var $year_max = 0;
-	
+
 	function generate_control() {
 		$discard = assign($this->params['discard']);
 
@@ -1104,15 +1109,15 @@ class DateFormControl extends FormControl {
 	}
 
 	function year_options($date, $range = array()) {
-		
+
 		if($this->year_min == '0') {
 			$this->year_min = 1900;
 		}
-		
+
 		if($this->year_max == '0') {
 			$this->year_max = 2020;
 		}
-		
+
 		if ($date) {
 			return make_number_options($this->year_min, $this->year_max, $date->get_year());
 		} else {
