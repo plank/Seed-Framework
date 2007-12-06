@@ -868,7 +868,7 @@ class SelectFormControl extends FormControl {
 
 		$result = array();
 
-		$options =  array('order'=>$finder->model->name_field.' ASC', 'language'=>$this->translator->lang);
+		$options =  array('order'=>$finder->model->name_field.' ASC', 'language'=>assign($this->translator->lang, 'en'));
 
 		if ($finder->model->deleted_field) {
 			$options['conditions'] = $finder->model->deleted_field.' = 0';
