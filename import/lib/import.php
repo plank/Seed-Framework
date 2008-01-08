@@ -243,7 +243,8 @@ class CSVImport
 		    	// let's compile the extra data that wasn't mapped to be put into a specific field
 		    	foreach ($import_data['preserve'] as $key => $value) {
 		    		
-		    		if(($import_data['preserve'][$key] == $all_fields[$c]) && $data[$c] != '') {
+		    		if((trim($import_data['preserve'][$key]) == trim($all_fields[$c])) && $data[$c] != '') {
+		    			
 		    			$preserve .= $import_data['preserve'][$key] . ': ' . $data[$c] . "\r\n";
 		    		}
 		    			
@@ -275,11 +276,12 @@ class CSVImport
 		    }
 		    
 		    // set our extra data if isset and put it into the given field
-	    	if((isset($import_data['extra']) && $import_data['extra'] != 'off') && $row != 0) {
+	    	if((isset($import_data['extra']) && $import_data['extra'] != 'off') && $row !==  0) {
 	    		
 	    		if(isset($all_data[$row][$import_data['extra']])) {
+	    			
 		    		 $all_data[$row][$import_data['extra']] .= "\r\n" . $preserve;
-	    		} else {
+	    		} else { 
 	    			$all_data[$row][$import_data['extra']] = $preserve;
 	    		}
 		    	
