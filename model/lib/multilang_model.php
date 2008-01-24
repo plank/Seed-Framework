@@ -147,7 +147,10 @@ class MultilangFinder extends Finder {
 /**
  * Second attempt at a versioned model, with support for multiple languages
  */
-
+/* Got tired of Model not loading when trying to deploy sometimes, so adding this */
+if(!class_exists('Model')) {
+  require_once('model.php');
+}
 class MultilangModel extends Model {
 
 	/**
