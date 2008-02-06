@@ -989,7 +989,7 @@ class FileFormControl extends FormControl {
 		if ($image_root) {
 			//Nesting this, so I don't break anything already working...
 			if($this->value != ''){
-				$return = '<img mitch="'.$this->value.'" src="' . $image_root.$this->value . '" alt="preview" />';
+				$return = '<img class="'.$this->value.'" src="' . $image_root.$this->value . '" alt="preview" />';
 			} else {
 				$return = $this->translator->text("None");
 			}
