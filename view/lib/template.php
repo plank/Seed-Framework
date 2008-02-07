@@ -464,7 +464,13 @@ class Template {
 		
 		return $result;
 	}
-	
+	/**
+	 * show a flash messages. Returns UL if array. Class name will default to flash message name.
+     *
+	 * @param string/array 
+	 * @param string optional class name
+	 * @return string UL or span
+	 **/
 	function show_flash($name, $class_name = null) {
 		
 		$value = $this->flash->get($name);
