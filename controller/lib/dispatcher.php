@@ -62,11 +62,17 @@ class Dispatcher {
 		
 		// make sure session id is valid
 		if (isset($_REQUEST[session_name()])) {
+
 			$session_id = $_REQUEST[session_name()];
 			
-			if (!preg_match('/^[a-zA-Z0-9]*$/', $session_id)) {
-				trigger_error("Invalid session id, aborting");
-				return false;	
+			if (!preg_match('/^[a-zA-Z0-9]*$/', $session_id) || ($_REQUEST[session_name()] == '' )) {
+			  //Old method was to trigger error. I'd rather just make a new session id and let them be on their way.
+			  //So, unset the old one.
+			  setcookie(session_name(), '', time()-3600, '/');
+        unset($_REQUEST[session_name()]);
+        unset($_COOKIE[session_name()]);
+        //trigger_error("Invalid session id, aborting");
+				//return false;	
 			}
 			
 		}
