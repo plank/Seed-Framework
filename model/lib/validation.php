@@ -515,10 +515,14 @@ class LengthValidationRule extends ValidationRule {
 			$this->minimum = assign($this->params['minimum'], null);
 			
 		}
-		
+
+		//This seems like it will never be true, since this param is unset in the contructor. sigh.
+		//unfortunately, no docs really means cant be sure if this is a bug, or related to some other feature.
+		//Also, can't change it without potentially breaking some other project sigh.So, using an if-else and some duped code.
 		if (isset($this->params['message'])) {
-			$this->wrong_length_message = $this->too_long_message = $this->too_short_message = $this->params['message'];	
-			
+			$this->wrong_length_message = $this->too_long_message = $this->too_short_message = $this->params['message'];				
+		} else if ($this->message != '') {
+			$this->wrong_length_message = $this->too_long_message = $this->too_short_message = $this->message;				
 		}
 		
 	}
