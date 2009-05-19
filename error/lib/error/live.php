@@ -33,7 +33,7 @@ function error_handler($errno, $errstr, $errfile, $errline, $errcontext)
 
 	// send email to admin?
 	if (defined('ADMIN_EMAIL') && _send_error_email($errno.$errstr)) {
-		print 'sending email';
+		//print 'sending email';
 		$error_message = ucfirst(error_string($errno))."\n".$errstr."\n$errfile in line $errline\n\n";
 		$error_message .= "-- backtrace --\n\n".backtrace(2)."\n";
 		$error_message .= "-- get --\n\n".print_r($_GET, true)."\n\n";
@@ -46,7 +46,7 @@ function error_handler($errno, $errstr, $errfile, $errline, $errcontext)
 		mail(ADMIN_EMAIL, 'PHP '.ucfirst(error_string($errno)).': '.$errstr, $error_message);
 
 	} else {
-		print 'dont send email';
+		//print 'dont send email';
 	}
 	
 	die();
