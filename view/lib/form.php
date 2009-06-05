@@ -1374,10 +1374,10 @@ function make_options($data, $default_value = '', $not_found = '', $use_numeric_
 			$key = $value;
 		}
 
-		if (in_array($key, $default_value)) {
-		//	debug($key,$default_value);
-		//	die();
-			$return .= " selected='selected' ";
+		//special case, not to break older installs. When $default_value == '' and there is a key of 0, it will select if not strict
+		$strict = ($key === 0);
+		if (in_array((string)$key, $default_value, $strict)) {			
+			$return .= " selected='selected' ";				
 		}
 
 		if ($escape) {
