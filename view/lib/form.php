@@ -1152,7 +1152,7 @@ class DateFormControl extends FormControl {
 			$hour = 0;
 		}
 
-		return make_number_options(0, 59, $hour, true);
+		return make_number_options(0, 23, $hour, true);
 	}
 
 	function minute_options($date) {
