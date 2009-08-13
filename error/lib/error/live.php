@@ -35,6 +35,7 @@ function error_handler($errno, $errstr, $errfile, $errline, $errcontext)
 	if (defined('ADMIN_EMAIL') && _send_error_email($errno.$errstr)) {
 		//print 'sending email';
 		$error_message = ucfirst(error_string($errno))."\n".$errstr."\n$errfile in line $errline\n\n";
+		$error_message .= 'PHP IDS Impact: ' . check_ids();
 		$error_message .= "-- backtrace --\n\n".backtrace(2)."\n";
 		$error_message .= "-- get --\n\n".print_r($_GET, true)."\n\n";
 		$error_message .= "-- post --\n\n".print_r($_POST, true)."\n\n";

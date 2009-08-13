@@ -45,6 +45,49 @@ function seed_set_error_handler($handler = null) {
 
 
 /**
+ * @todo check php version, simple XML exist
+ *
+ * @return void
+ **/
+function check_ids() {
+	
+	if( version_compare(PHP_VERSION, '5.1.6', '<') || !class_exists('SimpleXMLElement') ) {
+		return 0;
+	}
+	
+	set_include_path(get_include_path() . PATH_SEPARATOR . FRAMEWORK_PATH.'vendor/php-ids/lib/');
+	include_once 'IDS/Init.php';
+
+	if(!class_exists('IDS_Init')) {
+		return 0;
+	}
+
+	$request = array(
+	 	'REQUEST' => $_REQUEST,
+	    'GET' => $_GET,
+	    'POST' => $_POST,
+	    'COOKIE' => $_COOKIE
+	 );
+
+	$init = IDS_Init::init(FRAMEWORK_PATH.'vendor/php-ids/lib/IDS/Config/Config.ini');
+	
+	$init->config['General']['base_path'] = FRAMEWORK_PATH.'vendor/php-ids/lib/IDS/';
+    $init->config['General']['use_base_path'] = true;
+    $init->config['Caching']['caching'] = 'none';
+	
+	$ids = new IDS_Monitor($request, $init);
+	$result = $ids->run();	
+	if(!$result->isEmpty()) {
+		return $result->getImpact();
+	}
+	
+	return '0';
+
+}
+
+
+
+/**
  * Prints a debug message to screen
  */
 function debug() {
@@ -70,6 +113,15 @@ function debug_console() {
 	}
 	print '</script>';
 	
+}
+
+/**
+ * Returns an JSON object. Usesul for return from ajax reqs
+ */
+function debug_ajax() {
+	$args = func_get_args();	
+  $json = new Services_JSON();
+  print $json->encode($args);
 }
 
 /**
