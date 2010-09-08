@@ -11,7 +11,7 @@
 /**
  * Factory for controller objects.
  *
- * Implemented as a singleton, the controller factory is reponsible for creating Controller objects, as well as including
+ * Implemented as a singleton, the controller factory is responsible for creating Controller objects, as well as including
  * the files containing. By default, the factory looks in app/controller, but it's possible to register other locations 
  * (for plug-ins, etc)
  *
