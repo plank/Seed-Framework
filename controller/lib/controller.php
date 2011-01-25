@@ -80,12 +80,17 @@ class ControllerFactory {
 			$path = $this->mappings[$type];
 		} else {
 			$path = CONTROLLER_PATH.$type.".php";
+			// allow client applications to overide Seed and SeedCMS controllers
+			if(defined('CLIENT_APP_DIR') && file_exists(CLIENT_APP_DIR.'/controllers/'.$type.".php")) {
+			    $path = CLIENT_APP_DIR.'/controllers/'.$type.".php";
+			}
 		}
-
+		
 		if (!file_exists($path)) {
 			trigger_error("Controller file '$path' does not exist", E_USER_ERROR);	
 			return false;
 		}
+		
 		
 		require_once($path);
 		
