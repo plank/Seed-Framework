@@ -390,7 +390,7 @@ class PHPMailer
      */
     function SendmailSend($header, $body) {
         if ($this->Sender != "")
-            $sendmail = sprintf("%s -oi -f %s -t", $this->Sendmail, $this->Sender);
+            $sendmail = sprintf("%s -oi -f %s -r -t", $this->Sendmail, $this->Sender);
         else
             $sendmail = sprintf("%s -oi -t", $this->Sendmail);
 
