@@ -682,9 +682,13 @@ class Controller {
 		if (is_null($action_name)) {
 			$action_name = $this->action_name;
 		}
-		
-		return TEMPLATE_PATH.$this->full_type.'/'.$action_name.'.php';
-		
+		if(defined('CLIENT_APP_DIR') && file_exists($template_name = CLIENT_APP_DIR.'views/'.$this->full_type.'/'.$action_name.'.php')) {
+		    $template_name = CLIENT_APP_DIR.'views/'.$this->full_type.'/'.$action_name.'.php';
+		}
+		else {
+		    $template_name = TEMPLATE_PATH.$this->full_type.'/'.$action_name.'.php';
+		}
+		return $template_name;
 	}
 
 	
