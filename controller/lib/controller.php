@@ -79,10 +79,14 @@ class ControllerFactory {
 		if (isset($this->mappings[$type])) {
 			$path = $this->mappings[$type];
 		} else {
+		    
 			$path = CONTROLLER_PATH.$type.".php";
 			// allow client applications to overide Seed and SeedCMS controllers
 			if(defined('CLIENT_APP_DIR') && file_exists(CLIENT_APP_DIR.'/controllers/'.$type.".php")) {
+			    // We don't want to override the admin cms controllers
+			    if(defined('REQUEST_URI') && !is_int(strpos(REQUEST_URI, 'admin')) ) {
 			    $path = CLIENT_APP_DIR.'/controllers/'.$type.".php";
+		        }
 			}
 		}
 		
