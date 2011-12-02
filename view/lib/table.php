@@ -87,7 +87,15 @@ class Table {
 	 * @var string
 	 */
 	var $id_field = 'id';
-	
+
+
+    /**
+     * A variable which sets and holds the HTML for our filter select
+     *
+     * @var string (html)
+     */
+    var $select_filter;
+
 	/**
 	 * Set to true to make the table sortable by clicking on the column names
 	 *
@@ -219,7 +227,27 @@ class Table {
 		$this->add_row_action('Delete', array('action'=>'delete'), array('confirm'=>'Delete this '.$this->result->model_type.'?'));
 		
 	}
-	
+
+
+
+    function add_select_filter($column, $options = array(), $label = null) {
+        if(!empty($label)) {
+            $select[] = "<label for='{$column}'>{$label}</label>";
+        }
+        $select[] = "<select id='{$column}' name='select_filter[{$column}]'>";
+        $select[] = "<option value=''>Choose...</option>";
+        foreach($options as $name => $value) {
+            $selected = '';
+            if(!empty($_GET['select_filter'][$column]) && $_GET['select_filter'][$column] == $value) {
+                $selected = " selected='selected' ";
+            }
+            $select[] = "<option {$selected} value='{$value}'>{$name}</option>";
+        }
+        $select[] = "</select>";
+        $this->select_filter = implode($select, "\n");
+    }
+
+
 	function row_actions($param) {
 		$this->row_actions = func_get_args();	
 	}
@@ -339,7 +367,7 @@ class Table {
 		$link_options = $this->link_options;
 		
 		if (count($this->row_actions) && $this->right_to_left) {
-			$return .= "<th id='th_actions'>&nbsp;</th>";			
+			$return .= "<th id='th_actions'>&nbsp;</th>";
 		}
 		
 		foreach($this->columns as $field => $data) {
