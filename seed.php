@@ -9,8 +9,11 @@
  */
 
 // We prefer E_ALL error reporting
-
-error_reporting(E_ALL);
+if(defined('E_DEPRECATED')) { // PHP 5.3+
+	error_reporting(E_ALL & ~E_STRICT & ~E_DEPRECATED);
+} else {
+	error_reporting(E_ALL);
+}
 
 // CONSTANTS //
 
